@@ -14,17 +14,17 @@ export default function App() {
                 <Stack.Screen
                     name="Splash"
                     component={Splash}
-                    options={{ headerShown: true }}
+                    options={{ headerShown: false }}
                 />
                 <Stack.Screen
                     name="Home"
                     component={Home}
-                    options={{ headerShown: true }}
+                    options={{ headerShown: false }}
                 />
                 <Stack.Screen
                     name="Login"
                     component={Login}
-                    options={{ headerShown: true }}
+                    options={{ headerShown: false }}
                 />
             </Stack.Navigator>
         </NavigationContainer>

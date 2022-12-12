@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faQrcode, faCalendarWeek, faExchange, faUser } from '@fortawesome/free-solid-svg-icons/'
 
 const Footer = () => {
-
     return <Box bgColor={'blue.200'} safeArea width='100%' height='20' roundedTop='25' shadow={'9'} >
         <HStack space={3} justifyContent="center">
 
