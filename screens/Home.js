@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { NativeBaseProvider, Box, ScrollView, FlatList, Text, RefreshControl } from 'native-base';
-import Footer from '../components/Footer';
+import Footer from '../components/FooterEmp';
+import Attendance from './employee/Attendance';
+import Profile from './employee/Profile';
 
 const Home = () => {
 
@@ -46,7 +48,6 @@ const Home = () => {
                 <Box bgColor={'blue.200'} m='10'>Hello world</Box>
                 <Box bgColor={'blue.300'} m='10'>Hello world</Box> */}
             {/* </ScrollView> */}
-            <Footer />
         </NativeBaseProvider>
     )
 
