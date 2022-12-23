@@ -1,6 +1,4 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NativeBaseProvider } from 'native-base';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
@@ -13,7 +11,6 @@ import Attendance from '../screens/employee/Attendance';
 import Report from '../screens/manager/Report';
 import Evaluate from '../screens/manager/Evaluate';
 
-const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const Footer = () => {
@@ -25,7 +22,8 @@ const Footer = () => {
             tabBarInactiveTintColor: '#7c2d12',
             tabBarActiveBackgroundColor: '#7c2d12',
             tabBarInactiveBackgroundColor: 'white',
-            tabBarStyle: { height: 65 },
+            tabBarStyle: { height: 80, borderRadius: 50 },
+            tabBarItemStyle: { borderTopLeftRadius: 50, borderTopRightRadius: 50, paddingTop: 10 },
             tabBarLabelStyle: { paddingBottom: 5, fontSize: 12 },
             headerShown: false
          }}

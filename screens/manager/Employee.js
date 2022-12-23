@@ -3,9 +3,9 @@ import { NativeBaseProvider, Box, Divider, Heading, Text, Flex, HStack, IconButt
 import { useNavigation } from '@react-navigation/native';
 import { Table, TableWrapper, Row, Rows } from 'react-native-table-component'
 import DataTable, { COL_TYPES } from 'react-native-datatable-component'
-import Cards from '../../components/Cards'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faUserPlus } from '@fortawesome/free-solid-svg-icons'
+import Cards from '../../components/Cards'
 
 const Employee = () => {
 
@@ -14,6 +14,7 @@ const Employee = () => {
    const navigation = useNavigation()
 
    useEffect(() => {
+      navigation.addListener('focus', () => setIsLoading(true))
       fetch('http://10.0.2.2:81/api/employee')
          .then(res => res.json())
          .then((result) => {
@@ -22,7 +23,6 @@ const Employee = () => {
             // console.log(result)
          })
    }, [isLoading])
-   { console.log('data' + data); }
    { console.log('items' + items); }
 
    const renderItem = ({ item }) => (
@@ -122,31 +122,6 @@ const Employee = () => {
                   backgroundColor={'white'}
                   headerLabelStyle={{ color: 'grey', fontSize: 16 }}
                /> */}
-
-               {/* <Flex my={2} mx={2} direction="row" justify="space-evenly">
-                  <Text>Name</Text>
-                  <Divider orientation="vertical" mx="2" />
-                  <Text>Title</Text>
-                  <Divider orientation="vertical" mx="2" />
-                  <Text>Dept</Text>
-                  <Divider orientation="vertical" mx="2" />
-                  <Text>Score</Text>
-               </Flex>
-               <Divider my="2" />
-               <Flex mx={2} direction="row" justify="space-around">
-                  <Text>Girls</Text>
-                  <Text>Boys</Text>
-                  <Text>Boys</Text>
-                  <Text>Boys</Text>
-               </Flex>
-               <Divider orientation="horizontal" my="2" />
-               <Flex mx={2} direction="row" justify="space-around">
-                  <Text>Girls</Text>
-                  <Text>Boys</Text>
-                  <Text>Boys</Text>
-                  <Text>Boys</Text>
-               </Flex> */}
-
             </Box>
          </Flex>
       </NativeBaseProvider>

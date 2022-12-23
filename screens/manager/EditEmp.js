@@ -10,7 +10,7 @@ import { faSave } from '@fortawesome/free-regular-svg-icons'
 import Header from '../../components/Header'
 import Modal from '../../components/Modal'
 
-const AddEmp = () => {
+const EditEmp = () => {
    const navigation = useNavigation()
    const [showAlert, setShowAlert] = useState(false)
 
@@ -129,7 +129,7 @@ const AddEmp = () => {
       setShowBirthDate(fDate)
    };
 
-   const propHeader = () => {
+   const propSave = () => {
       return (
          <IconButton colorScheme='primary' variant={'solid'} borderRadius={'full'} boxSize={16} onPress={handleSubmit}>
             <FontAwesomeIcon icon={faSave} color={'white'} size={22} />
@@ -139,7 +139,7 @@ const AddEmp = () => {
 
    return (
       <NativeBaseProvider>
-         <Header icon={'faUserPlus'} color={'lime.500'} title={'เพิ่มข้อมูลพนักงาน'} element={propHeader()} />
+         <Header icon={'faUserPlus'} color={'lime.500'} title={'เพิ่มข้อมูลพนักงาน'} element={propSave()} />
          <ScrollView>
             <VStack space={5} m={5}>
 
@@ -257,4 +257,4 @@ const AddEmp = () => {
    )
 }
 
-export default AddEmp
+export default EditEmp
