@@ -9,7 +9,7 @@ import { faQrcode, faCalendarWeek, faExchange, faUser } from '@fortawesome/free-
 import Attendance from '../screens/employee/Attendance';
 import Schedule from '../screens/employee/Schedule';
 import Exchange from '../screens/employee/Exchange';
-import Profile from '../screens/employee/Profile';
+import Profile from '../screens/Profile';
 
 const Tab = createBottomTabNavigator();
 
@@ -29,8 +29,7 @@ const Footer = () => {
             }}
          >
             <Tab.Screen
-               name="Attendance"
-               component={Attendance}
+               name="Attendance" component={Attendance}
                options={{
                   tabBarLabel: 'Attendance',
                   tabBarIcon: ({ color, size }) => (
@@ -39,8 +38,7 @@ const Footer = () => {
                }}
             />
             <Tab.Screen
-               name="Schedule"
-               component={Schedule}
+               name="Schedule" component={Schedule}
                options={{
                   tabBarLabel: 'Schedule',
                   tabBarIcon: ({ color, size }) => (
@@ -49,8 +47,7 @@ const Footer = () => {
                }}
             />
             <Tab.Screen
-               name="Exchange"
-               component={Exchange}
+               name="Exchange" component={Exchange}
                options={{
                   tabBarLabel: 'Exchange',
                   tabBarIcon: ({ color, size }) => (
@@ -59,8 +56,7 @@ const Footer = () => {
                }}
             />
             <Tab.Screen
-               name="Profile"
-               component={Profile}
+               name="Profile" component={Profile}
                options={{
                   tabBarLabel: 'Profile',
                   tabBarIcon: ({ color, size }) => (

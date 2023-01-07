@@ -1,31 +1,33 @@
 import React, { useState, useEffect } from 'react'
-import { Platform } from 'react-native'
-import { NativeBaseProvider, Box, Text, VStack, FormControl, Input, Heading, Select, CheckIcon, Checkbox, ScrollView, Button, IconButton, Toast } from 'native-base'
+import { NativeBaseProvider, Box, Text, VStack, FormControl, Input, Heading, Select, CheckIcon, Checkbox, ScrollView, Button, IconButton } from 'native-base'
+import { useNavigation } from '@react-navigation/native'
 import axios from 'axios'
+import moment from 'moment'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import AwesomeAlert from 'react-native-awesome-alerts'
-import { useNavigation } from '@react-navigation/native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faSave } from '@fortawesome/free-regular-svg-icons'
 import Header from '../../components/Header'
 import Modal from '../../components/Modal'
 
-const EditEmp = () => {
+const EditEmp = ({ route }) => {
    const navigation = useNavigation()
+
+   const [item, setitem] = useState({})
+   const [isLoading, setIsLoading] = useState(true)
    const [showAlert, setShowAlert] = useState(false)
 
-   const [nname, setNname] = useState('')
-   const [password, setPassword] = useState('')
+   const [nname, setNname] = useState(item.nname)
+   const [password, setPassword] = useState(item.password)
    const [title, setTitle] = useState('')
-   const [dept, setDept] = useState([])
-   const [date, setDate] = useState(new Date('5555'))
-   const [show, setShow] = useState(false)
-   const [showDate, setShowDate] = useState('กรุณาเลือกวันที่')
+   const [dept, setDept] = useState('')
+   const defDate = moment(item.job_start).toDate()
+   const date = defDate.getDate() + '/' + defDate.getMonth() + '/' + defDate.getFullYear()
    const [fname, setFname] = useState('')
    const [lname, setLname] = useState('')
-   const [birthDate, setBirthDate] = useState(new Date('5555'))
-   const [show2, setShow2] = useState(false)
-   const [showBirthDate, setShowBirthDate] = useState('กรุณาเลือกวันที่')
+   const defBirthDate = moment(item.birthdate).toDate()
+   // const birthDate = defBirthDate
+   const birthDate = defBirthDate.getDate() + '/' + defBirthDate.getMonth() + '/' + defBirthDate.getFullYear()
    const [phone, setPhone] = useState('')
    const [line_account, setLine_account] = useState('')
    const [errors, setErrors] = useState({
@@ -33,17 +35,34 @@ const EditEmp = () => {
       password: '',
       job_title: '',
       dept: '',
-      job_start: '',
       fname: '',
       lname: '',
-      birthDate: '',
       phone: '',
       line_account: '',
    });
 
-   const addEmployee = () => {
+   useEffect(() => {
+      axios.get('http://10.0.2.2:81/read/empdetail/' + route.params.id).then((res) => {
+         setitem(res.data)
+         setTitle(res.data.job_title)
+         // ต้อง set ทีละตัวจะได้ค่าเริ่มต้นใน useState หรือแก้ไปใช้ item แทน
+         setPassword(res.data.password)
+         // setDept([...def.split(',')])
+         // console.log('title:' + title);
+         // console.log('dept:' + dept[1]);
+         setIsLoading(false)
+
+      })
+   }, [isLoading])
+
+   const defaultCheckbox = () => {
+
+   }
+
+   const updateEmployee = () => {
       if (validate()) {
-         axios.post('http://10.0.2.2:81/create/emp', {
+         axios.put('http://10.0.2.2:81/update/emp', {
+            id: id,
             line_account: line_account,
             password: password,
             fname: fname,
@@ -51,8 +70,6 @@ const EditEmp = () => {
             nname: nname,
             phone: phone,
             job_title: title,
-            job_start: date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate(),
-            birthdate: birthDate.getFullYear() + '-' + (birthDate.getMonth() + 1) + '-' + birthDate.getDate(),
             dept: JSON.stringify(dept).replace(/[\[\]"]/g, ''),
          }).then(response => {
             console.log(response.data)
@@ -103,30 +120,9 @@ const EditEmp = () => {
    const handleSubmit = () => {
       if (validate()) {
          console.log('Submitted')
-         addEmployee()
+         updateEmployee
          setShowAlert(true)
       } else console.log('Invalid')
-   };
-
-   const onChangeDate = (e, selectedDate) => {
-      console.log('date:' + date);
-      const currentDate = selectedDate || date
-      setShow(Platform.OS === 'ios')
-      setDate(currentDate)
-
-      let tempDate = new Date(currentDate)
-      let fDate = tempDate.getDate() + '/' + (tempDate.getMonth() + 1) + '/' + tempDate.getFullYear()
-      setShowDate(fDate)
-   };
-
-   const onChangeBirthDate = (e, selectedDate) => {
-      const currentDate = selectedDate || birthDate
-      setShow2(Platform.OS === 'ios')
-      setBirthDate(currentDate)
-
-      let tempDate = new Date(currentDate)
-      let fDate = tempDate.getDate() + '/' + (tempDate.getMonth() + 1) + '/' + tempDate.getFullYear()
-      setShowBirthDate(fDate)
    };
 
    const propSave = () => {
@@ -148,34 +144,37 @@ const EditEmp = () => {
                   <Heading alignSelf={'center'}>ข้อมูลบัญชี</Heading>
                   <FormControl isRequired isInvalid={!!errors.nname}>
                      <FormControl.Label>ชื่อเล่น</FormControl.Label>
-                     <Input type="text" value={nname} onChangeText={e => setNname(e)} placeholder="ชื่อเล่น" />
+                     <Input type="text" defaultValue={item.nname} value={nname} onChangeText={e => setNname(e)} placeholder="ชื่อเล่น" />
                      {!!errors.nname && <Text m={1} fontSize={'xs'} color={'error.500'}>{errors.nname} </Text>}
                   </FormControl>
                   <FormControl isRequired isInvalid={!!errors.password}>
                      <FormControl.Label>รหัสผ่าน</FormControl.Label>
-                     <Input type="text" value={password} onChangeText={e => setPassword(e)} placeholder="รหัสผ่าน" />
+                     {console.log('pass:'+password)}
+                     <Input type="text" defaultValue={password}  value={password} onChangeText={e => setPassword(e)} placeholder="รหัสผ่าน" />
                      {!!errors.password && <Text m={1} fontSize={'xs'} color={'error.500'}>{errors.password} </Text>}
                   </FormControl>
                </Box>
 
+               <Text>{item.dept}</Text>
+               <Text>{dept}</Text>
                {/* ข้อมูลพนักงาน */}
                <Box bgColor={'white'} p={5} borderRadius={25} shadow={3}>
                   <Heading alignSelf={'center'}>ข้อมูลพนักงาน</Heading>
                   <FormControl isRequired isInvalid={!!errors.title}>
                      <FormControl.Label>ตำแหน่ง</FormControl.Label>
-                     <Select selectedValue={title} minWidth="200" accessibilityLabel="เลือกตำแน่ง" placeholder="เลือกตำแน่ง"
-                        _selectedItem={{ bg: "amber.600", endIcon: <CheckIcon size="5" /> }} mt={1}
+                     <Select defaultValue={item.job_title} selectedValue={title} minWidth="200" placeholder="เลือกตำแน่ง"
+                        _selectedItem={{ bg: 'amber.600', endIcon: <CheckIcon size="5" /> }} mt={1}
                         onValueChange={itemValue => setTitle(itemValue)}>
-                        <Select.Item label="พนักงานประจำ" value="พนักงานประจำ" />
-                        <Select.Item label="พนักงานชั่วคราว" value="พนักงานชั่วคราว" />
-                        <Select.Item label="ผู้จัดการ" value="ผู้จัดการ" />
+                        <Select.Item label="พนักงานประจำ" value='full-time' />
+                        <Select.Item label="พนักงานชั่วคราว" value="part-time" />
+                        <Select.Item label="ผู้จัดการ" value="manager" />
                      </Select>
                      {!!errors.title && <Text m={1} fontSize={'xs'} color={'error.500'}>{errors.title} </Text>}
                   </FormControl>
 
                   <FormControl isRequired isInvalid={!!errors.dept}>
                      <FormControl.Label>ข้อมูลงาน</FormControl.Label>
-                     <Checkbox.Group accessibilityLabel="choose values" defaultValue={dept} onChange={values => { setDept(values || []) }}>
+                     <Checkbox.Group defaultValue={item.dept} onChange={values => { setDept(values || []) }}>
                         <Checkbox value="แคชเชียร์">แคชเชียร์</Checkbox>
                         <Checkbox value="ครัว">ครัว</Checkbox>
                         <Checkbox value="ล้างจาน">ล้างจาน</Checkbox>
@@ -185,17 +184,10 @@ const EditEmp = () => {
                      {!!errors.dept && <Text m={1} fontSize={'xs'} color={'error.500'}>{errors.dept} </Text>}
                   </FormControl>
 
-                  <FormControl isRequired isInvalid={!!errors.date}>
+                  <FormControl isDisabled isInvalid={!!errors.date}>
                      <FormControl.Label>วันเข้าทำงาน</FormControl.Label>
-                     <Button colorScheme={'amber'} variant="outline" onPress={() => { setShow(true) }}>
-                        {(date.getFullYear().toString() === '5555') ? 'กรุณาเลือกวันที่' : showDate}
-                        {show && (<DateTimePicker
-                           value={date}
-                           mode={'date'}
-                           display={'default'}
-                           maximumDate={new Date()}
-                           onChange={onChangeDate}
-                        />)}
+                     <Button disabled={true} colorScheme={'amber'} variant="outline" onPress={() => { setShow(true) }}>
+                        {date}
                      </Button>
                      {!!errors.date && <Text m={1} fontSize={'xs'} color={'error.500'}>{errors.date} </Text>}
                   </FormControl>
@@ -216,17 +208,10 @@ const EditEmp = () => {
                      {!!errors.lname && <Text m={1} fontSize={'xs'} color={'error.500'}>{errors.lname} </Text>}
                   </FormControl>
 
-                  <FormControl isRequired isInvalid={!!errors.birthDate}>
+                  <FormControl isDisabled isInvalid={!!errors.birthDate}>
                      <FormControl.Label>วันเกิด</FormControl.Label>
-                     <Button colorScheme={'amber'} variant="outline" onPress={() => { setShow2(true) }}>
-                        {(birthDate.getFullYear().toString() === '5555') ? 'กรุณาเลือกวันที่' : showBirthDate}
-                        {show2 && (<DateTimePicker
-                           value={birthDate}
-                           mode={'date'}
-                           display={'default'}
-                           maximumDate={new Date()}
-                           onChange={onChangeBirthDate}
-                        />)}
+                     <Button disabled={true} colorScheme={'amber'} variant="outline" onPress={() => { setShow2(true) }}>
+                        {birthDate}
                      </Button>
                      {!!errors.birthDate && <Text m={1} fontSize={'xs'} color={'error.500'}>{errors.birthDate} </Text>}
                   </FormControl>
@@ -247,7 +232,7 @@ const EditEmp = () => {
                <AwesomeAlert
                   show={showAlert}
                   customView={<Modal mode={'success'} title={'เพิ่มข้อมูลสำเร็จ'} />}
-                  onDismiss={() => { navigation.navigate('Employee') }}
+                  onDismiss={() => { navigation.navigate('Emp') }}
                   contentContainerStyle={{ width: '80%' }}
                />
 

@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeBaseProvider, Box, ScrollView, Text, Flex } from 'native-base'
 import Footer from '../../components/FooterEmp';
 
-const Profile = () => {
+const EmpProfile = () => {
 
    const [user, setUser] = useState({})
    const [isLoading, setIsLoading] = useState(true)
@@ -50,4 +50,4 @@ const Profile = () => {
    )
 }
 
-export default Profile
+export default EmpProfile

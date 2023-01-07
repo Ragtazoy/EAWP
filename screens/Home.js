@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NativeBaseProvider, Box, ScrollView, FlatList, Text, RefreshControl } from 'native-base';
 import Footer from '../components/FooterEmp';
 import Attendance from './employee/Attendance';
-import Profile from './employee/Profile';
+import Profile from './employee/EmpProfile';
 
 const Home = () => {
 

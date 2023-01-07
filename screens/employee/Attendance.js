@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { NativeBaseProvider, Box, ScrollView, Text, Flex, View } from 'native-base'
-import Footer from '../../components/FooterEmp';
 
 const Attendance = () => {
    const [isLoading, setIsLoading] = useState(true)

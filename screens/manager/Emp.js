@@ -1,43 +1,64 @@
 import React, { useState, useEffect } from 'react'
-import { NativeBaseProvider, Box, Divider, Heading, Text, Flex, HStack, IconButton, FlatList, VStack, Pressable } from 'native-base'
-import { useNavigation } from '@react-navigation/native';
+import { NativeBaseProvider, Box, Divider, Heading, Text, Flex, HStack, IconButton, FlatList, VStack, Pressable, ScrollView } from 'native-base'
+import { useNavigation } from '@react-navigation/native'
+import axios from 'axios';
 import { Table, TableWrapper, Row, Rows } from 'react-native-table-component'
 import DataTable, { COL_TYPES } from 'react-native-datatable-component'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faUserPlus } from '@fortawesome/free-solid-svg-icons'
 import Cards from '../../components/Cards'
 
-const Employee = () => {
-
+const Emp = () => {
    const [items, setItems] = useState([])
+   const [depts, setDepts] = useState([])
+   const [empDept, setEmpDepts] = useState([])
    const [isLoading, setIsLoading] = useState(true)
    const navigation = useNavigation()
+   // const empDept = {}
 
    useEffect(() => {
-      navigation.addListener('focus', () => setIsLoading(true))
-      fetch('http://10.0.2.2:81/api/employee')
-         .then(res => res.json())
-         .then((result) => {
-            setItems(result)
+      const getDate = async () => {
+         await navigation.addListener('focus', () => setIsLoading(true))
+
+         await axios.get('http://10.0.2.2:81/read/emplist').then((res) => {
+            setItems(res.data)
             setIsLoading(false)
-            // console.log(result)
          })
+
+         await axios.get('http://10.0.2.2:81/read/dept').then((res) => {
+            setDepts(res.data)
+            setIsLoading(false)
+         })
+
+         await setItems(items.map(item => {
+            const arr = []
+            depts.map((dept) => {
+               item.emp_id === dept.emp_id ? arr.push(dept.dept_name) : null
+            })
+            return { ...item, dept: arr.toString() };
+         }))
+      }
+      getDate()
    }, [isLoading])
-   { console.log('items' + items); }
+
 
    const renderItem = ({ item }) => (
-      <Pressable>
-         <Divider my="2" />
-         <Flex mx={2} direction="row">
-            <Text flex={0.2}>{item.emp_id}</Text>
-            <Divider orientation="vertical" mx="2" />
-            <Text flex={0.2}>{item.fname}</Text>
-            <Divider orientation="vertical" mx="2" />
-            <Text flex={0.2}>{item.lname}</Text>
-            <Divider orientation="vertical" mx="2" />
-            <Text flex={0.2}>{item.nname}</Text>
-            <Divider orientation="vertical" mx="2" />
-            <Text flex={0.2}>{item.phone}</Text>
+
+      <Pressable onPress={() => { navigation.navigate('Profile', { id: item.emp_id }) }}>
+         <Divider />
+         <Flex my={2} direction="row" alignItems={'center'}>
+            <Box flex={0.25}>
+               <Text alignSelf={'center'}>{item.nname}</Text>
+            </Box>
+            <Box flex={0.25}>
+               <Text alignSelf={'center'}>{item.job_title}</Text>
+            </Box>
+            <Box flex={0.25}>
+               <Text alignSelf={'center'}>{item.dept}</Text>
+            </Box>
+            <Box flex={0.25}>
+               <Text alignSelf={'center'}>{item.emp_id}</Text>
+            </Box>
          </Flex>
       </Pressable>
    )
@@ -53,50 +74,55 @@ const Employee = () => {
       ['3', 'John', 'Smith'],
    ];
 
-   let jsonString = '{"name": "John", "age": 30, "city": "New York"}';
-   let obj = JSON.parse(jsonString);
-   console.log(obj.name);
-
    return (
       <NativeBaseProvider>
-         <Flex flexDir={'column'}>
-            <HStack space={4} m={4}>
+         <VStack>
+            <HStack space={4} p={5}>
                <Cards color={'green.400'} text={'พนักงานประจำ'} heading={'10 คน'} />
                <Cards color={'amber.300'} text={'พนักงานชั่วคราว'} heading={'20 คน'} />
             </HStack>
 
-            <HStack h={70} borderTopRadius={50} bgColor={'amber.300'} justifyContent={'space-around'} alignItems={'center'}>
+            <HStack h={70} borderTopRadius={50} shadow={1} justifyContent={'space-around'} alignItems={'center'} bgColor={'white'}>
                <Heading>รายชื่อพนักงาน</Heading>
                <IconButton colorScheme='success' variant={'solid'} borderRadius={25} Size={45} onPress={() => navigation.navigate('AddEmp')}>
                   <FontAwesomeIcon icon={faUserPlus} color={'white'} size={20} />
                </IconButton>
             </HStack>
 
-            <Flex my={2} mx={2} direction="row" justify="space-evenly">
-               <Text>Name</Text>
-               <Divider orientation="vertical" mx="2" />
-               <Text>Title</Text>
-               <Divider orientation="vertical" mx="2" />
-               <Text>Dept</Text>
-               <Divider orientation="vertical" mx="2" />
-               <Text>Score</Text>
-            </Flex>
-            <Box>
-               <FlatList
-                  data={items} renderItem={renderItem} keyExtractor={item => item.emp_id}
-                  refreshing={isLoading} onRefresh={() => setIsLoading(true)} />
-            </Box>
-            <Box>
-               {/* <Table>
+            <HStack bgColor={'#7c2d12'} h={10} py={1} alignItems={'center'}>
+               <Box flex={0.25}>
+                  <Text alignSelf={'center'} color={'white'}>ชื่อ</Text>
+               </Box>
+               <Divider orientation="vertical" mx="1" />
+               <Box flex={0.25}>
+                  <Text alignSelf={'center'} color={'white'}>ตำแหน่ง</Text>
+               </Box>
+               <Divider orientation="vertical" mx="1" />
+               <Box flex={0.25}>
+                  <Text alignSelf={'center'} color={'white'}>แผนก</Text>
+               </Box>
+               <Divider orientation="vertical" mx="1" />
+               <Box flex={0.25}>
+                  <Text alignSelf={'center'} color={'white'}>คะแนน</Text>
+               </Box>
+            </HStack>
+
+            <FlatList h={'420'}
+               data={items} renderItem={renderItem} keyExtractor={item => item.emp_id}
+               refreshing={isLoading} onRefresh={() => setIsLoading(true)} />
+
+            <Box bgColor={'red.500'} h={50}></Box>
+            {/* <Box> */}
+            {/* <Table>
                   <Row data={['Name', 'Age']} style={{ backgroundColor: 'red' }} />
                   <Rows data={data} onPress={(d) => handlePress(d)} />
                </Table> */}
-               {/* <Table>
+            {/* <Table>
                   <Row data={data[0]} style={{ backgroundColor: 'red' }} onPress={() => onRowPress(data[0])} />
                   <Rows data={data} onPress={() => onRowPress(data)} />
                </Table> */}
 
-               {/* <DataTable
+            {/* <DataTable
                   onRowSelect={(row) => {console.log('ROW => ',row)}}
                   data={[
                      { name: 'Muhammad Rafeh', age: 21, gender: 'male' },
@@ -122,10 +148,11 @@ const Employee = () => {
                   backgroundColor={'white'}
                   headerLabelStyle={{ color: 'grey', fontSize: 16 }}
                /> */}
-            </Box>
-         </Flex>
+            {/* </Box> */}
+
+         </VStack>
       </NativeBaseProvider>
    )
 }
 
-export default Employee
+export default Emp

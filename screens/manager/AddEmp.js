@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Platform } from 'react-native'
-import { NativeBaseProvider, Box, Text, VStack, FormControl, Input, Heading, Select, CheckIcon, Checkbox, ScrollView, Button, IconButton, Toast } from 'native-base'
+import { NativeBaseProvider, Box, Text, VStack, FormControl, Input, Heading, Select, CheckIcon, Checkbox, ScrollView, Button, IconButton } from 'native-base'
 import axios from 'axios'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import AwesomeAlert from 'react-native-awesome-alerts'
@@ -41,9 +41,9 @@ const AddEmp = () => {
       line_account: '',
    });
 
-   const addEmployee = () => {
-      if (validate()) {
-         axios.post('http://10.0.2.2:81/create/emp', {
+   const addEmployee = async () => {
+      try {
+         await axios.post('http://10.0.2.2:81/create/emp', {
             line_account: line_account,
             password: password,
             fname: fname,
@@ -53,12 +53,24 @@ const AddEmp = () => {
             job_title: title,
             job_start: date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate(),
             birthdate: birthDate.getFullYear() + '-' + (birthDate.getMonth() + 1) + '-' + birthDate.getDate(),
-            dept: JSON.stringify(dept).replace(/[\[\]"]/g, ''),
          }).then(response => {
-            console.log(response.data)
-         }).catch(error => {
-            console.log(error)
+            console.log('post /create/emp already');
          })
+
+         dept.map((val) => {
+            axios.post('http://10.0.2.2:81/create/dept', { dept_name: val }).then(() => {
+               console.log('post /create/dept already')
+            })
+         })
+
+         axios.post('http://10.0.2.2:81/create/work_history').then(() => {
+            console.log('post /create/work_history already')
+         })
+         axios.post('http://10.0.2.2:81/create/evaluate').then(() => {
+            console.log('post /create/evaluate already')
+         })
+      } catch (error) {
+         console.log(error)
       }
    };
 
@@ -139,7 +151,7 @@ const AddEmp = () => {
 
    return (
       <NativeBaseProvider>
-         <Header icon={'faUserPlus'} color={'lime.500'} title={'เพิ่มข้อมูลพนักงาน'} element={propHeader()} />
+         <Header icon={'faUserPlus'} color={'success.600'} title={'เพิ่มข้อมูลพนักงาน'} element={propHeader()} />
          <ScrollView>
             <VStack space={5} m={5}>
 
@@ -166,9 +178,9 @@ const AddEmp = () => {
                      <Select selectedValue={title} minWidth="200" accessibilityLabel="เลือกตำแน่ง" placeholder="เลือกตำแน่ง"
                         _selectedItem={{ bg: "amber.600", endIcon: <CheckIcon size="5" /> }} mt={1}
                         onValueChange={itemValue => setTitle(itemValue)}>
-                        <Select.Item label="พนักงานประจำ" value="พนักงานประจำ" />
-                        <Select.Item label="พนักงานชั่วคราว" value="พนักงานชั่วคราว" />
-                        <Select.Item label="ผู้จัดการ" value="ผู้จัดการ" />
+                        <Select.Item label="พนักงานประจำ" value="full-time" />
+                        <Select.Item label="พนักงานชั่วคราว" value="part-time" />
+                        <Select.Item label="ผู้จัดการ" value="manager" />
                      </Select>
                      {!!errors.title && <Text m={1} fontSize={'xs'} color={'error.500'}>{errors.title} </Text>}
                   </FormControl>
@@ -176,11 +188,11 @@ const AddEmp = () => {
                   <FormControl isRequired isInvalid={!!errors.dept}>
                      <FormControl.Label>ข้อมูลงาน</FormControl.Label>
                      <Checkbox.Group accessibilityLabel="choose values" defaultValue={dept} onChange={values => { setDept(values || []) }}>
-                        <Checkbox value="แคชเชียร์">แคชเชียร์</Checkbox>
-                        <Checkbox value="ครัว">ครัว</Checkbox>
-                        <Checkbox value="ล้างจาน">ล้างจาน</Checkbox>
-                        <Checkbox value="เตา">เตา</Checkbox>
-                        <Checkbox value="หน้าร้าน">หน้าร้าน</Checkbox>
+                        <Checkbox value="cashier">แคชเชียร์</Checkbox>
+                        <Checkbox value="kitchen">ครัว</Checkbox>
+                        <Checkbox value="wash">ล้างจาน</Checkbox>
+                        <Checkbox value="stove">เตา</Checkbox>
+                        <Checkbox value="waiter">หน้าร้าน</Checkbox>
                      </Checkbox.Group>
                      {!!errors.dept && <Text m={1} fontSize={'xs'} color={'error.500'}>{errors.dept} </Text>}
                   </FormControl>
@@ -247,8 +259,8 @@ const AddEmp = () => {
                <AwesomeAlert
                   show={showAlert}
                   customView={<Modal mode={'success'} title={'เพิ่มข้อมูลสำเร็จ'} />}
-                  onDismiss={() => { navigation.navigate('Employee') }}
                   contentContainerStyle={{ width: '80%' }}
+                  onDismiss={() => { navigation.navigate('Employee') }}
                />
 
             </VStack>

@@ -7,13 +7,10 @@ import FooterMng from "./components/FooterMng";
 
 //Screens
 import Splash from './screens/Splash';
-import Home from './screens/Home';
-import Login from './screens/Login';
-import Profile from './screens/employee/Profile';
-import Attendance from './screens/employee/Attendance';
-import MyScrollView from './screens/MyScrollView';
-import Employee from "./screens/manager/Employee";
 import AddEmp from "./screens/manager/AddEmp";
+import Profile from "./screens/Profile";
+import EditEmp from "./screens/manager/EditEmp";
+import AddSchedule from "./screens/manager/AddSchedule";
 
 const Stack = createNativeStackNavigator();
 LogBox.ignoreLogs(["EventEmitter.removeListener"]);
@@ -25,47 +22,11 @@ export default function App() {
             <Stack.Screen name="Splash" component={Splash} />
             <Stack.Screen name="Employee" component={FooterMng} />
             <Stack.Screen name="AddEmp" component={AddEmp} />
+            <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen name="EditEmp" component={EditEmp} />
+            <Stack.Screen name="Scheldule" component={FooterMng} />
+            <Stack.Screen name="AddSchedule" component={AddSchedule} />
          </Stack.Navigator>
-         {/* <FooterMng /> */}
       </NavigationContainer>
-      // <NavigationContainer>
-      //    <Stack.Navigator>
-      //       <Stack.Screen
-      //          name="Splash"
-      //          component={Splash}
-      //          options={{ headerShown: false }}
-      //       />
-      //       <Stack.Screen
-      //          name="Home"
-      //          component={Home}
-      //          options={{ headerShown: false }}
-      //       />
-      //       <Stack.Screen
-      //          name="Login"
-      //          component={Login}
-      //          options={{ headerShown: false }}
-      //       />
-      //       <Stack.Screen
-      //          name="Profile"
-      //          component={Profile}
-      //          options={{ headerShown: false }}
-      //       />
-      //       <Stack.Screen
-      //          name="Attendance"
-      //          component={Attendance}
-      //          options={{ headerShown: false }}
-      //       />
-      //       <Stack.Screen
-      //          name="MyScrollView"
-      //          component={MyScrollView}
-      //          options={{ headerShown: false }}
-      //       />
-      //       <Stack.Screen
-      //          name="AddEmp"
-      //          component={AddEmp}
-      //          options={{ headerShown: false }}
-      //       />
-      //    </Stack.Navigator>
-      // </NavigationContainer>
    );
 }

@@ -5,9 +5,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faPeopleGroup, faCalendarCheck, faCalendarWeek, faClipboardList, faStar } from '@fortawesome/free-solid-svg-icons/'
 
 // Screens
-import Employee from '../screens/manager/Employee';
-import Schedule from '../screens/employee/Schedule';
-import Attendance from '../screens/employee/Attendance';
+import Emp from '../screens/manager/Emp';
+import Schedule from '../screens/manager/Schedule';
+import Attendance from '../screens/manager/Attendance';
 import Report from '../screens/manager/Report';
 import Evaluate from '../screens/manager/Evaluate';
 
@@ -29,8 +29,7 @@ const Footer = () => {
          }}
       >
          <Tab.Screen
-            name="Employee"
-            component={Employee}
+            name="Emp" component={Emp}
             options={{
                tabBarLabel: 'Employee',
                tabBarIcon: ({ color, size }) => (
@@ -39,8 +38,7 @@ const Footer = () => {
             }}
          />
          <Tab.Screen
-            name="Schedule"
-            component={Schedule}
+            name="Schedule" component={Schedule}
             options={{
                tabBarLabel: 'Schedule',
                tabBarIcon: ({ color, size }) => (
@@ -49,8 +47,7 @@ const Footer = () => {
             }}
          />
          <Tab.Screen
-            name="Attendance"
-            component={Attendance}
+            name="Attendance" component={Attendance}
             options={{
                tabBarLabel: 'Attendance',
                tabBarIcon: ({ color, size }) => (
@@ -59,8 +56,7 @@ const Footer = () => {
             }}
          />
          <Tab.Screen
-            name="Report"
-            component={Report}
+            name="Report" component={Report}
             options={{
                tabBarLabel: 'Report',
                tabBarIcon: ({ color, size }) => (
@@ -69,8 +65,7 @@ const Footer = () => {
             }}
          />
          <Tab.Screen
-            name="Evaluate"
-            component={Evaluate}
+            name="Evaluate" component={Evaluate}
             options={{
                tabBarLabel: 'Evaluate',
                tabBarIcon: ({ color, size }) => (
