@@ -260,7 +260,7 @@ const AddEmp = () => {
                   show={showAlert}
                   customView={<Modal mode={'success'} title={'เพิ่มข้อมูลสำเร็จ'} />}
                   contentContainerStyle={{ width: '80%' }}
-                  onDismiss={() => { navigation.navigate('Employee') }}
+                  onDismiss={() => { navigation.navigate('Emp') }}
                />
 
             </VStack>

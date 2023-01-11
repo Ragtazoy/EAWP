@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { NativeBaseProvider, Box, Divider, Heading, Text, Flex, HStack, IconButton, FlatList, VStack, Pressable, ScrollView } from 'native-base'
+import { NativeBaseProvider, Box, Divider, Heading, Text, Flex, HStack, IconButton, FlatList, VStack, Pressable, Spinner } from 'native-base'
 import { useNavigation } from '@react-navigation/native'
 import axios from 'axios';
 import { Table, TableWrapper, Row, Rows } from 'react-native-table-component'
@@ -14,7 +14,6 @@ const Emp = () => {
    const [empDept, setEmpDepts] = useState([])
    const [isLoading, setIsLoading] = useState(true)
    const navigation = useNavigation()
-   // const empDept = {}
 
    useEffect(() => {
       const getDate = async () => {
@@ -22,12 +21,10 @@ const Emp = () => {
 
          await axios.get('http://10.0.2.2:81/read/emplist').then((res) => {
             setItems(res.data)
-            setIsLoading(false)
          })
 
          await axios.get('http://10.0.2.2:81/read/dept').then((res) => {
             setDepts(res.data)
-            setIsLoading(false)
          })
 
          await setItems(items.map(item => {
@@ -37,6 +34,7 @@ const Emp = () => {
             })
             return { ...item, dept: arr.toString() };
          }))
+         setIsLoading(false)
       }
       getDate()
    }, [isLoading])
@@ -44,7 +42,7 @@ const Emp = () => {
 
    const renderItem = ({ item }) => (
 
-      <Pressable onPress={() => { navigation.navigate('Profile', { id: item.emp_id }) }}>
+      <Pressable bgColor={'white'} onPress={() => { navigation.navigate('Profile', { id: item.emp_id }) }}>
          <Divider />
          <Flex my={2} direction="row" alignItems={'center'}>
             <Box flex={0.25}>
@@ -107,11 +105,19 @@ const Emp = () => {
                </Box>
             </HStack>
 
-            <FlatList h={'420'}
-               data={items} renderItem={renderItem} keyExtractor={item => item.emp_id}
-               refreshing={isLoading} onRefresh={() => setIsLoading(true)} />
+            {!isLoading ? (
+               <FlatList h={'420'}
+                  data={items} renderItem={renderItem} keyExtractor={item => item.emp_id}
+                  refreshing={isLoading} onRefresh={() => setIsLoading(true)} />
+            ) : (
+               <HStack my={16} space={2} justifyContent="center" alignItems={'center'}>
+                  <Spinner accessibilityLabel="Loading" color={'#7c2d12'} />
+                  <Heading color="#7c2d12" fontSize="md">
+                     กำลังโหลดข้อมูล
+                  </Heading>
+               </HStack>
+            )}
 
-            <Box bgColor={'red.500'} h={50}></Box>
             {/* <Box> */}
             {/* <Table>
                   <Row data={['Name', 'Age']} style={{ backgroundColor: 'red' }} />

@@ -4,7 +4,7 @@ import { NativeBaseProvider, Box, Text, Pressable } from 'native-base'
 const Splash = ({ navigation }) => {
 
     const onPress = () => {
-        navigation.navigate('Employee')
+        navigation.navigate('Attendance')
     }
 
     return (

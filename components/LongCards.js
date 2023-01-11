@@ -2,10 +2,21 @@ import React from 'react'
 import { Box, Heading, Text } from 'native-base'
 import Icon from 'react-native-vector-icons/AntDesign'
 
-const WeekCards = ({ mode, select, txt1, txt2, txt3 }) => {
+const LongCards = ({ mode, select, txt1, txt2, txt3 }) => {
    return (
       <Box>
          {
+            mode === 'mng' ? (
+               <Box w={220} minHeight={'full'} p={3} bgColor={'#7c2d12'} shadow={1} borderRadius={10} justifyContent={'center'} alignItems={'flex-start'}>
+                  <Heading fontSize={'xl'} color={'#fcd34d'}>{txt1}</Heading>
+                  <Text mb={2} fontSize={'lg'} color={'white'}>{txt2}</Text>
+                  <Heading mt={3} fontSize={'xl'} color={'#fcd34d'}>{txt3}</Heading>
+               </Box>
+            ) : null
+
+         }
+
+         {/* {
             mode === 'mng-add' ? (
                <Box w={140} minHeight={'full'} p={3} bgColor={'#d4d4d4'} shadow={1} borderRadius={10} justifyContent={'center'} alignItems={'center'}>
                   <Icon name='plus' size={30} />
@@ -24,9 +35,9 @@ const WeekCards = ({ mode, select, txt1, txt2, txt3 }) => {
             ) : (
                null
             )
-         }
+         } */}
       </Box>
    )
 }
 
-export default WeekCards
+export default LongCards

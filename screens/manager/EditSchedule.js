@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { NativeBaseProvider, Box, Heading, IconButton, ScrollView, Text, Divider, Pressable, Flex, FlatList } from 'native-base'
+import { NativeBaseProvider, Box, Heading, IconButton, ScrollView, Text, Divider, Pressable, VStack } from 'native-base'
 import axios from 'axios'
 import moment from 'moment'
 import MultiSelect from 'react-native-multiple-select'
 import AwesomeAlert from 'react-native-awesome-alerts'
-import Icon2 from 'react-native-vector-icons/FontAwesome'
+import Icon from 'react-native-vector-icons/FontAwesome'
 import Header from '../../components/Header'
 import Modal from '../../components/Modal'
 
@@ -33,11 +33,10 @@ const choice = [{
 ];
 
 
-const AddSchedule = ({ route, navigation }) => {
+const EditSchedule = ({ route, navigation }) => {
    const { date } = route.params
    const [emp, setEmp] = useState([])
-   // const [newEmp, setNewEmp] = useState([])
-   // const [empByDept, setEmpByDept] = useState([])
+
    const [cashier, setCashier] = useState([])
    const [kitchen, setKitchen] = useState([])
    const [wash, setWash] = useState([])
@@ -177,8 +176,8 @@ const AddSchedule = ({ route, navigation }) => {
 
    const propHeader = () => {
       return (
-         <IconButton colorScheme='primary' variant={'solid'} borderRadius={'full'} boxSize={16} onPress={handleSubmit}>
-            <Icon2 name={'save'} color={'white'} size={21} />
+         <IconButton colorScheme='danger' variant={'solid'} boxSize={16} borderRadius={'full'} onPress={() => { handleSubmit }}>
+            <Icon name="calendar-times-o" size={20} color="white" />
          </IconButton>
       )
    };
@@ -313,33 +312,6 @@ const AddSchedule = ({ route, navigation }) => {
                   styleMainWrapper={{ paddingHorizontal: 10, paddingBottom: 10, backgroundColor: 'white', borderRadius: 15, borderBottomWidth: 5, borderColor: "#7c2d12" }}
                />
             </Box >
-            {/* {['Cashier', 'wash'].map((dept) => {
-            return <Box mx={5} mb={5} justifyContent={'flex-start'} >
-               <Heading mb={2}>{dept}</Heading>
-               <MultiSelect
-                  items={emp}
-                  uniqueKey="emp_id"
-                  displayKey="nname"
-                  onSelectedItemsChange={onSelectedItemsChange}
-                  selectedItems={selectedItems}
-                  selectText="เลือกพนักงาน"
-                  searchInputPlaceholderText="ค้นหาพนักงาน..."
-                  onChangeInput={(text) => console.log(text)}
-                  tagRemoveIconColor="#7c2d12"
-                  tagBorderColor="#7c2d12"
-                  tagTextColor="#7c2d12"
-                  selectedItemTextColor="#7c2d12"
-                  selectedItemIconColor="#7c2d12"
-                  itemTextColor="#000"
-                  submitButtonColor="#16a34a"
-                  submitButtonText="ยืนยัน"
-                  styleListContainer={{ backgroundColor: 'white' }}
-                  styleDropdownMenuSubsection={{ paddingLeft: 10, borderRadius: 15 }}
-                  styleMainWrapper={{ paddingHorizontal: 10, paddingBottom: 10, backgroundColor: 'white', borderRadius: 15, borderBottomWidth: 5, borderColor: "#7c2d12" }}
-               />
-            </Box >
-         })} */}
-
             <Box m={5}></Box>
          </ScrollView>
 
@@ -363,53 +335,8 @@ const AddSchedule = ({ route, navigation }) => {
             onDismiss={() => { setShowInvalid2(false) }}
          />
 
-         {/* <Modal isOpen={showModal} onClose={() => setShowModal(false)} size={'lg'}>
-            <Modal.Content maxWidth="400px">
-               <Modal.CloseButton />
-               <Modal.Header>เลือกพนักงานแผนกนี้</Modal.Header>
-               <Modal.Body>
-
-               <HStack bgColor={'#7c2d12'} h={10} py={1} alignItems={'center'}>
-                  <Box flex={0.25}>
-                     <Text alignSelf={'center'} color={'white'}>ชื่อ</Text>
-                  </Box>
-                  <Divider orientation="vertical" mx="1" />
-                  <Box flex={0.25}>
-                     <Text alignSelf={'center'} color={'white'}>ตำแหน่ง</Text>
-                  </Box>
-                  <Divider orientation="vertical" mx="1" />
-                  <Box flex={0.25}>
-                     <Text alignSelf={'center'} color={'white'}>แผนก</Text>
-                  </Box>
-                  <Divider orientation="vertical" mx="1" />
-                  <Box flex={0.25}>
-                     <Text alignSelf={'center'} color={'white'}>คะแนน</Text>
-                  </Box>
-               </HStack>
-
-               <FlatList nestedScrollEnabled={true}
-                  data={empByDept} renderItem={renderItem} keyExtractor={item => empByDept.emp_id} />
-
-               </Modal.Body>
-               <Modal.Footer>
-                  <Button.Group space={2}>
-                     <Button px={5} variant="outline" colorScheme="trueGray" onPress={() => {
-                        setShowModal(false);
-                     }}>
-                        ยกเลิก
-                     </Button>
-                     <Button px={5} colorScheme="success" onPress={() => {
-                        setShowModal(false);
-                     }}>
-                        ยืนยัน
-                     </Button>
-                  </Button.Group>
-               </Modal.Footer>
-            </Modal.Content>
-         </Modal> */}
-
       </NativeBaseProvider>
    )
 }
 
-export default AddSchedule
+export default EditSchedule

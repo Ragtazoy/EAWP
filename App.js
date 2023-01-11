@@ -11,6 +11,9 @@ import AddEmp from "./screens/manager/AddEmp";
 import Profile from "./screens/Profile";
 import EditEmp from "./screens/manager/EditEmp";
 import AddSchedule from "./screens/manager/AddSchedule";
+import EditSchedule from "./screens/manager/EditSchedule";
+
+
 
 const Stack = createNativeStackNavigator();
 LogBox.ignoreLogs(["EventEmitter.removeListener"]);
@@ -26,6 +29,9 @@ export default function App() {
             <Stack.Screen name="EditEmp" component={EditEmp} />
             <Stack.Screen name="Scheldule" component={FooterMng} />
             <Stack.Screen name="AddSchedule" component={AddSchedule} />
+            <Stack.Screen name="EditSchedule" component={EditSchedule} />
+
+            <Stack.Screen name="Attendance" component={FooterEmp} />
          </Stack.Navigator>
       </NavigationContainer>
    );

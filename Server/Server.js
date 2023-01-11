@@ -59,16 +59,16 @@ app.get('/read/empdetail/:id', (req, res) => {
    )
 })
 
-// app.get('/read/empbydept/:dept', (req, res) => {
-//    const dept = req.params.dept
-//    const work = req.params.work
-//    db.query("SELECT emp_id, nname FROM employee WHERE emp_id IN (SELECT emp_id FROM department WHERE dept_name IN(?) ORDER BY emp_id)", [dept],
-//       (err, results) => {
-//          err ? console.log('/read/empbydept ' + err) : res.json(results)
-//       }
-//    )
-// })
-//==============================================================================================//
+app.get('/read/count_emp_in_scheduling', (req, res) => {
+   const sched_date = req.query.sched_date
+   db.query("SELECT COUNT(*) AS count_emp FROM scheduling WHERE sched_id = (SELECT sched_id FROM work_schedule WHERE sched_date = ?)",
+      [sched_date],
+      (err, results) => {
+         err ? console.log('/read/count_emp_in_scheduling ' + err) : res.json(results[0])
+      }
+   );
+})
+//======================================================================================================//
 
 // Create //
 app.post('/create/emp', (req, res) => {

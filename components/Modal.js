@@ -11,7 +11,7 @@ const Modal = ({ mode, title, desc }) => {
             mode === 'invalid' ? <Icon name={'closecircleo'} color={'#dc2626'} size={90} /> :
                mode === 'confirm' ? null : null}
          <Heading>{title}</Heading>
-         {!!desc ? <Text fontSize={'sm'}>{desc}</Text> : null}
+         {!!desc ? <Text fontSize={'md'}>{desc}</Text> : null}
       </VStack>
    )
 }
