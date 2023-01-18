@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { NativeBaseProvider, Box, ScrollView, Divider, Heading, Text, Center, Button } from 'native-base'
-import { useCameraDevices } from 'react-native-vision-camera';
-import { Camera } from 'react-native-vision-camera';
-import { useScanBarcodes, BarcodeFormat } from 'vision-camera-code-scanner';
 import axios from 'axios'
 import moment from 'moment'
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -16,20 +13,8 @@ const Attendance = () => {
    const [currentTime, setCurrentTime] = useState(moment().format('HH:mm:ss'))
    const [isLoading, setIsLoading] = useState(true)
 
-   const [hasPermission, setHasPermission] = React.useState(false);
-   const devices = useCameraDevices();
-   const device = devices.back;
-   const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.QR_CODE], {
-      checkInverted: true,
-   });
-
    useEffect(() => {
-      (async () => {
-         const status = await Camera.requestCameraPermission();
-         setHasPermission(status === 'authorized');
-      })()
-
-      console.log('id: ' + 1);
+      console.log('id: ' + 1)
       axios.get('http://10.0.2.2:81/read/empdetail/' + 1).then((res) => {
          setItem(res.data)
          setIsLoading(false)
@@ -44,25 +29,8 @@ const Attendance = () => {
 
    return (
       <NativeBaseProvider>
-         {device != null &&
-            hasPermission && (
-               <>
-                  <Camera
-                     // style={StyleSheet.absoluteFill}
-                     device={device}
-                     isActive={true}
-                     frameProcessor={frameProcessor}
-                     frameProcessorFps={5}
-                  />
-                  {barcodes.map((barcode, idx) => (
-                     <Text key={idx} >
-                        {barcode.displayValue}
-                     </Text>
-                  ))}
-               </>
-            )}
          <Header mode={'time'} title={'ลงเวลางาน'} subtitle={moment().format('dddd DD MMMM YYYY')} subtitle2={currentTime} />
-
+         
          <Box flexDir={'row'} bgColor={'white'} m={5} p={2} shadow={4} borderRadius={15} >
             <Box flex={0.5} flexDir={'row'} alignItems={'center'}>
                <Icon name='ios-person-circle-outline' size={50} />

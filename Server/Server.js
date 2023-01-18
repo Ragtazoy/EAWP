@@ -54,7 +54,7 @@ app.get('/read/empdetail/:id', (req, res) => {
       'SELECT e.emp_id, e.nname, e.password, e.fname, e.lname, e.job_title, e.job_start, e.phone, e.birthdate, e.line_account, w.job_hours, w.absent_quantity, w.late_quantity, w.leave_quantity FROM employee e JOIN work_history w ON e.emp_id = w.emp_id WHERE e.emp_id = ?',
       [id],
       (err, results) => {
-         err ? console.log('/read/empdetail/:id ' + err) : res.json(results[0])
+         err ? console.log('/read/empdetail/:id ' + err) : res.json(results[0]); console.log(res.json(results[0]))
       }
    )
 })
