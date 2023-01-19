@@ -4,3 +4,5 @@ error.600   = #dc2626
 muted.300   = #d4d4d4
 amber.300   = #fcd34d
 primary.600 = #0891b2
+
+Department = [cashier, kitchen, wash, stove, waiter]

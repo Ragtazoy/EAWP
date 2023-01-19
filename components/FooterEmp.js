@@ -5,17 +5,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faQrcode, faCalendarWeek, faExchange, faUser } from '@fortawesome/free-solid-svg-icons/'
 
 // Screens
-import Attendance from '../screens/employee/Attendance';
-import Schedule from '../screens/employee/Schedule';
+import AttendanceEmp from '../screens/employee/AttendanceEmp';
+import ScheduleEmp from '../screens/employee/ScheduleEmp';
 import Exchange from '../screens/employee/Exchange';
-import Profile from '../screens/Profile';
+import ProfileEmp from '../screens/employee/ProfileEmp';
 
 const Tab = createBottomTabNavigator();
 
 const Footer = () => {
    return <NativeBaseProvider>
       <Tab.Navigator
-         initialRouteName="Attendance"
+         initialRouteName="ScheduleEmp"
          screenOptions={{
             tabBarActiveTintColor: 'white',
             tabBarInactiveTintColor: '#7c2d12',
@@ -28,20 +28,20 @@ const Footer = () => {
          }}
       >
          <Tab.Screen
-            name="Attendance" component={Attendance}
-            options={{
-               tabBarLabel: 'Attendance',
-               tabBarIcon: ({ color, size }) => (
-                  <FontAwesomeIcon icon={faQrcode} color={color} size={30} />
-               ),
-            }}
-         />
-         <Tab.Screen
-            name="Schedule" component={Schedule}
+            name="ScheduleEmp" component={ScheduleEmp}
             options={{
                tabBarLabel: 'Schedule',
                tabBarIcon: ({ color, size }) => (
                   <FontAwesomeIcon icon={faCalendarWeek} color={color} size={30} />
+               ),
+            }}
+         />
+         <Tab.Screen
+            name="AttendanceEmp" component={AttendanceEmp}
+            options={{
+               tabBarLabel: 'Attendance',
+               tabBarIcon: ({ color, size }) => (
+                  <FontAwesomeIcon icon={faQrcode} color={color} size={30} />
                ),
             }}
          />
@@ -55,7 +55,7 @@ const Footer = () => {
             }}
          />
          <Tab.Screen
-            name="Profile" component={Profile}
+            name="ProfileEmp" component={ProfileEmp}
             options={{
                tabBarLabel: 'Profile',
                tabBarIcon: ({ color, size }) => (

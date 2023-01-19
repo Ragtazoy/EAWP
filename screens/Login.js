@@ -1,55 +1,56 @@
 import React, { useState, useEffect } from 'react';
+import { NativeBaseProvider, Center, Box, Heading, VStack, FormControl, Input, Button, Pressable, Text } from 'native-base'
+import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { NativeBaseProvider, Center, Box, Heading, VStack, FormControl, Input, Button, Pressable, Toast } from 'native-base'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faEye, faEyeSlash, faSignIn } from '@fortawesome/free-solid-svg-icons/'
-import ToastAlert from '../components/ToastAlert';
+// import ToastAlert from '../components/ToastAlert'
 
 const Login = ({ navigation }) => {
-
    const [username, setUsername] = useState('')
    const [password, setpassword] = useState('')
-   const [show, setShow] = useState(false);
+   const [show, setShow] = useState(false)
+   const [isInvalid, setIsInvalid] = useState(false)
+
+   useEffect(() => {
+      const checkLoginStatus = async () => {
+         const isLoggedIn = await AsyncStorage.getItem('userId');
+         console.log(isLoggedIn);
+         if (isLoggedIn > 0) {
+            console.log('loged in');
+         } else {
+            console.log('not loged in');
+         }
+      }
+
+      checkLoginStatus()
+   }, [])
 
    const handleLogin = async () => {
-      const response = await fetch('https://www.melivecode.com/api/login', {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({
-            username: username,
-            password: password,
-            expiresIn: 60000
-         })
-      })
-      const data = await response.json()
-      if (data.status === 'ok') {
-         await AsyncStorage.setItem('@acessToken', data.accessToken)
-         const accessToken = await AsyncStorage.getItem('@acessToken')
-         navigation.navigate('Profile')
-      } else {
-         Toast.show({
-            render: () => {
-               return <ToastAlert
-                  status={'error'}
-                  title={data.status}
-                  variant={"top-accent"}
-                  description={data.message}
-               />;
-            }
-         })
-         // Toast.show({
-         // 	title: data.status,
-         // 	variant: "top-accent",
-         // 	description: data.message,
-         // })
-      }
+      await axios.post('http://10.0.2.2:81/login', {
+         username: username,
+         password: password
+      }).then(res => {
+         if (res.data.success) {
+            // Save user ID to AsyncStorage
+            AsyncStorage.setItem('userId', JSON.stringify(res.data.id));
+            console.log(res.data.role);
+            navigation.navigate(res.data.role == 'manager' ? 'AttendanceMng' : 'AttendanceEmp')
+         } else {
+            setIsInvalid(true)
+         }
+      }).catch(error => {
+         console.error(error);
+      });
    }
+
 
    return (
       <NativeBaseProvider>
+         {/* <Text>{isLoggedIn}</Text> */}
          <Center flex={1} w="100%" alignItems='center' justifyItems='center'>
-            <Box safeArea py="8" w="80%">
-               <Heading size="lg" fontWeight="600" color="coolGray.800">
+            <Box safeArea={true} w="80%">
+               <Heading lineHeight={'xs'} size="lg" fontWeight="600" color="coolGray.800">
                   Welcome
                </Heading>
                <Heading mt="1" color="coolGray.600" fontWeight="medium" size="xs">
@@ -57,20 +58,22 @@ const Login = ({ navigation }) => {
                </Heading>
 
                <VStack space={3} mt="5">
-                  <FormControl>
+                  <FormControl isInvalid={isInvalid}>
                      <FormControl.Label>Username</FormControl.Label>
                      <Input type="text" value={username} onChangeText={e => setUsername(e)} placeholder="Username" />
                   </FormControl>
-                  <FormControl>
+
+                  <FormControl isInvalid={isInvalid}>
                      <FormControl.Label>Password</FormControl.Label>
                      <Input type={show ? "text" : "password"} value={password} onChangeText={e => setpassword(e)}
                         InputRightElement={
                            <Pressable onPress={() => setShow(!show)}>
                               <FontAwesomeIcon icon={show ? faEye : faEyeSlash} color='#a3a3a3' size={20} style={{ marginRight: 10 }} />
                            </Pressable>} placeholder="Password" />
+                     {isInvalid && (<Text m={1} fontSize={'xs'} color={'error.500'}>ข้อมูลไม่ถูกต้อง</Text>)}
                   </FormControl>
 
-                  <Button onPress={handleLogin} leftIcon={<FontAwesomeIcon icon={faSignIn} color='white' />} mt="2" colorScheme="orange">
+                  <Button onPress={handleLogin} leftIcon={<FontAwesomeIcon icon={faSignIn} color='white' />} mt="2" colorScheme="amber">
                      Sign in
                   </Button>
 

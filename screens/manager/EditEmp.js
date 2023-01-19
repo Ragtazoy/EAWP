@@ -135,7 +135,7 @@ const EditEmp = ({ route }) => {
 
    return (
       <NativeBaseProvider>
-         <Header icon={'faUserPlus'} color={'lime.500'} title={'เพิ่มข้อมูลพนักงาน'} element={propSave()} />
+         <Header icon={'faUserEdit'} color={'amber.500'} title={'แก้ไขข้อมูลพนักงาน'} element={propSave()} />
          <ScrollView>
             <VStack space={5} m={5}>
 

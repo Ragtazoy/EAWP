@@ -17,10 +17,10 @@ const Schedule = ({ navigation }) => {
    const full = { key: 'full', color: 'green', selectedDotColor: 'blue' };
 
    let dates = []
-   const customDate = moment().day(1)
+   const customDate = moment()
    for (let i = 0; i < 7; i++) {
+      dates.push(moment(customDate2).format('YYYY-MM-DD'))
       const customDate2 = customDate.add(1, 'days').format('YYYY-MM-DD')
-      dates.push(customDate2)
    }
 
    useEffect(() => {
@@ -32,7 +32,6 @@ const Schedule = ({ navigation }) => {
          let count = []
          for (let i = 0; i < dates.length; i++) {
             await axios.get('http://10.0.2.2:81/read/count_emp_in_scheduling', { params: { sched_date: dates[i] } }).then((res) => {
-               console.log('post /read/count_emp_in_scheduling already')
                console.log(typeof dates[i], dates[i], res.data)
                count.push(res.data)
             })
@@ -56,28 +55,28 @@ const Schedule = ({ navigation }) => {
       <NativeBaseProvider>
          <Header mode={'text'} title={'จัดตารางงาน'} subtitle={'จำนวนพนักงานในแต่ละวัน'} />
 
-         {!isLoading ? (
-            <ScrollView nestedScrollEnabled={true}>
-               <ScrollView horizontal={true} py={5} pl={3}>
-                  <FlatList horizontal={true} ItemSeparatorComponent={() => <Box p={1.5} />}
-                     data={countEmp}
-                     renderItem={({ item, index }) => {
-                        return <LongCards mode={'mng'} txt1={'วันที่'} txt2={moment(dates[index]).format('D MMMM YYYY')} txt3={`มีพนักงาน ${item['count_emp']} คน`} />
-                     }}
-                     keyExtractor={item => item.uniqueProperty}
-                     refreshing={isLoading} onRefresh={() => setIsLoading(true)}
-                  />
-               </ScrollView>
-               <VStack pb={10} bgColor={'white'} borderRadius={50} shadow={1} justifyContent={'space-around'}>
-                  <Text pt={5} alignSelf={'center'} fontSize={'md'}>เลือกวันงานที่ต้องการจัดตารางงาน</Text>
+         <ScrollView nestedScrollEnabled={true}>
+            <ScrollView horizontal={true} py={5} pl={3}>
+               <FlatList horizontal={true} ItemSeparatorComponent={() => <Box p={1.5} />}
+                  data={countEmp}
+                  renderItem={({ item, index }) => {
+                     return <LongCards mode={'mng'} txt1={'วันที่'} txt2={moment(dates[index]).format('D MMMM YYYY')} txt3={`มีพนักงาน ${item['count_emp']} คน`} />
+                  }}
+                  keyExtractor={item => item.uniqueProperty}
+                  refreshing={isLoading} onRefresh={() => setIsLoading(true)}
+               />
+            </ScrollView>
 
+            <VStack pb={10} bgColor={'white'} borderRadius={50} shadow={1} justifyContent={'space-around'}>
+               <Text pt={5} alignSelf={'center'} fontSize={'md'}>เลือกวันงานที่ต้องการจัดตารางงาน</Text>
+               {!isLoading ? (
                   <Calendar
                      displayLoadingIndicator={false}
                      theme={{
                         monthTextColor: '#7c2d12',
                         arrowColor: '#7c2d12',
                         indicatorColor: 'red',
-                        selectedDayBackgroundColor: '#b6c1cd',
+                        selectedDayBackgroundColor: '#7c2d12',
                      }}
                      minDate={dates[0]}
                      maxDate={dates[6]}
@@ -92,32 +91,32 @@ const Schedule = ({ navigation }) => {
                         [dates[6]]: { marked: true, dotColor: countEmp[6]['count_emp'] > 0 ? '#16a34a' : '#d4d4d4' },
                      }}
                      onDayPress={date => {
-                        let hasSchedule = false
+                        let hasSchedule
                         switch (date.dateString) {
-                           case dates[0]: countEmp[0]['count_emp'] > 0 ? hasSchedule = true : null
-                           case dates[1]: countEmp[1]['count_emp'] > 0 ? hasSchedule = true : null
-                           case dates[2]: countEmp[2]['count_emp'] > 0 ? hasSchedule = true : null
-                           case dates[3]: countEmp[3]['count_emp'] > 0 ? hasSchedule = true : null
-                           case dates[4]: countEmp[4]['count_emp'] > 0 ? hasSchedule = true : null
-                           case dates[5]: countEmp[5]['count_emp'] > 0 ? hasSchedule = true : null
-                           case dates[6]: countEmp[6]['count_emp'] > 0 ? hasSchedule = true : null
+                           case dates[0]: countEmp[0]['count_emp'] > 0 ? hasSchedule = true : hasSchedule = false; break;
+                           case dates[1]: countEmp[1]['count_emp'] > 0 ? hasSchedule = true : hasSchedule = false; break;
+                           case dates[2]: countEmp[2]['count_emp'] > 0 ? hasSchedule = true : hasSchedule = false; break;
+                           case dates[3]: countEmp[3]['count_emp'] > 0 ? hasSchedule = true : hasSchedule = false; break;
+                           case dates[4]: countEmp[4]['count_emp'] > 0 ? hasSchedule = true : hasSchedule = false; break;
+                           case dates[5]: countEmp[5]['count_emp'] > 0 ? hasSchedule = true : hasSchedule = false; break;
+                           case dates[6]: countEmp[6]['count_emp'] > 0 ? hasSchedule = true : hasSchedule = false; break;
                         }
+                        console.log(countEmp[5]['count_emp'] > 0)
                         console.log(hasSchedule)
                         hasSchedule ? navigation.navigate('EditSchedule', { date: date })
                            : navigation.navigate('AddSchedule', { date: date })
                      }}
                   />
-
-               </VStack>
-            </ScrollView>
-         ) : (
-            <HStack my={16} space={2} justifyContent="center" alignItems={'center'}>
-               <Spinner accessibilityLabel="Loading" color={'#7c2d12'} />
-               <Heading color="#7c2d12" fontSize="md">
-                  กำลังโหลดข้อมูล
-               </Heading>
-            </HStack>
-         )}
+               ) : (
+                  <HStack my={16} space={2} justifyContent="center" alignItems={'center'}>
+                     <Spinner accessibilityLabel="Loading" color={'#7c2d12'} />
+                     <Heading color="#7c2d12" fontSize="md">
+                        กำลังโหลดข้อมูล
+                     </Heading>
+                  </HStack>
+               )}
+            </VStack>
+         </ScrollView>
 
 
 

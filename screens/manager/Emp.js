@@ -10,8 +10,7 @@ import Cards from '../../components/Cards'
 
 const Emp = () => {
    const [items, setItems] = useState([])
-   const [depts, setDepts] = useState([])
-   const [empDept, setEmpDepts] = useState([])
+   const [countEmp, setCountEmp] = useState([])
    const [isLoading, setIsLoading] = useState(true)
    const navigation = useNavigation()
 
@@ -19,21 +18,13 @@ const Emp = () => {
       const getDate = async () => {
          await navigation.addListener('focus', () => setIsLoading(true))
 
+         axios.get('http://10.0.2.2:81/read/count_emp_by_job_title').then((res) => {
+            setCountEmp(res.data)
+         })
          await axios.get('http://10.0.2.2:81/read/emplist').then((res) => {
             setItems(res.data)
          })
 
-         await axios.get('http://10.0.2.2:81/read/dept').then((res) => {
-            setDepts(res.data)
-         })
-
-         await setItems(items.map(item => {
-            const arr = []
-            depts.map((dept) => {
-               item.emp_id === dept.emp_id ? arr.push(dept.dept_name) : null
-            })
-            return { ...item, dept: arr.toString() };
-         }))
          setIsLoading(false)
       }
       getDate()
@@ -42,7 +33,7 @@ const Emp = () => {
 
    const renderItem = ({ item }) => (
 
-      <Pressable bgColor={'white'} onPress={() => { navigation.navigate('Profile', { id: item.emp_id }) }}>
+      <Pressable bgColor={'white'} onPress={() => { navigation.navigate('ProfileMng', { id: item.emp_id }) }}>
          <Divider />
          <Flex my={2} direction="row" alignItems={'center'}>
             <Box flex={0.25}>
@@ -51,12 +42,12 @@ const Emp = () => {
             <Box flex={0.25}>
                <Text alignSelf={'center'}>{item.job_title}</Text>
             </Box>
-            <Box flex={0.25}>
+            <Box flex={0.5}>
                <Text alignSelf={'center'}>{item.dept}</Text>
             </Box>
-            <Box flex={0.25}>
+            {/* <Box flex={0.25}>
                <Text alignSelf={'center'}>{item.emp_id}</Text>
-            </Box>
+            </Box> */}
          </Flex>
       </Pressable>
    )
@@ -76,8 +67,8 @@ const Emp = () => {
       <NativeBaseProvider>
          <VStack>
             <HStack space={4} p={5}>
-               <Cards color={'green.400'} text={'พนักงานประจำ'} heading={'10 คน'} />
-               <Cards color={'amber.300'} text={'พนักงานชั่วคราว'} heading={'20 คน'} />
+               <Cards color={'green.400'} text={'พนักงานประจำ'} heading={countEmp['full-time'] + ' คน'} />
+               <Cards color={'amber.300'} text={'พนักงานชั่วคราว'} heading={countEmp['part-time'] + ' คน'} />
             </HStack>
 
             <HStack h={70} borderTopRadius={50} shadow={1} justifyContent={'space-around'} alignItems={'center'} bgColor={'white'}>
@@ -96,13 +87,13 @@ const Emp = () => {
                   <Text alignSelf={'center'} color={'white'}>ตำแหน่ง</Text>
                </Box>
                <Divider orientation="vertical" mx="1" />
-               <Box flex={0.25}>
+               <Box flex={0.5}>
                   <Text alignSelf={'center'} color={'white'}>แผนก</Text>
                </Box>
-               <Divider orientation="vertical" mx="1" />
+               {/* <Divider orientation="vertical" mx="1" />
                <Box flex={0.25}>
                   <Text alignSelf={'center'} color={'white'}>คะแนน</Text>
-               </Box>
+               </Box> */}
             </HStack>
 
             {!isLoading ? (

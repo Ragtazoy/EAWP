@@ -5,10 +5,10 @@ import axios from 'axios'
 import moment from 'moment'
 import Icon from 'react-native-vector-icons/Feather'
 import AwesomeAlert from 'react-native-awesome-alerts'
-import Header from '../components/Header'
-import Modal from '../components/Modal'
+import Header from '../../components/Header'
+import Modal from '../../components/Modal'
 
-const Profile = ({ route }) => {
+const ProfileMng = ({ route }) => {
    const navigation = useNavigation()
    const [item, setitem] = useState({})
    const [isLoading, setIsLoading] = useState(true)
@@ -83,11 +83,11 @@ const Profile = ({ route }) => {
                   </HStack>
                   <HStack>
                      <Text flex={0.3} mr={1} color={'gray.500'}>แผนกงาน :</Text>
-                     <Text flex={0.7}>{item.nname}</Text>
+                     <Text flex={0.7}>{item.dept}</Text>
                   </HStack>
                   <HStack>
                      <Text flex={0.3} mr={1} color={'gray.500'}>วันเข้าทำงาน :</Text>
-                     <Text flex={0.7}>{date.getDate()} {moment(date).format('MMMM')} {date.getFullYear()}</Text>
+                     <Text flex={0.7}>{moment(item.job_start).format('D MMMM yyyy')}</Text>
                   </HStack>
                </Box>
 
@@ -95,7 +95,7 @@ const Profile = ({ route }) => {
                   <Heading mb={2}>ข้อมูลส่วนตัว</Heading>
                   <HStack>
                      <Text flex={0.3} mr={1} color={'gray.500'}>วันเกิด :</Text>
-                     <Text flex={0.7}>{date.getDate()} {moment(date).format('MMMM')} {date.getFullYear()}</Text>
+                     <Text flex={0.7}>{moment(item.birthdate).format('D MMMM yyyy')}</Text>
                   </HStack>
                   <HStack>
                      <Text flex={0.3} mr={1} color={'gray.500'}>เบอร์โทรศัพท์ :</Text>
@@ -132,4 +132,4 @@ const Profile = ({ route }) => {
    )
 }
 
-export default Profile
+export default ProfileMng

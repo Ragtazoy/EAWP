@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { NativeBaseProvider, Box, Heading, IconButton, ScrollView, Text, Divider, Pressable, Flex, FlatList } from 'native-base'
+import { NativeBaseProvider, Box, Heading, IconButton, ScrollView, Spinner, HStack } from 'native-base'
 import axios from 'axios'
 import moment from 'moment'
 import MultiSelect from 'react-native-multiple-select'
@@ -59,7 +59,7 @@ const AddSchedule = ({ route, navigation }) => {
 
    useEffect(() => {
       getEmpDept()
-   }, [])
+   }, [isLoading])
 
    const getEmpDept = async () => {
       await axios.get('http://10.0.2.2:81/read/empdept').then((res) => {
@@ -75,9 +75,9 @@ const AddSchedule = ({ route, navigation }) => {
                case 'waiter': setWaiter(empInDept)
             }
          })
-
-         setIsLoading(false)
       })
+      
+      setIsLoading(false)
    };
 
    const AddWorkSchedule = async () => {
@@ -187,133 +187,134 @@ const AddSchedule = ({ route, navigation }) => {
       <NativeBaseProvider>
          <Header icon={'faCalendarDay'} color={'amber.500'} title={'เลือกพนักงาน'} subtitle={moment(date.dateString).format('D MMMM YYYY')} element={propHeader()} />
 
-         <ScrollView pt={5}>
-            <Box mx={5} mb={5} justifyContent={'flex-start'} >
-               <Heading mb={2}>cashier</Heading>
-               <MultiSelect
-                  items={cashier}
-                  uniqueKey="emp_id"
-                  displayKey="nname"
-                  onSelectedItemsChange={onSelectedCashier}
-                  selectedItems={selectedCashier}
-                  selectText="เลือกพนักงาน"
-                  searchInputPlaceholderText="ค้นหาพนักงาน..."
-                  noItemsText="ไม่พบข้อมูลพนักงาน"
-                  onChangeInput={(text) => console.log(text)}
-                  tagRemoveIconColor="#7c2d12"
-                  tagBorderColor="#7c2d12"
-                  tagTextColor="#7c2d12"
-                  selectedItemTextColor="#7c2d12"
-                  selectedItemIconColor="#7c2d12"
-                  itemTextColor="#000"
-                  submitButtonColor="#16a34a"
-                  submitButtonText="ยืนยัน"
-                  styleListContainer={{ backgroundColor: 'white' }}
-                  styleDropdownMenuSubsection={{ paddingLeft: 10, borderRadius: 15 }}
-                  styleMainWrapper={{ paddingHorizontal: 10, paddingBottom: 10, backgroundColor: 'white', borderRadius: 15, borderBottomWidth: 5, borderColor: "#7c2d12" }}
-               />
-            </Box >
-            <Box mx={5} mb={5} justifyContent={'flex-start'} >
-               <Heading mb={2}>kitchen</Heading>
-               <MultiSelect
-                  items={kitchen}
-                  uniqueKey="emp_id"
-                  displayKey="nname"
-                  onSelectedItemsChange={onSelectedKitchen}
-                  selectedItems={selectedKitchen}
-                  selectText="เลือกพนักงาน"
-                  searchInputPlaceholderText="ค้นหาพนักงาน..."
-                  noItemsText="ไม่พบข้อมูลพนักงาน"
-                  onChangeInput={(text) => console.log(text)}
-                  tagRemoveIconColor="#7c2d12"
-                  tagBorderColor="#7c2d12"
-                  tagTextColor="#7c2d12"
-                  selectedItemTextColor="#7c2d12"
-                  selectedItemIconColor="#7c2d12"
-                  itemTextColor="#000"
-                  submitButtonColor="#16a34a"
-                  submitButtonText="ยืนยัน"
-                  styleListContainer={{ backgroundColor: 'white' }}
-                  styleDropdownMenuSubsection={{ paddingLeft: 10, borderRadius: 15 }}
-                  styleMainWrapper={{ paddingHorizontal: 10, paddingBottom: 10, backgroundColor: 'white', borderRadius: 15, borderBottomWidth: 5, borderColor: "#7c2d12" }}
-               />
-            </Box >
-            <Box mx={5} mb={5} justifyContent={'flex-start'} >
-               <Heading mb={2}>wash</Heading>
-               <MultiSelect
-                  items={wash}
-                  uniqueKey="emp_id"
-                  displayKey="nname"
-                  onSelectedItemsChange={onSelectedWash}
-                  selectedItems={selectedWash}
-                  selectText="เลือกพนักงาน"
-                  searchInputPlaceholderText="ค้นหาพนักงาน..."
-                  noItemsText="ไม่พบข้อมูลพนักงาน"
-                  onChangeInput={(text) => console.log(text)}
-                  tagRemoveIconColor="#7c2d12"
-                  tagBorderColor="#7c2d12"
-                  tagTextColor="#7c2d12"
-                  selectedItemTextColor="#7c2d12"
-                  selectedItemIconColor="#7c2d12"
-                  itemTextColor="#000"
-                  submitButtonColor="#16a34a"
-                  submitButtonText="ยืนยัน"
-                  styleListContainer={{ backgroundColor: 'white' }}
-                  styleDropdownMenuSubsection={{ paddingLeft: 10, borderRadius: 15 }}
-                  styleMainWrapper={{ paddingHorizontal: 10, paddingBottom: 10, backgroundColor: 'white', borderRadius: 15, borderBottomWidth: 5, borderColor: "#7c2d12" }}
-               />
-            </Box >
-            <Box mx={5} mb={5} justifyContent={'flex-start'} >
-               <Heading mb={2}>stove</Heading>
-               <MultiSelect
-                  items={stove}
-                  uniqueKey="emp_id"
-                  displayKey="nname"
-                  onSelectedItemsChange={onSelectedStove}
-                  selectedItems={selectedStove}
-                  selectText="เลือกพนักงาน"
-                  searchInputPlaceholderText="ค้นหาพนักงาน..."
-                  noItemsText="ไม่พบข้อมูลพนักงาน"
-                  onChangeInput={(text) => console.log(text)}
-                  tagRemoveIconColor="#7c2d12"
-                  tagBorderColor="#7c2d12"
-                  tagTextColor="#7c2d12"
-                  selectedItemTextColor="#7c2d12"
-                  selectedItemIconColor="#7c2d12"
-                  itemTextColor="#000"
-                  submitButtonColor="#16a34a"
-                  submitButtonText="ยืนยัน"
-                  styleListContainer={{ backgroundColor: 'white' }}
-                  styleDropdownMenuSubsection={{ paddingLeft: 10, borderRadius: 15 }}
-                  styleMainWrapper={{ paddingHorizontal: 10, paddingBottom: 10, backgroundColor: 'white', borderRadius: 15, borderBottomWidth: 5, borderColor: "#7c2d12" }}
-               />
-            </Box >
-            <Box mx={5} mb={5} justifyContent={'flex-start'} >
-               <Heading mb={2}>waiter</Heading>
-               <MultiSelect
-                  items={waiter}
-                  uniqueKey="emp_id"
-                  displayKey="nname"
-                  onSelectedItemsChange={onSelectedWaiter}
-                  selectedItems={selectedWaiter}
-                  selectText="เลือกพนักงาน"
-                  searchInputPlaceholderText="ค้นหาพนักงาน..."
-                  noItemsText="ไม่พบข้อมูลพนักงาน"
-                  onChangeInput={(text) => console.log(text)}
-                  tagRemoveIconColor="#7c2d12"
-                  tagBorderColor="#7c2d12"
-                  tagTextColor="#7c2d12"
-                  selectedItemTextColor="#7c2d12"
-                  selectedItemIconColor="#7c2d12"
-                  itemTextColor="#000"
-                  submitButtonColor="#16a34a"
-                  submitButtonText="ยืนยัน"
-                  styleListContainer={{ backgroundColor: 'white' }}
-                  styleDropdownMenuSubsection={{ paddingLeft: 10, borderRadius: 15 }}
-                  styleMainWrapper={{ paddingHorizontal: 10, paddingBottom: 10, backgroundColor: 'white', borderRadius: 15, borderBottomWidth: 5, borderColor: "#7c2d12" }}
-               />
-            </Box >
-            {/* {['Cashier', 'wash'].map((dept) => {
+         {!isLoading ? (
+            <ScrollView pt={5}>
+               <Box mx={5} mb={5} justifyContent={'flex-start'} >
+                  <Heading mb={2}>cashier</Heading>
+                  <MultiSelect
+                     items={cashier}
+                     uniqueKey="emp_id"
+                     displayKey="nname"
+                     onSelectedItemsChange={onSelectedCashier}
+                     selectedItems={selectedCashier}
+                     selectText="เลือกพนักงาน"
+                     searchInputPlaceholderText="ค้นหาพนักงาน..."
+                     noItemsText="ไม่พบข้อมูลพนักงาน"
+                     onChangeInput={(text) => console.log(text)}
+                     tagRemoveIconColor="#7c2d12"
+                     tagBorderColor="#7c2d12"
+                     tagTextColor="#7c2d12"
+                     selectedItemTextColor="#7c2d12"
+                     selectedItemIconColor="#7c2d12"
+                     itemTextColor="#000"
+                     submitButtonColor="#16a34a"
+                     submitButtonText="ยืนยัน"
+                     styleListContainer={{ backgroundColor: 'white' }}
+                     styleDropdownMenuSubsection={{ paddingLeft: 10, borderRadius: 15 }}
+                     styleMainWrapper={{ paddingHorizontal: 10, paddingBottom: 10, backgroundColor: 'white', borderRadius: 15, borderBottomWidth: 5, borderColor: "#7c2d12" }}
+                  />
+               </Box >
+               <Box mx={5} mb={5} justifyContent={'flex-start'} >
+                  <Heading mb={2}>kitchen</Heading>
+                  <MultiSelect
+                     items={kitchen}
+                     uniqueKey="emp_id"
+                     displayKey="nname"
+                     onSelectedItemsChange={onSelectedKitchen}
+                     selectedItems={selectedKitchen}
+                     selectText="เลือกพนักงาน"
+                     searchInputPlaceholderText="ค้นหาพนักงาน..."
+                     noItemsText="ไม่พบข้อมูลพนักงาน"
+                     onChangeInput={(text) => console.log(text)}
+                     tagRemoveIconColor="#7c2d12"
+                     tagBorderColor="#7c2d12"
+                     tagTextColor="#7c2d12"
+                     selectedItemTextColor="#7c2d12"
+                     selectedItemIconColor="#7c2d12"
+                     itemTextColor="#000"
+                     submitButtonColor="#16a34a"
+                     submitButtonText="ยืนยัน"
+                     styleListContainer={{ backgroundColor: 'white' }}
+                     styleDropdownMenuSubsection={{ paddingLeft: 10, borderRadius: 15 }}
+                     styleMainWrapper={{ paddingHorizontal: 10, paddingBottom: 10, backgroundColor: 'white', borderRadius: 15, borderBottomWidth: 5, borderColor: "#7c2d12" }}
+                  />
+               </Box >
+               <Box mx={5} mb={5} justifyContent={'flex-start'} >
+                  <Heading mb={2}>wash</Heading>
+                  <MultiSelect
+                     items={wash}
+                     uniqueKey="emp_id"
+                     displayKey="nname"
+                     onSelectedItemsChange={onSelectedWash}
+                     selectedItems={selectedWash}
+                     selectText="เลือกพนักงาน"
+                     searchInputPlaceholderText="ค้นหาพนักงาน..."
+                     noItemsText="ไม่พบข้อมูลพนักงาน"
+                     onChangeInput={(text) => console.log(text)}
+                     tagRemoveIconColor="#7c2d12"
+                     tagBorderColor="#7c2d12"
+                     tagTextColor="#7c2d12"
+                     selectedItemTextColor="#7c2d12"
+                     selectedItemIconColor="#7c2d12"
+                     itemTextColor="#000"
+                     submitButtonColor="#16a34a"
+                     submitButtonText="ยืนยัน"
+                     styleListContainer={{ backgroundColor: 'white' }}
+                     styleDropdownMenuSubsection={{ paddingLeft: 10, borderRadius: 15 }}
+                     styleMainWrapper={{ paddingHorizontal: 10, paddingBottom: 10, backgroundColor: 'white', borderRadius: 15, borderBottomWidth: 5, borderColor: "#7c2d12" }}
+                  />
+               </Box >
+               <Box mx={5} mb={5} justifyContent={'flex-start'} >
+                  <Heading mb={2}>stove</Heading>
+                  <MultiSelect
+                     items={stove}
+                     uniqueKey="emp_id"
+                     displayKey="nname"
+                     onSelectedItemsChange={onSelectedStove}
+                     selectedItems={selectedStove}
+                     selectText="เลือกพนักงาน"
+                     searchInputPlaceholderText="ค้นหาพนักงาน..."
+                     noItemsText="ไม่พบข้อมูลพนักงาน"
+                     onChangeInput={(text) => console.log(text)}
+                     tagRemoveIconColor="#7c2d12"
+                     tagBorderColor="#7c2d12"
+                     tagTextColor="#7c2d12"
+                     selectedItemTextColor="#7c2d12"
+                     selectedItemIconColor="#7c2d12"
+                     itemTextColor="#000"
+                     submitButtonColor="#16a34a"
+                     submitButtonText="ยืนยัน"
+                     styleListContainer={{ backgroundColor: 'white' }}
+                     styleDropdownMenuSubsection={{ paddingLeft: 10, borderRadius: 15 }}
+                     styleMainWrapper={{ paddingHorizontal: 10, paddingBottom: 10, backgroundColor: 'white', borderRadius: 15, borderBottomWidth: 5, borderColor: "#7c2d12" }}
+                  />
+               </Box >
+               <Box mx={5} mb={5} justifyContent={'flex-start'} >
+                  <Heading mb={2}>waiter</Heading>
+                  <MultiSelect
+                     items={waiter}
+                     uniqueKey="emp_id"
+                     displayKey="nname"
+                     onSelectedItemsChange={onSelectedWaiter}
+                     selectedItems={selectedWaiter}
+                     selectText="เลือกพนักงาน"
+                     searchInputPlaceholderText="ค้นหาพนักงาน..."
+                     noItemsText="ไม่พบข้อมูลพนักงาน"
+                     onChangeInput={(text) => console.log(text)}
+                     tagRemoveIconColor="#7c2d12"
+                     tagBorderColor="#7c2d12"
+                     tagTextColor="#7c2d12"
+                     selectedItemTextColor="#7c2d12"
+                     selectedItemIconColor="#7c2d12"
+                     itemTextColor="#000"
+                     submitButtonColor="#16a34a"
+                     submitButtonText="ยืนยัน"
+                     styleListContainer={{ backgroundColor: 'white' }}
+                     styleDropdownMenuSubsection={{ paddingLeft: 10, borderRadius: 15 }}
+                     styleMainWrapper={{ paddingHorizontal: 10, paddingBottom: 10, backgroundColor: 'white', borderRadius: 15, borderBottomWidth: 5, borderColor: "#7c2d12" }}
+                  />
+               </Box >
+               {/* {['Cashier', 'wash'].map((dept) => {
             return <Box mx={5} mb={5} justifyContent={'flex-start'} >
                <Heading mb={2}>{dept}</Heading>
                <MultiSelect
@@ -340,8 +341,16 @@ const AddSchedule = ({ route, navigation }) => {
             </Box >
          })} */}
 
-            <Box m={5}></Box>
-         </ScrollView>
+               <Box m={5}></Box>
+            </ScrollView>
+         ) : (
+            <HStack my={16} space={2} justifyContent="center" alignItems={'center'}>
+               <Spinner accessibilityLabel="Loading" color={'#7c2d12'} />
+               <Heading color="#7c2d12" fontSize="md">
+                  กำลังโหลดข้อมูล
+               </Heading>
+            </HStack>
+         )}
 
 
          <AwesomeAlert

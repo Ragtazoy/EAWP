@@ -7,7 +7,7 @@ import { faPeopleGroup, faCalendarCheck, faCalendarWeek, faClipboardList, faStar
 // Screens
 import Emp from '../screens/manager/Emp';
 import Schedule from '../screens/manager/Schedule';
-import Attendance from '../screens/manager/Attendance';
+import AttendanceMng from '../screens/manager/AttendanceMng';
 import Report from '../screens/manager/Report';
 import Evaluate from '../screens/manager/Evaluate';
 
@@ -47,7 +47,7 @@ const Footer = () => {
             }}
          />
          <Tab.Screen
-            name="Attendance" component={Attendance}
+            name="AttendanceMng" component={AttendanceMng}
             options={{
                tabBarLabel: 'Attendance',
                tabBarIcon: ({ color, size }) => (

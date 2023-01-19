@@ -2,7 +2,7 @@ import React from 'react'
 import { Box, Heading, HStack, IconButton, Center, Text } from 'native-base'
 import { useNavigation } from '@react-navigation/native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faChevronLeft, faUserPlus, faUser, faCalendarDay } from '@fortawesome/free-solid-svg-icons'
+import { faChevronLeft, faUserPlus, faUser, faCalendarDay, faCalendarCheck, faUserEdit } from '@fortawesome/free-solid-svg-icons'
 
 const Header = ({ mode, icon, color, title, subtitle, subtitle2, element }) => {
    const navigation = useNavigation()
@@ -18,7 +18,7 @@ const Header = ({ mode, icon, color, title, subtitle, subtitle2, element }) => {
             <Center>
                <Heading alignSelf={'center'} mb={2}>{title}</Heading>
                <Text alignSelf={'center'} fontSize={'md'}>{subtitle}</Text>
-               <Text alignSelf={'center'} mb={2} fontSize={'4xl'}>{subtitle2}</Text>
+               <Text alignSelf={'center'} fontSize={'5xl'}>{subtitle2}</Text>
             </Center>
          ) : (
             <HStack justifyContent={'space-evenly'} alignItems={'center'}>
@@ -28,7 +28,10 @@ const Header = ({ mode, icon, color, title, subtitle, subtitle2, element }) => {
 
                <Center>
                   <Center bgColor={color} borderRadius={'full'} w={20} h={20}>
-                     <FontAwesomeIcon icon={icon === 'faUserPlus' ? faUserPlus : icon === 'faCalendarDay' ? faCalendarDay : faUser} color={'white'} size={40} />
+                     <FontAwesomeIcon
+                        icon={icon === 'faUserPlus' ? faUserPlus : icon === 'faCalendarDay' ? faCalendarDay : icon === 'faCalendarCheck' ? faCalendarCheck : icon === 'faUserEdit' ? faUserEdit : faUser}
+                        color={'white'} size={40}
+                     />
                   </Center>
                   <Heading lineHeight={'sm'} alignSelf={'center'} mt={5}>{title}</Heading>
                   {!!subtitle ? <Text alignSelf={'center'} fontSize={'md'}>{subtitle}</Text> : null}
