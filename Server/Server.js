@@ -64,7 +64,7 @@ app.get('/read/empdetail/:id', (req, res) => {
       "SELECT *, (SELECT GROUP_CONCAT(d.dept_name SEPARATOR ', ') FROM department d WHERE e.emp_id = d.emp_id) AS dept FROM employee e JOIN work_history w ON e.emp_id = w.emp_id WHERE e.emp_id = ?",
       [id],
       (err, results) => {
-         err ? console.log('/read/empdetail/:id ' + err) : res.json(results[0])
+         err ? console.log('/read/empdetail/:id ' + err) : res.json(results[0]); console.log(res.json(results[0]))
       }
    );
 })
