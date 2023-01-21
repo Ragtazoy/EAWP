@@ -5,15 +5,18 @@ import { Camera } from 'react-native-vision-camera';
 import { useScanBarcodes, BarcodeFormat } from 'vision-camera-code-scanner';
 import Geolocation from '@react-native-community/geolocation';
 import { getDistance } from 'geolib';
+import axios from 'axios';
 import moment from 'moment';
 
 import Icon from 'react-native-vector-icons/Feather'
 import AwesomeAlert from 'react-native-awesome-alerts'
-import Modal from '../../components/Modal';
+import Modal from '../../components/Modal'
 
 export default function QrScanner2({ route, navigation }) {
    const { id, sched_id } = route.params
-   const [showAlert, setShowAlert] = useState(false)
+   const [showInvalid, setshowInvalid] = useState(false)
+   const [showSuccess, setshowSuccess] = useState(false)
+   const [isFunctionCalled, setIsFunctionCalled] = useState(false);
 
    const [isActive, setIsActive] = useState(true);
    const [hasPermission, setHasPermission] = useState(false);
@@ -34,12 +37,16 @@ export default function QrScanner2({ route, navigation }) {
 
    useEffect(() => {
       if (barcodes && barcodes.length > 0) {
-         checkBarcode()
+         if (!isFunctionCalled) {
+            checkBarcode()
+            setIsFunctionCalled(true);
+         }
       }
    }, [barcodes]);
 
    const checkBarcode = async () => {
-      setIsActive(false)
+      await setIsActive(false)
+
       const qrCode = await barcodes[0].displayValue
       console.log(qrCode)
       const objQrCode = await JSON.parse(qrCode)
@@ -49,7 +56,7 @@ export default function QrScanner2({ route, navigation }) {
                position.coords,
                objQrCode
             )
-            distance < 100 ? checkIn() : setShowAlert(true)
+            distance < 100 ? checkIn() : setshowInvalid(true)
          },
          error => Alert.alert(error.message),
          { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
@@ -67,14 +74,15 @@ export default function QrScanner2({ route, navigation }) {
          status = 'late'
       }
 
-      console.log(time_in.format('YYYY-MM-DD HH:mm:ss'), status, id, sched_id);
+      console.log(time_in.format('YYYY-MM-DD HH:mm:ss'), status, id, sched_id)
       await axios.post('http://10.0.2.2:81/create/work_attendance', {
-         time_in: time_in,
+         time_in: time_in.format('YYYY-MM-DD HH:mm:ss'),
          status: status,
          emp_id: id,
          sched_id: sched_id
       }).then(() => {
          console.log('post /create/work_attendance already')
+         setshowSuccess(true)
       })
    };
 
@@ -100,10 +108,16 @@ export default function QrScanner2({ route, navigation }) {
             />
 
             <AwesomeAlert
-               show={showAlert}
+               show={showInvalid}
                customView={<Modal mode={'invalid'} title={'คุณอยู่ห่างจากร้านเกินไป'} />}
                contentContainerStyle={{ width: '80%' }}
-               onDismiss={() => { navigation.navigate('AttendanceEmp') }}
+               onDismiss={() => { setshowInvalid(false); navigation.navigate('AttendanceEmp') }}
+            />
+            <AwesomeAlert
+               show={showSuccess}
+               customView={<Modal mode={'success'} title={'ลงเวลางานสำเร็จ'} />}
+               contentContainerStyle={{ width: '80%' }}
+               onDismiss={() => { setshowSuccess(false); navigation.navigate('AttendanceEmp') }}
             />
          </NativeBaseProvider>
       )

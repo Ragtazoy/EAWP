@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { NativeBaseProvider, VStack, HStack, Heading, Text, IconButton } from 'native-base'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios'
 import { Calendar } from 'react-native-calendars'
 import moment from 'moment'
+
 import Icon from 'react-native-vector-icons/FontAwesome'
 import Cards from '../../components/Cards'
 
@@ -11,7 +13,9 @@ const AttendanceMng = ({ navigation }) => {
    const [isLoading, setIsLoading] = useState(true)
 
    useEffect(() => {
-      axios.get('http://10.0.2.2:81/read/count_emp_in_scheduling', { params: { sched_date: moment().format('YYYY-MM-DD') } }).then((res) => {
+      axios.get('http://10.0.2.2:81/read/count_emp_in_scheduling', {
+         params: { sched_date: moment().format('YYYY-MM-DD') }
+      }).then((res) => {
          console.log(res.data)
          setCountEmp(res.data)
          setIsLoading(false)
@@ -19,11 +23,15 @@ const AttendanceMng = ({ navigation }) => {
 
    }, [isLoading])
 
+   const handleLogout = async () => {
+      await AsyncStorage.clear()
+      navigation.navigate('Login')
+   }
 
    return (
       <NativeBaseProvider>
          <HStack justifyContent={'space-around'} py={5}>
-            <IconButton colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={1} boxSize={16} onPress={() => navigation.navigate('Login')}>
+            <IconButton colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={1} boxSize={16} onPress={handleLogout}>
                <Icon name={'sign-out'} color={'black'} size={23} />
             </IconButton>
             <Text>ย่างเนย</Text>

@@ -14,11 +14,11 @@ const ProfileEmp = ({ navigation }) => {
       const getEmpDetail = async () => {
          const emp_id = await AsyncStorage.getItem('userId');
          console.log('id: ' + emp_id);
-         axios.get('http://10.0.2.2:81/read/empdetail/' + emp_id).then((res) => {
+         await axios.get('http://10.0.2.2:81/read/empdetail/' + emp_id).then((res) => {
             setitem(res.data)
-            setIsLoading(false)
             console.log(item);
          })
+         await setIsLoading(false)
       }
 
       getEmpDetail()

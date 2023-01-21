@@ -9,7 +9,8 @@ const Modal = ({ mode, title, desc }) => {
       <VStack space={5} my={5} alignItems={'center'}>
          {mode === 'success' ? <Icon name={'checkcircleo'} color={'#22c55e'} size={90} /> :
             mode === 'invalid' ? <Icon name={'closecircleo'} color={'#dc2626'} size={90} /> :
-               mode === 'confirm' ? null : null}
+               mode === 'warning' ? <Icon name={'exclamationcircleo'} color={'#fcd34d'} size={90} /> :
+                  mode === 'confirm' ? null : null}
          <Heading>{title}</Heading>
          {!!desc ? <Text fontSize={'md'}>{desc}</Text> : null}
       </VStack>

@@ -3,14 +3,20 @@ import { NativeBaseProvider, Box, Spinner, Divider, Heading, Text, Button, HStac
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import moment from 'moment'
+import AwesomeAlert from 'react-native-awesome-alerts'
+
 import Icon from 'react-native-vector-icons/Ionicons'
 import Header from '../../components/Header'
+import Modal from '../../components/Modal'
 
 const AttendanceEmp = ({ navigation }) => {
    const [item, setItem] = useState([])
    const [workSchedule, setWorkSchedule] = useState([])
+   const [workAttendance, setWorkAttendance] = useState([])
    const [currentTime, setCurrentTime] = useState(moment().format('HH:mm:ss'))
    const [isLoading, setIsLoading] = useState(true)
+
+   const [showAlert, setshowAlert] = useState(false)
 
    useEffect(() => {
       (async () => {
@@ -19,7 +25,6 @@ const AttendanceEmp = ({ navigation }) => {
 
          axios.get('http://10.0.2.2:81/read/empdetail/' + userId).then((res) => {
             setItem(res.data)
-            console.log(res.data);
          })
 
          await axios.get('http://10.0.2.2:81/read/a_emp_in_scheduling', {
@@ -28,16 +33,40 @@ const AttendanceEmp = ({ navigation }) => {
             setWorkSchedule(res.data)
          })
 
-         console.log('workSchedule ', workSchedule.length !== 0);
+         await axios.get('http://10.0.2.2:81/read/work_attendance', {
+            params: { sched_id: workSchedule['sched_id'] }
+         }).then((res) => {
+            const arrByID = res.data.filter((item) => { return (item['emp_id'] == userId) })
+            setWorkAttendance(arrByID)
+         })
+
+         console.log('workSchedule ', workSchedule);
+         console.log('workAttendance ', workAttendance);
          setIsLoading(false)
       })()
 
       const interval = setInterval(() => {
-         setCurrentTime(moment().format('HH:mm:ss'.toString()));
+         setCurrentTime(moment().format('HH:mm:ss'));
       }, 1000);
       return () => clearInterval(interval);
 
    }, [isLoading]);
+
+   const checkIn = async () => {
+      const timeIn = await moment()
+      const timeFix = await moment().hours(16).minutes(0).seconds(0)
+      const timeDiff = timeIn.diff(timeFix)
+      console.log(timeDiff);
+      if (timeDiff < 3600000) {
+         navigation.navigate('QrScanner', { id: workSchedule.emp_id, sched_id: workSchedule.sched_id })
+      } else {
+         setshowAlert(true)
+      }
+   }
+
+   const checkOut = () => {
+      console.log('CHECK OUT');
+   }
 
    return (
       <NativeBaseProvider>
@@ -63,16 +92,28 @@ const AttendanceEmp = ({ navigation }) => {
 
          <Heading my={3} alignSelf={'center'}>งานวันนี้</Heading>
          {!isLoading ? (
-            workSchedule.length !== 0 ? (
-               <Box alignItems={'center'}>
-                  <Heading fontSize={'xl'}>ตำแหน่ง: {workSchedule.dept_name}</Heading>
-                  <Text mx={2} mb={6}>พนักงาน {workSchedule.nname}</Text>
-                  <Button w={'48'} h={'48'} colorScheme={'success'} borderRadius={'full'} shadow={2}
-                     onPress={() => { navigation.navigate('QrScanner', { id: workSchedule.emp_id, sched_id: workSchedule.sched_id }) }} >
-                     <Heading color={'white'} fontSize={'2xl'}>บันทึกเข้างาน</Heading>
-                  </Button>
-               </Box>
-            ) : <Heading alignSelf={'center'} mt={5} color={'orange.900'}>ไม่มี</Heading>
+            workSchedule !== '' ? (
+               workAttendance.length === 0 ? (
+                  <Box alignItems={'center'}>
+                     <Heading fontSize={'xl'}>ตำแหน่ง: {workSchedule.dept_name}</Heading>
+                     <Text mx={2} mb={6}>พนักงาน {workSchedule.nname}</Text>
+                     <Button w={'48'} h={'48'} colorScheme={'success'} borderRadius={'full'} shadow={2}
+                        onPress={checkIn} >
+                        <Heading color={'white'} fontSize={'2xl'}>บันทึกเข้างาน</Heading>
+                     </Button>
+                  </Box>
+               ) : (
+                  <Box alignItems={'center'}>
+                     <Heading fontSize={'xl'}>ตำแหน่ง: {workSchedule.dept_name}</Heading>
+                     <Text mx={2} mb={6}>พนักงาน {workSchedule.nname}</Text>
+                     <Button w={'48'} h={'48'} colorScheme={'info'} borderRadius={'full'} shadow={2}
+                        onPress={checkOut} >
+                        <Heading color={'white'} fontSize={'2xl'}>บันทึกออกงาน</Heading>
+                     </Button>
+                  </Box>
+               )
+            ) : (
+               <Heading alignSelf={'center'} mt={5} color={'orange.900'}>ไม่มี</Heading>)
          ) : (
             <HStack my={16} space={2} justifyContent="center" alignItems={'center'}>
                <Spinner accessibilityLabel="Loading" color={'#7c2d12'} />
@@ -81,6 +122,13 @@ const AttendanceEmp = ({ navigation }) => {
                </Heading>
             </HStack>
          )}
+
+         <AwesomeAlert
+            show={showAlert}
+            customView={<Modal mode={'warning'} title={'ยังไม่ถึงเวลาเข้างาน'} />}
+            contentContainerStyle={{ width: '80%' }}
+            onDismiss={() => { setshowAlert(false) }}
+         />
       </NativeBaseProvider>
    )
 }

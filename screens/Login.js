@@ -7,13 +7,17 @@ import { faEye, faEyeSlash, faSignIn } from '@fortawesome/free-solid-svg-icons/'
 // import ToastAlert from '../components/ToastAlert'
 
 const Login = ({ navigation }) => {
+   const [isLoading, setIsLoading] = useState(true)
    const [username, setUsername] = useState('')
-   const [password, setpassword] = useState('')
+   const [password, setPassword] = useState('')
    const [show, setShow] = useState(false)
    const [isInvalid, setIsInvalid] = useState(false)
 
+
    useEffect(() => {
       const checkLoginStatus = async () => {
+         await navigation.addListener('focus', () => { setIsLoading(true); setIsInvalid(false) })
+
          const isLoggedIn = await AsyncStorage.getItem('userId');
          console.log(isLoggedIn);
          if (isLoggedIn > 0) {
@@ -21,10 +25,13 @@ const Login = ({ navigation }) => {
          } else {
             console.log('not loged in');
          }
+         await setUsername('')
+         await setPassword('')
+         setIsLoading(false)
       }
 
       checkLoginStatus()
-   }, [])
+   }, [isLoading])
 
    const handleLogin = async () => {
       await axios.post('http://10.0.2.2:81/login', {
@@ -35,7 +42,7 @@ const Login = ({ navigation }) => {
             // Save user ID to AsyncStorage
             AsyncStorage.setItem('userId', JSON.stringify(res.data.id));
             console.log(res.data.role);
-            navigation.navigate(res.data.role == 'manager' ? 'AttendanceMng' : 'AttendanceEmp')
+            navigation.navigate(res.data.role == 'manager' ? 'AttendanceMng' : 'ScheduleEmp')
          } else {
             setIsInvalid(true)
          }
@@ -65,7 +72,7 @@ const Login = ({ navigation }) => {
 
                   <FormControl isInvalid={isInvalid}>
                      <FormControl.Label>Password</FormControl.Label>
-                     <Input type={show ? "text" : "password"} value={password} onChangeText={e => setpassword(e)}
+                     <Input type={show ? "text" : "password"} value={password} onChangeText={e => setPassword(e)}
                         InputRightElement={
                            <Pressable onPress={() => setShow(!show)}>
                               <FontAwesomeIcon icon={show ? faEye : faEyeSlash} color='#a3a3a3' size={20} style={{ marginRight: 10 }} />
@@ -76,16 +83,6 @@ const Login = ({ navigation }) => {
                   <Button onPress={handleLogin} leftIcon={<FontAwesomeIcon icon={faSignIn} color='white' />} mt="2" colorScheme="amber">
                      Sign in
                   </Button>
-
-                  {/* Sign Up */}
-                  {/* <HStack mt="6" justifyContent="center">
-							<Text fontSize="sm" color="coolGray.600">
-								I'm a new user.{" "}
-							</Text>
-							<Link _text={{ color: "indigo.500", fontWeight: "medium", fontSize: "sm" }} href="#">
-								Sign Up
-							</Link>
-						</HStack> */}
                </VStack>
             </Box>
          </Center>

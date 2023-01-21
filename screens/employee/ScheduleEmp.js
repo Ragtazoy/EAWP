@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { NativeBaseProvider, Box, Text, Button, Heading, HStack, IconButton } from 'native-base'
+import { NativeBaseProvider, Box, Text, Button, Heading, HStack, IconButton, Spinner } from 'native-base'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import moment from 'moment';
@@ -8,7 +8,6 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 
 const ScheduleEmp = ({ navigation }) => {
    const [workSchedule, setWorkSchedule] = useState([])
-
    const [isLoading, setIsLoading] = useState(true)
 
    let dates = []
@@ -34,10 +33,10 @@ const ScheduleEmp = ({ navigation }) => {
 
          setWorkSchedule(empInSched)
          console.log(empInSched);
+         setIsLoading(false)
       }
 
       empInScheduling()
-      setIsLoading(false)
    }, [isLoading])
 
 
@@ -51,9 +50,14 @@ const ScheduleEmp = ({ navigation }) => {
       }
    }
 
+   const handleLogout = async () => {
+      await AsyncStorage.clear()
+      navigation.navigate('Login')
+   }
+
    const renderItem = (item) => (
       <Box position={'relative'} m={2} p={2} bgColor={'white'} borderRadius={'xl'} shadow={1} justifyContent={'center'} borderLeftWidth={4} borderColor={deptColor(item.dept_name)}>
-         {moment().diff(item.sched_date, 'days') === 0 ? (
+         {moment().format('YYYY-MM-DD') === moment(item.sched_date).format('YYYY-MM-DD') ? (
             <Button onPress={() => { navigation.navigate('AttendanceEmp') }} position={'absolute'} top={0} right={0} p={2} colorScheme={'success'} shadow={1} borderTopRightRadius={'xl'} borderBottomLeftRadius={'xl'} borderRadius={0}
                leftIcon={<Icon name='calendar-check-o' color={'white'} size={18} />}>
                เช็คชื่อ
@@ -74,38 +78,50 @@ const ScheduleEmp = ({ navigation }) => {
    return (
       <NativeBaseProvider>
          <HStack justifyContent={'space-around'} py={5}>
-            <IconButton colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={1} boxSize={16} onPress={() => navigation.navigate('Login')}>
+            <IconButton onPress={handleLogout} colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={1} boxSize={16}>
                <Icon name={'sign-out'} color={'black'} size={23} />
             </IconButton>
             <Text>ย่างเนย</Text>
-            <IconButton colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={1} boxSize={16} onPress={() => navigation.goBack()}>
+            <IconButton onPress={() => navigation.goBack()} colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={1} boxSize={16}>
                <Icon name={'bell-o'} color={'black'} size={20} />
             </IconButton>
          </HStack>
          <Box flex={1} bgColor={'white'} borderTopRadius={50} shadow={1}>
             <Heading pt={5} alignSelf={'center'}>ตารางงาน</Heading>
-            <Agenda
-               selected={dates[0]}
-               minDate={dates[0]}
-               maxDate={dates[6]}
-               items={{
-                  [dates[0]]: [workSchedule[0]],
-                  [dates[1]]: [workSchedule[1]],
-                  [dates[2]]: [workSchedule[2]],
-                  [dates[3]]: [workSchedule[3]],
-                  [dates[4]]: [workSchedule[4]],
-                  [dates[5]]: [workSchedule[5]],
-                  [dates[6]]: [workSchedule[6]],
-               }}
-               theme={{
-                  dotColor: '#7c2d12',
-                  selectedDayBackgroundColor: '#7c2d12',
-                  agendaTodayColor: '#7c2d12',
-               }}
-               hideKnob={true}
-               renderItem={renderItem}
-               refreshing={isLoading} onRefresh={() => setIsLoading(true)}
-            />
+
+            {!isLoading ? (
+               <Agenda
+                  displayLoadingIndicator={true}
+                  selected={dates[0]}
+                  minDate={dates[0]}
+                  maxDate={dates[6]}
+                  items={{
+                     [dates[0]]: [workSchedule[0]],
+                     [dates[1]]: [workSchedule[1]],
+                     [dates[2]]: [workSchedule[2]],
+                     [dates[3]]: [workSchedule[3]],
+                     [dates[4]]: [workSchedule[4]],
+                     [dates[5]]: [workSchedule[5]],
+                     [dates[6]]: [workSchedule[6]],
+                  }}
+                  theme={{
+                     dotColor: '#7c2d12',
+                     selectedDayBackgroundColor: '#7c2d12',
+                     agendaTodayColor: '#7c2d12',
+                  }}
+                  hideKnob={true}
+                  renderItem={renderItem}
+                  refreshing={isLoading} onRefresh={() => setIsLoading(true)}
+               />
+            ) : (
+               <HStack my={16} space={2} justifyContent="center" alignItems={'center'}>
+                  <Spinner accessibilityLabel="Loading" color={'#7c2d12'} />
+                  <Heading color="#7c2d12" fontSize="md">
+                     กำลังโหลดข้อมูล
+                  </Heading>
+               </HStack>
+            )}
+
          </Box>
 
       </NativeBaseProvider>

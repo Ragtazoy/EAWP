@@ -16,7 +16,7 @@ const Tab = createBottomTabNavigator();
 const Footer = () => {
    return <NativeBaseProvider>
       <Tab.Navigator
-         initialRouteName="Employee"
+         initialRouteName="AttendanceMng"
          screenOptions={{
             tabBarActiveTintColor: 'white',
             tabBarInactiveTintColor: '#7c2d12',

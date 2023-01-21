@@ -62,7 +62,7 @@ const Schedule = ({ navigation }) => {
                   renderItem={({ item, index }) => {
                      return <LongCards mode={'mng'} txt1={'วันที่'} txt2={moment(dates[index]).format('D MMMM YYYY')} txt3={`มีพนักงาน ${item['count_emp']} คน`} />
                   }}
-                  keyExtractor={item => item.uniqueProperty}
+                  keyExtractor={item => item.date}
                   refreshing={isLoading} onRefresh={() => setIsLoading(true)}
                />
             </ScrollView>
