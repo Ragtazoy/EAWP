@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { NativeBaseProvider, VStack, HStack, Heading, Text, IconButton } from 'native-base'
+import { NativeBaseProvider, VStack, HStack, Heading, Text, IconButton, Box, Spinner } from 'native-base'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios'
 import { Calendar } from 'react-native-calendars'
@@ -10,16 +10,27 @@ import Cards from '../../components/Cards'
 
 const AttendanceMng = ({ navigation }) => {
    const [countEmp, setCountEmp] = useState([])
+   const [countAttended, setCountAttended] = useState([])
    const [isLoading, setIsLoading] = useState(true)
 
    useEffect(() => {
+      // const getCount = () => { second }
       axios.get('http://10.0.2.2:81/read/count_emp_in_scheduling', {
          params: { sched_date: moment().format('YYYY-MM-DD') }
       }).then((res) => {
          console.log(res.data)
          setCountEmp(res.data)
-         setIsLoading(false)
+
+         axios.get('http://10.0.2.2:81/read/work_attendance', {
+            params: { sched_id: res.data.sched_id }
+         }).then((res) => {
+            console.log(res.data.length)
+            setCountAttended(res.data.length)
+
+            setIsLoading(false)
+         })
       })
+
 
    }, [isLoading])
 
@@ -40,10 +51,19 @@ const AttendanceMng = ({ navigation }) => {
             </IconButton>
          </HStack>
 
-         <HStack space={4} p={5}>
-            <Cards color={'green.400'} text={'พนักงานวันนี้'} heading={countEmp['count_emp'] + ' คน'} />
-            <Cards color={'blue.300'} text={'พนักงานที่เข้างาน'} heading={'-' + ' คน'} />
-         </HStack>
+         {!isLoading ? (
+            <HStack space={4} p={5}>
+               <Cards color={'green.400'} text={'พนักงานวันนี้'} heading={countEmp['count_emp'] + ' คน'} />
+               <Cards color={'blue.300'} text={'พนักงานที่เข้างาน'} heading={countAttended + ' คน'} />
+            </HStack>
+         ) : (
+            <HStack my={16} space={5} justifyContent="center" alignItems={'center'}>
+               <Spinner accessibilityLabel="Loading" color={'#7c2d12'} />
+               <Heading color="#7c2d12" fontSize="md">
+                  กำลังโหลดข้อมูล
+               </Heading>
+            </HStack>
+         )}
 
          <VStack pb={10} bgColor={'white'} borderRadius={50} shadow={1} justifyContent={'space-around'}>
             <Heading pt={5} alignSelf={'center'}>การเข้างาน</Heading>
@@ -56,11 +76,10 @@ const AttendanceMng = ({ navigation }) => {
                   selectedDayBackgroundColor: '#7c2d12',
                }}
                initialDate={moment().format('YYYY-MM-DD')}
+               maxDate={moment().format('YYYY-MM-DD')}
                onDayPress={date => {
                   console.log(date)
                   navigation.navigate('AttendanceDetail', { date: date })
-                  // hasSchedule ? navigation.navigate('EditSchedule', { date: date })
-                  //    : navigation.navigate('AddSchedule', { date: date })
                }}
             />
          </VStack>

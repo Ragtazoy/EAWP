@@ -79,7 +79,7 @@ app.get('/read/count_emp_by_job_title', (req, res) => {
 
 app.get('/read/count_emp_in_scheduling', (req, res) => {
    const sched_date = req.query.sched_date
-   db.query("SELECT COUNT(*) AS count_emp FROM scheduling WHERE sched_id = (SELECT sched_id FROM work_schedule WHERE sched_date = ?)",
+   db.query("SELECT sched_id, COUNT(*) AS count_emp FROM scheduling WHERE sched_id = (SELECT sched_id FROM work_schedule WHERE sched_date = ?)",
       [sched_date],
       (err, results) => {
          err ? console.log('/read/count_emp_in_scheduling ' + err) : res.json(results[0])
