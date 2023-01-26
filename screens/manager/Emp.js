@@ -18,7 +18,7 @@ const Emp = () => {
       const getDate = async () => {
          await navigation.addListener('focus', () => setIsLoading(true))
 
-         axios.get('http://10.0.2.2:81/read/count_emp_by_job_title').then((res) => {
+         await axios.get('http://10.0.2.2:81/read/count_emp_by_job_title').then((res) => {
             setCountEmp(res.data)
          })
          await axios.get('http://10.0.2.2:81/read/emplist').then((res) => {
@@ -66,10 +66,19 @@ const Emp = () => {
    return (
       <NativeBaseProvider>
          <VStack>
-            <HStack space={4} p={5}>
-               <Cards color={'green.400'} text={'พนักงานประจำ'} heading={countEmp['full-time'] + ' คน'} />
-               <Cards color={'amber.300'} text={'พนักงานชั่วคราว'} heading={countEmp['part-time'] + ' คน'} />
-            </HStack>
+            {!isLoading ? (
+               <HStack space={4} p={5}>
+                  <Cards color={'green.400'} text={'พนักงานประจำ'} heading={countEmp['full-time'] + ' คน'} />
+                  <Cards color={'amber.300'} text={'พนักงานชั่วคราว'} heading={countEmp['part-time'] + ' คน'} />
+               </HStack>
+            ) : (
+               <HStack my={16} space={2} justifyContent="center" alignItems={'center'}>
+                  <Spinner accessibilityLabel="Loading" color={'#7c2d12'} />
+                  <Heading color="#7c2d12" fontSize="md">
+                     กำลังโหลดข้อมูล
+                  </Heading>
+               </HStack>
+            )}
 
             <HStack h={70} borderTopRadius={50} shadow={1} justifyContent={'space-around'} alignItems={'center'} bgColor={'white'}>
                <Heading>รายชื่อพนักงาน</Heading>

@@ -56,14 +56,14 @@ const Schedule = ({ navigation }) => {
          <Header mode={'text'} title={'จัดตารางงาน'} subtitle={'จำนวนพนักงานในแต่ละวัน'} />
 
          <ScrollView nestedScrollEnabled={true}>
-            <ScrollView horizontal={true} py={5} pl={3}>
+
+            <ScrollView py={5} pl={3}>
                <FlatList horizontal={true} ItemSeparatorComponent={() => <Box p={1.5} />}
                   data={countEmp}
                   renderItem={({ item, index }) => {
                      return <LongCards mode={'mng'} txt1={'วันที่'} txt2={moment(dates[index]).format('D MMMM YYYY')} txt3={`มีพนักงาน ${item['count_emp']} คน`} />
                   }}
                   keyExtractor={item => item.date}
-                  refreshing={isLoading} onRefresh={() => setIsLoading(true)}
                />
             </ScrollView>
 
@@ -116,10 +116,8 @@ const Schedule = ({ navigation }) => {
                   </HStack>
                )}
             </VStack>
+
          </ScrollView>
-
-
-
       </NativeBaseProvider>
    )
 }

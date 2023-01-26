@@ -7,7 +7,7 @@ const LongCards = ({ mode, select, txt1, txt2, txt3 }) => {
       <Box>
          {
             mode === 'mng' ? (
-               <Box w={220} minHeight={'full'} p={3} bgColor={'#7c2d12'} shadow={1} borderRadius={10} justifyContent={'center'} alignItems={'flex-start'}>
+               <Box w={220} minHeight={'full'} p={3} bgColor={'#7c2d12'} shadow={1} borderRadius={10} justifyContent={'center'}>
                   <Heading fontSize={'xl'} color={'#fcd34d'}>{txt1}</Heading>
                   <Text mb={2} fontSize={'lg'} color={'white'}>{txt2}</Text>
                   <Heading mt={3} fontSize={'xl'} color={'#fcd34d'}>{txt3}</Heading>

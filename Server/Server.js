@@ -110,9 +110,21 @@ app.get('/read/a_emp_in_scheduling', (req, res) => {
 
 app.get('/read/work_attendance', (req, res) => {
    const sched_id = req.query.sched_id
-   db.query("SELECT * FROM work_attendance WHERE sched_id = ?",[sched_id],
+   db.query("SELECT * FROM work_attendance WHERE sched_id = ?", [sched_id],
       (err, results) => {
          err ? console.log('/read/work_attendance ' + err) : res.json(results)
+      }
+   );
+})
+
+app.get('/read/a_emp_in_multi_scheduling', (req, res) => {
+   const emp_id = req.query.emp_id
+   const date_start = req.query.date_start
+   const date_end = req.query.date_end
+   db.query("SELECT *, w.sched_date, (SELECT e.nname FROM employee e WHERE e.emp_id = s.emp_id) AS nname FROM scheduling s JOIN work_schedule w ON s.sched_id = w.sched_id WHERE s.emp_id = ? AND s.sched_id IN (SELECT w.sched_id FROM work_schedule w WHERE w.sched_date BETWEEN ? AND ?)",
+      [emp_id, date_start, date_end],
+      (err, results) => {
+         err ? console.log('/read/a_emp_in_multi_scheduling ' + err) : res.json(results)
       }
    );
 })
