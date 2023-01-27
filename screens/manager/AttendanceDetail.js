@@ -36,11 +36,13 @@ const AttendanceDetail = ({ route }) => {
                   console.log('emp2', empStatus);
 
                   empDept.forEach((empDept) => {
-                     if (empStatus.some(empStatus => empDept.emp_id === empStatus.emp_id)) {
-                        empDept.status = "attended";
-                     } else {
-                        empDept.status = "";
-                     }
+                     empStatus.forEach((empStatus) => {
+                        if (empDept.emp_id === empStatus.emp_id) {
+                           empDept.status = empStatus.status
+                        } else {
+                           empDept.status = "";
+                        }
+                     })
                   })
                })
 
@@ -52,7 +54,7 @@ const AttendanceDetail = ({ route }) => {
                   groupedData[deptName].push(entry);
                })
                await setEmp(groupedData);
-               console.log('groupedData', groupedData);
+               console.log('groupedData', groupedData.kitchen);
 
                setIsLoading(false);
             }
@@ -87,15 +89,15 @@ const AttendanceDetail = ({ route }) => {
             <VStack flex={1} mt={5} px={5} bgColor={'white'} borderTopRadius={50} shadow={1}>
                <Text pt={5} alignSelf={'center'} fontSize={'lg'}>{moment(date.dateString).format('dddd DD MMMM YYYY')}</Text>
                <ScrollView>
-               {['cashier', 'kitchen', 'wash', 'stove', 'waiter'].map((dept, index) => {
-                  return (
-                     <Box pt={5} bgColor={'white'}>
-                        <Heading>{deptThai[index]}</Heading>
-                        <FlatList data={emp[dept]} renderItem={renderItem} keyExtractor={item => item.scheduling_id} />
-                        <Divider my={5} pb={1} borderRadius={'full'} bgColor={'#7c2d12'} />
-                     </Box>
-                  )
-               })}
+                  {['cashier', 'kitchen', 'wash', 'stove', 'waiter'].map((dept, index) => {
+                     return (
+                        <Box pt={5} bgColor={'white'}>
+                           <Heading>{deptThai[index]}</Heading>
+                           <FlatList data={emp[dept]} renderItem={renderItem} keyExtractor={item => item.scheduling_id} />
+                           <Divider my={5} pb={1} borderRadius={'full'} bgColor={'#7c2d12'} />
+                        </Box>
+                     )
+                  })}
                </ScrollView>
             </VStack>
          ) : (

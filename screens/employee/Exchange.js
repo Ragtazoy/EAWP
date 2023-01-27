@@ -80,7 +80,7 @@ const Exchange = ({ navigation }) => {
                         indicatorColor: 'red',
                         selectedDayBackgroundColor: '#7c2d12',
                      }}
-                     minDate={dates[0]}
+                     minDate={dates[1]}
                      maxDate={dates[6]}
                      onDayPress={date => {
                         setSelectedDate(date.dateString)

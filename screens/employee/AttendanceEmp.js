@@ -16,7 +16,8 @@ const AttendanceEmp = ({ navigation }) => {
    const [currentTime, setCurrentTime] = useState(moment().format('HH:mm:ss'))
    const [isLoading, setIsLoading] = useState(true)
 
-   const [showAlert, setshowAlert] = useState(false)
+   const [showAlert, setShowAlert] = useState({ show: false, text: "" })
+   const [showConfirm, setShowConfirm] = useState(false)
 
    useEffect(() => {
       (async () => {
@@ -53,19 +54,25 @@ const AttendanceEmp = ({ navigation }) => {
    }, [isLoading]);
 
    const checkIn = async () => {
-      const timeIn = await moment()
-      const timeFix = await moment().hours(16).minutes(0).seconds(0)
-      const timeDiff = timeIn.diff(timeFix)
+      const timeIn = await +moment()
+      const timeFix = await +moment().hours(24).minutes(0).seconds(0)
+      const timeDiff = timeFix - timeIn
       console.log(timeDiff);
-      if (timeDiff < 3600000) {
+      if (timeDiff > 3600000) {
+         setShowAlert({ show: true, text: "ยังไม่ถึงเวลาเข้างาน" })
+      } else if (timeDiff > -7200000) {
          navigation.navigate('QrScanner', { id: workSchedule.emp_id, sched_id: workSchedule.sched_id })
       } else {
-         setshowAlert(true)
+         setShowAlert({ show: true, text: "เลยเวลาเข้างาน" })
       }
    }
 
-   const checkOut = () => {
-      console.log('CHECK OUT');
+   const checkOut = async () => {
+      await axios.get('http://10.0.2.2:81/read/a_emp_in_scheduling', {
+         params: { emp_id: userId, sched_date: moment().format('YYYY-MM-DD') }
+      }).then((res) => {
+         setWorkSchedule(res.data)
+      })
    }
 
    return (
@@ -107,7 +114,7 @@ const AttendanceEmp = ({ navigation }) => {
                      <Heading fontSize={'xl'}>ตำแหน่ง: {workSchedule.dept_name}</Heading>
                      <Text mx={2} mb={6}>พนักงาน {workSchedule.nname}</Text>
                      <Button w={'48'} h={'48'} colorScheme={'info'} borderRadius={'full'} shadow={2}
-                        onPress={checkOut} >
+                        onPress={() => { setShowConfirm(true) }} >
                         <Heading color={'white'} fontSize={'2xl'}>บันทึกออกงาน</Heading>
                      </Button>
                   </Box>
@@ -124,10 +131,22 @@ const AttendanceEmp = ({ navigation }) => {
          )}
 
          <AwesomeAlert
-            show={showAlert}
-            customView={<Modal mode={'warning'} title={'ยังไม่ถึงเวลาเข้างาน'} />}
+            show={showAlert.show}
+            customView={<Modal mode={'warning'} title={showAlert.text} />}
             contentContainerStyle={{ width: '80%' }}
-            onDismiss={() => { setshowAlert(false) }}
+            onDismiss={() => { setShowAlert({ show: false, text: "" }) }}
+         />
+         <AwesomeAlert
+            show={showConfirm}
+            customView={<Modal mode={'confirm'} title={'ยืนยันบันทึกออกงาน'} desc={'คุณต้องการบันทึกเวลาออกงานหรือไม่'} />}
+            contentContainerStyle={{ width: '80%' }}
+            showConfirmButton={true}
+            confirmButtonColor={'#16a34a'}
+            onConfirmPressed={checkOut}
+            showCancelButton={true}
+            cancelButtonColor={'#a3a3a3'}
+            onCancelPressed={() => { setShowConfirm(false) }}
+            onDismiss={() => { setShowConfirm(false) }}
          />
       </NativeBaseProvider>
    )

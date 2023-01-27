@@ -257,6 +257,20 @@ app.put('/update/emp/:id', (req, res) => {
       }
    );
 })
+
+app.put('/update/work_history', (req, res) => {
+   const emp_id = req.body.emp_id
+   const job_hours = req.body.job_hours
+   const absent_quantity = req.body.absent_quantity
+   const late_quantity = req.body.late_quantity
+   const leave_quantity = req.body.leave_quantity
+   db.query("UPDATE work_history SET job_hours = job_hours+?, absent_quantity = absent_quantity+?, late_quantity = late_quantity+?, leave_quantity = leave_quantity+? WHERE emp_id = ?",
+      [job_hours, absent_quantity, late_quantity, leave_quantity, emp_id],
+      (err, results) => {
+         err ? console.log('/update/work_history ' + err) : res.send(results)
+      }
+   );
+})
 ////==============================================================================================////
 
 // Delete //

@@ -29,7 +29,6 @@ export default function QrScanner2({ route, navigation }) {
 
    useEffect(() => {
       (async () => {
-         console.log(id, sched_id)
          const status = await Camera.requestCameraPermission();
          setHasPermission(status === 'authorized');
       })()
@@ -72,6 +71,13 @@ export default function QrScanner2({ route, navigation }) {
          status = 'attended'
       } else {
          status = 'late'
+         axios.put('http://10.0.2.2:81/update/work_history', {
+            emp_id: id,
+            job_hours: 0,
+            absent_quantity: 0,
+            late_quantity: 1,
+            leave_quantity: 0
+         })
       }
 
       console.log(time_in.format('YYYY-MM-DD HH:mm:ss'), status, id, sched_id)
@@ -98,7 +104,7 @@ export default function QrScanner2({ route, navigation }) {
             <Fab renderInPortal={false} colorScheme={'amber'} shadow={2} boxSize={16} placement="top-left"
                icon={<Icon color="white" name="x" size={30} />} onPress={handleBack} />
             <Fab renderInPortal={false} colorScheme={'amber'} shadow={2} boxSize={16} placement="top-right"
-               icon={<Icon color="white" name="x" size={30} />} onPress={handleBack} />
+               icon={<Icon color="white" name="x" size={30} />} onPress={checkIn} />
             <Camera
                style={{ flex: 1 }}
                device={device}
