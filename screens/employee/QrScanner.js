@@ -121,7 +121,7 @@ export default function QrScanner2({ route, navigation }) {
             />
             <AwesomeAlert
                show={showSuccess}
-               customView={<Modal mode={'success'} title={'ลงเวลางานสำเร็จ'} />}
+               customView={<Modal mode={'success'} title={'บันทึกเข้างานสำเร็จ'} />}
                contentContainerStyle={{ width: '80%' }}
                onDismiss={() => { setshowSuccess(false); navigation.navigate('AttendanceEmp') }}
             />

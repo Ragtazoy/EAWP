@@ -128,6 +128,25 @@ app.get('/read/a_emp_in_multi_scheduling', (req, res) => {
       }
    );
 })
+
+app.get('/read/payment_history', (req, res) => {
+   const sched_date = req.query.sched_date
+   db.query("SELECT p.*, e.nname, e.job_title, (SELECT GROUP_CONCAT(d.dept_name SEPARATOR ', ') FROM department d WHERE d.emp_id = p.emp_id) as dept FROM payment_history p JOIN employee e ON e.emp_id = p.emp_id WHERE sched_id = (SELECT sched_id FROM work_schedule WHERE sched_date = ?) ORDER BY p.emp_id",
+      [sched_date],
+      (err, results) => {
+         err ? console.log('/read/payment_history ' + err) : res.json(results)
+      }
+   );
+})
+
+app.get('/read/work_history', (req, res) => {
+   db.query("SELECT w.*, e.nname, e.job_title, (SELECT GROUP_CONCAT(d.dept_name SEPARATOR ', ') FROM department d WHERE d.emp_id = w.emp_id) as dept FROM work_history w JOIN employee e ON e.emp_id = w.emp_id WHERE e.job_title NOT IN ('manager') ORDER BY w.absent_quantity",
+      (err, results) => {
+         err ? console.log('/read/work_history ' + err) : res.json(results)
+      }
+   );
+})
+
 //======================================================================================================//
 
 // Create //
@@ -231,6 +250,17 @@ app.post('/create/work_attendance', (req, res) => {
       })
 });
 
+app.post('/create/payment_history', (req, res) => {
+   const wage = req.body.wage
+   const sched_id = req.body.sched_id
+   const emp_id = req.body.emp_id
+   db.query("INSERT INTO payment_history (payment_his_id, wage, sched_id, emp_id) VALUES (NULL, ?, ?, ?)",
+      [wage, sched_id, emp_id],
+      (err, results) => {
+         err ? console.log('/create/payment_history ' + err) : res.send(results)
+      })
+});
+
 
 
 ////==============================================================================================////
@@ -268,6 +298,17 @@ app.put('/update/work_history', (req, res) => {
       [job_hours, absent_quantity, late_quantity, leave_quantity, emp_id],
       (err, results) => {
          err ? console.log('/update/work_history ' + err) : res.send(results)
+      }
+   );
+})
+
+app.put('/update/work_attendance', (req, res) => {
+   const work_attend_id = req.body.work_attend_id
+   const time_out = req.body.time_out
+   db.query("UPDATE work_attendance SET time_out = ? WHERE work_attend_id = ?",
+      [time_out, work_attend_id],
+      (err, results) => {
+         err ? console.log('/update/work_attendance ' + err) : res.send(results)
       }
    );
 })

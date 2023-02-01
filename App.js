@@ -15,6 +15,8 @@ import EditEmp from "./screens/manager/EditEmp";
 import AddSchedule from "./screens/manager/AddSchedule";
 import EditSchedule from "./screens/manager/EditSchedule";
 import AttendanceDetail from "./screens/manager/AttendanceDetail";
+import ReportWage from "./screens/manager/ReportWage";
+import ReportAttend from "./screens/manager/ReportAttend";
 
 import QrScanner from "./screens/employee/QrScanner";
 
@@ -36,6 +38,8 @@ export default function App() {
             <Stack.Screen name="EditSchedule" component={EditSchedule} />
             <Stack.Screen name="AttendanceMng" component={FooterMng} />
             <Stack.Screen name="AttendanceDetail" component={AttendanceDetail} />
+            <Stack.Screen name="ReportWage" component={ReportWage} />
+            <Stack.Screen name="ReportAttend" component={ReportAttend} />
 
             <Stack.Screen name="AttendanceEmp" component={FooterEmp} />
             <Stack.Screen name="QrScanner" component={QrScanner} />

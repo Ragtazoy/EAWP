@@ -17,7 +17,6 @@ const AttendanceDetail = ({ route }) => {
 
    useEffect(() => {
       const getData = async () => {
-
          console.log('useEffect');
 
          await axios.get('http://10.0.2.2:81/read/emp_in_scheduling', {
@@ -35,14 +34,13 @@ const AttendanceDetail = ({ route }) => {
                   const empStatus = res.data
                   console.log('emp2', empStatus);
 
-                  empDept.forEach((empDept) => {
-                     empStatus.forEach((empStatus) => {
-                        if (empDept.emp_id === empStatus.emp_id) {
-                           empDept.status = empStatus.status
-                        } else {
-                           empDept.status = "";
-                        }
-                     })
+                  empDept.map((empDept, index) => {
+                     const filterEmpStatus = empStatus.filter(empStatus => empStatus.emp_id === empDept.emp_id)
+                     if (filterEmpStatus.length > 0) {
+                        empDept.status = filterEmpStatus[0].status
+                     } else {
+                        empDept.status = "";
+                     }
                   })
                })
 
@@ -54,7 +52,7 @@ const AttendanceDetail = ({ route }) => {
                   groupedData[deptName].push(entry);
                })
                await setEmp(groupedData);
-               console.log('groupedData', groupedData.kitchen);
+               console.log('groupedData', groupedData);
 
                setIsLoading(false);
             }
@@ -114,32 +112,3 @@ const AttendanceDetail = ({ route }) => {
 }
 
 export default AttendanceDetail
-
-
-
-// useEffect(() => {
-//    const getData = async () => {
-//       console.log('useEffect');
-
-//       await axios.get('http://10.0.2.2:81/read/emp_in_scheduling', {
-//          params: { sched_date: moment(date.dateString).format('YYYY-MM-DD') }
-//       }).then(async (res) => {
-//          console.log(res.data);
-//          await setEmp(res.data);
-//          console.log('emp1', emp);
-
-//          await axios.get('http://10.0.2.2:81/read/work_attendance', {
-//             params: { sched_id: res.data[0].sched_id }
-//          }).then(async (res) => {
-//             console.log(res.data);
-//             await setWorkAttendance(res.data);
-//             console.log('emp2', emp);
-
-//          })
-
-//          setIsLoading(false);
-//       }
-
-//    getData()
-
-// }, [isLoading])

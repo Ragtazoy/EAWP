@@ -69,7 +69,7 @@ const Exchange = ({ navigation }) => {
                )}
             </ScrollView>
 
-            <VStack pb={10} bgColor={'white'} borderRadius={50} shadow={1} justifyContent={'space-around'}>
+            <VStack mb={10} pb={10} bgColor={'white'} borderRadius={50} shadow={1} justifyContent={'space-around'}>
                <Text pt={5} mx={10} textAlign={'center'} fontSize={'md'}>เลือกวันงานที่ต้องการแลกเปลี่ยนของพนักงานคนอื่น</Text>
                {!isLoading ? (
                   <Calendar
