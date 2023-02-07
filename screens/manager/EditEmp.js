@@ -1,39 +1,37 @@
 import React, { useState, useEffect } from 'react'
 import { NativeBaseProvider, Box, Text, VStack, FormControl, Input, Heading, Select, CheckIcon, Checkbox, ScrollView, Button, IconButton } from 'native-base'
-import { useNavigation } from '@react-navigation/native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios'
 import moment from 'moment'
 import DateTimePicker from '@react-native-community/datetimepicker'
+import MultiSelect from 'react-native-multiple-select'
 import AwesomeAlert from 'react-native-awesome-alerts'
+
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faSave } from '@fortawesome/free-regular-svg-icons'
 import Header from '../../components/Header'
 import Modal from '../../components/Modal'
 
-const EditEmp = ({ route }) => {
-   const navigation = useNavigation()
-
-   const [item, setitem] = useState({})
+const EditEmp = ({ route, navigation }) => {
    const [isLoading, setIsLoading] = useState(true)
    const [showAlert, setShowAlert] = useState(false)
+   const [isEmp, setIsEmp] = useState(false)
 
-   const [nname, setNname] = useState(item.nname)
-   const [password, setPassword] = useState(item.password)
+   const [nname, setNname] = useState('')
+   const [password, setPassword] = useState('')
    const [title, setTitle] = useState('')
-   const [dept, setDept] = useState('')
-   const defDate = moment(item.job_start).toDate()
-   const date = defDate.getDate() + '/' + defDate.getMonth() + '/' + defDate.getFullYear()
+   const [dept, setDept] = useState([])
+   const [date, setDate] = useState('')
+
    const [fname, setFname] = useState('')
    const [lname, setLname] = useState('')
-   const defBirthDate = moment(item.birthdate).toDate()
-   // const birthDate = defBirthDate
-   const birthDate = defBirthDate.getDate() + '/' + defBirthDate.getMonth() + '/' + defBirthDate.getFullYear()
+   const [birthDate, setBirthDate] = useState('')
    const [phone, setPhone] = useState('')
    const [line_account, setLine_account] = useState('')
    const [errors, setErrors] = useState({
       nname: '',
       password: '',
-      job_title: '',
+      title: '',
       dept: '',
       fname: '',
       lname: '',
@@ -43,40 +41,47 @@ const EditEmp = ({ route }) => {
 
    useEffect(() => {
       axios.get('http://10.0.2.2:81/read/empdetail/' + route.params.id).then((res) => {
-         setitem(res.data)
-         setTitle(res.data.job_title)
-         // ต้อง set ทีละตัวจะได้ค่าเริ่มต้นใน useState หรือแก้ไปใช้ item แทน
+         setNname(res.data.nname)
          setPassword(res.data.password)
-         // setDept([...def.split(',')])
-         // console.log('title:' + title);
-         // console.log('dept:' + dept[1]);
-         setIsLoading(false)
+         setTitle(res.data.job_title)
+         setDept(res.data.dept.split(', '))
+         setDate(moment(res.data.job_start).format('DD/MM/YYYY'))
+         setFname(res.data.fname)
+         setLname(res.data.lname)
+         setBirthDate(moment(res.data.birthdate).format('DD/MM/YYYY'))
+         setPhone(res.data.phone)
+         setLine_account(res.data.line_account)
 
+      }).then(async () => {
+         const userId = await AsyncStorage.getItem('userId');
+
+         await axios.get('http://10.0.2.2:81/read/empdetail/' + userId).then((res) => {
+            console.log(res.data.job_title);
+            res.data.job_title !== 'manager' ? setIsEmp(true) : setIsEmp(false)
+
+            setIsLoading(false)
+         })
       })
    }, [isLoading])
 
-   const defaultCheckbox = () => {
+   const updateEmployee = async () => {
+      console.log('updated', route.params.id, dept);
+      axios.put('http://10.0.2.2:81/update/emp', {
+         id: route.params.id,
+         fname: fname,
+         lname: lname,
+         nname: nname,
+         password: password,
+         line_account: line_account,
+         phone: phone,
+         job_title: title
+      })
 
-   }
+      await axios.delete('http://10.0.2.2:81/delete/department/' + route.params.id)
 
-   const updateEmployee = () => {
-      if (validate()) {
-         axios.put('http://10.0.2.2:81/update/emp', {
-            id: id,
-            line_account: line_account,
-            password: password,
-            fname: fname,
-            lname: lname,
-            nname: nname,
-            phone: phone,
-            job_title: title,
-            dept: JSON.stringify(dept).replace(/[\[\]"]/g, ''),
-         }).then(response => {
-            console.log(response.data)
-         }).catch(error => {
-            console.log(error)
-         })
-      }
+      dept.map((val) => {
+         axios.post('http://10.0.2.2:81/create/dept', { dept_name: val })
+      })
    };
 
    const validate = () => {
@@ -91,10 +96,10 @@ const EditEmp = ({ route }) => {
       if (!title) {
          newErrors.title = 'กรุณาเลือกตำแหน่ง'
       }
-      if (!JSON.stringify(dept).replace(/[\[\]]/g, '')) {
+      if (dept.length === 0) {
          newErrors.dept = 'กรุณาเลือกอย่างน้อย 1 งาน'
       }
-      if (date.getFullYear().toString() === '5555') {
+      if (!date) {
          newErrors.date = 'กรุณาระบุวันเข้าทำงาน'
       }
       if (!fname) {
@@ -103,7 +108,7 @@ const EditEmp = ({ route }) => {
       if (!lname) {
          newErrors.lname = 'กรุณากรอกนามสกุล'
       }
-      if (birthDate.getFullYear().toString() === '5555') {
+      if (!birthDate) {
          newErrors.birthDate = 'กรุณาระบุวันเกิด'
       }
       if (!phone) {
@@ -120,9 +125,14 @@ const EditEmp = ({ route }) => {
    const handleSubmit = () => {
       if (validate()) {
          console.log('Submitted')
-         updateEmployee
+         updateEmployee()
          setShowAlert(true)
       } else console.log('Invalid')
+   };
+
+   const onSelectedDept = (selectedDept) => {
+      isEmp ? null : setDept(selectedDept)
+      console.log('Dept: ' + dept)
    };
 
    const propSave = () => {
@@ -142,29 +152,26 @@ const EditEmp = ({ route }) => {
                {/* ข้อมูลบัญชี */}
                <Box bgColor={'white'} p={5} borderRadius={25} shadow={3}>
                   <Heading alignSelf={'center'}>ข้อมูลบัญชี</Heading>
-                  <FormControl isRequired isInvalid={!!errors.nname}>
+                  <FormControl isDisabled={isEmp} isRequired isInvalid={!!errors.nname}>
                      <FormControl.Label>ชื่อเล่น</FormControl.Label>
-                     <Input type="text" defaultValue={item.nname} value={nname} onChangeText={e => setNname(e)} placeholder="ชื่อเล่น" />
+                     <Input type="text" defaultValue={nname} value={nname} onChangeText={e => setNname(e)} placeholder="ชื่อเล่น" />
                      {!!errors.nname && <Text m={1} fontSize={'xs'} color={'error.500'}>{errors.nname} </Text>}
                   </FormControl>
                   <FormControl isRequired isInvalid={!!errors.password}>
                      <FormControl.Label>รหัสผ่าน</FormControl.Label>
-                     {console.log('pass:'+password)}
-                     <Input type="text" defaultValue={password}  value={password} onChangeText={e => setPassword(e)} placeholder="รหัสผ่าน" />
+                     <Input type="text" defaultValue={password} value={password} onChangeText={e => setPassword(e)} placeholder="รหัสผ่าน" />
                      {!!errors.password && <Text m={1} fontSize={'xs'} color={'error.500'}>{errors.password} </Text>}
                   </FormControl>
                </Box>
 
-               <Text>{item.dept}</Text>
-               <Text>{dept}</Text>
                {/* ข้อมูลพนักงาน */}
                <Box bgColor={'white'} p={5} borderRadius={25} shadow={3}>
                   <Heading alignSelf={'center'}>ข้อมูลพนักงาน</Heading>
-                  <FormControl isRequired isInvalid={!!errors.title}>
+                  <FormControl isDisabled={isEmp} isRequired isInvalid={!!errors.title}>
                      <FormControl.Label>ตำแหน่ง</FormControl.Label>
-                     <Select defaultValue={item.job_title} selectedValue={title} minWidth="200" placeholder="เลือกตำแน่ง"
-                        _selectedItem={{ bg: 'amber.600', endIcon: <CheckIcon size="5" /> }} mt={1}
-                        onValueChange={itemValue => setTitle(itemValue)}>
+                     <Select defaultValue={title} selectedValue={title} onValueChange={e => setTitle(e)}
+                        minWidth="200" placeholder="เลือกตำแน่ง"
+                        _selectedItem={{ bg: 'amber.600', endIcon: <CheckIcon size="5" /> }} mt={1}>
                         <Select.Item label="พนักงานประจำ" value='full-time' />
                         <Select.Item label="พนักงานชั่วคราว" value="part-time" />
                         <Select.Item label="ผู้จัดการ" value="manager" />
@@ -172,17 +179,36 @@ const EditEmp = ({ route }) => {
                      {!!errors.title && <Text m={1} fontSize={'xs'} color={'error.500'}>{errors.title} </Text>}
                   </FormControl>
 
-                  <FormControl isRequired isInvalid={!!errors.dept}>
+                  <FormControl isDisabled={isEmp} isRequired isInvalid={!!errors.dept}>
                      <FormControl.Label>ข้อมูลงาน</FormControl.Label>
-                     <Checkbox.Group defaultValue={item.dept} onChange={values => { setDept(values || []) }}>
-                        <Checkbox value="แคชเชียร์">แคชเชียร์</Checkbox>
-                        <Checkbox value="ครัว">ครัว</Checkbox>
-                        <Checkbox value="ล้างจาน">ล้างจาน</Checkbox>
-                        <Checkbox value="เตา">เตา</Checkbox>
-                        <Checkbox value="หน้าร้าน">หน้าร้าน</Checkbox>
-                     </Checkbox.Group>
+                     <MultiSelect
+                        items={[
+                           { key: 'cashier', name: 'แคชเชียร์', disabled: isEmp },
+                           { key: 'kitchen', name: 'ครัว', disabled: isEmp },
+                           { key: 'wash', name: 'ล้างจาน', disabled: isEmp },
+                           { key: 'stove', name: 'เตา', disabled: isEmp },
+                           { key: 'waiter', name: 'หน้าร้าน', disabled: isEmp }
+                        ]}
+                        uniqueKey="key" displayKey="name"
+                        onSelectedItemsChange={onSelectedDept}
+                        selectedItems={dept}
+                        selectText="เลือกแผนกงาน" textColor="#a9a9a9"
+                        styleInputGroup={{ display: 'none' }}
+                        tagRemoveIconColor="#7c2d12"
+                        tagBorderColor="#7c2d12"
+                        tagTextColor="#7c2d12"
+                        selectedItemTextColor="#7c2d12"
+                        selectedItemIconColor="#7c2d12"
+                        itemTextColor="#000"
+                        submitButtonColor="#16a34a"
+                        submitButtonText="ยืนยัน"
+                        styleListContainer={{ backgroundColor: 'white' }}
+                        styleDropdownMenuSubsection={{ paddingLeft: 10, borderRadius: 15 }}
+                        styleMainWrapper={{ borderRadius: 5, borderWidth: 1, borderColor: "#dadada" }}
+                     />
                      {!!errors.dept && <Text m={1} fontSize={'xs'} color={'error.500'}>{errors.dept} </Text>}
                   </FormControl>
+
 
                   <FormControl isDisabled isInvalid={!!errors.date}>
                      <FormControl.Label>วันเข้าทำงาน</FormControl.Label>
@@ -232,7 +258,7 @@ const EditEmp = ({ route }) => {
                <AwesomeAlert
                   show={showAlert}
                   customView={<Modal mode={'success'} title={'เพิ่มข้อมูลสำเร็จ'} />}
-                  onDismiss={() => { navigation.navigate('Emp') }}
+                  onDismiss={() => { setShowAlert(false); navigation.navigate('ProfileMng') }}
                   contentContainerStyle={{ width: '80%' }}
                />
 

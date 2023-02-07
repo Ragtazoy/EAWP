@@ -4,15 +4,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios'
 import { Calendar } from 'react-native-calendars'
 import moment from 'moment/moment'
+import AwesomeAlert from 'react-native-awesome-alerts'
 
 import Header from '../../components/Header'
-import DayCards from '../../components/DayCards'
+import Modal from '../../components/Modal'
 
 
 const Exchange = ({ navigation }) => {
    const [workSchedule, setWorkSchedule] = useState([])
+   const [selectedWork, setSelectedWork] = useState('')
    const [selectedDate, setSelectedDate] = useState('')
    const [isLoading, setIsLoading] = useState(true)
+   const [showAlert, setShowAlert] = useState(false)
    const { isOpen, onOpen, onClose } = useDisclose()
 
    let dates = []
@@ -33,13 +36,17 @@ const Exchange = ({ navigation }) => {
             setWorkSchedule(res.data)
             console.log(workSchedule);
          })
-
          setIsLoading(false)
       })()
    }, [isLoading])
 
+   const selectWorkDay = (day) => {
+      console.log(day);
+      setSelectedWork('')
+   }
+
    const renderItem = ({ item, index }) => (
-      <Button w={260} my={3} mr={3} p={3} bgColor={'white'} borderRadius={'xl'} shadow={1} borderLeftWidth={4} borderColor={'blue.500'} justifyContent={'flex-start'}>
+      <Button onPress={() => { selectWorkDay('555') }} w={260} my={3} mr={3} p={3} bgColor={'white'} borderRadius={'xl'} shadow={1} borderLeftWidth={4} borderColor={'blue.500'} justifyContent={'flex-start'}>
          <Text my={1} fontSize={'md'} fontWeight={'bold'} color={'blue.500'}>{moment(item.sched_date).format('dddd DD MMMM')}</Text>
          <Text fontSize={'lg'} fontWeight={'medium'}>ตำแหน่ง: {item.dept_name}</Text>
          <Text fontSize={'md'} fontWeight={'medium'}>พนักงาน: {item.nname}</Text>
@@ -54,11 +61,18 @@ const Exchange = ({ navigation }) => {
 
             <ScrollView py={2} pl={3}>
                {!isLoading ? (
-                  <FlatList horizontal={true}
-                     data={workSchedule}
-                     renderItem={renderItem}
-                     keyExtractor={item => item.scheduling_id}
-                  />
+                  workSchedule.length !== 0 ? (
+                     <FlatList horizontal={true}
+                        data={workSchedule}
+                        renderItem={renderItem}
+                        keyExtractor={item => item.scheduling_id}
+                     />
+                  ) : (
+                     <Button w={'90%'} my={3} mr={3} p={5} bgColor={'white'} borderRadius={'xl'} shadow={1} borderLeftWidth={4} borderColor={'red.500'} justifyContent={'flex-start'} alignSelf={'center'}>
+                        <Text my={1} fontSize={'md'} fontWeight={'bold'} color={'red.500'}>ไม่มีงาน</Text>
+                        <Text fontSize={'lg'} fontWeight={'medium'}>ไม่พบข้อมูลตารางงานของคุณ</Text>
+                     </Button>
+                  )
                ) : (
                   <HStack my={16} space={2} justifyContent="center" alignItems={'center'}>
                      <Spinner accessibilityLabel="Loading" color={'#7c2d12'} />
@@ -84,7 +98,11 @@ const Exchange = ({ navigation }) => {
                      maxDate={dates[6]}
                      onDayPress={date => {
                         setSelectedDate(date.dateString)
-                        onOpen()
+                        if (selectedWork.length === 0) {
+                           setShowAlert(true)
+                        } else {
+                           onOpen()
+                        }
                      }}
                   />
                ) : (
@@ -106,6 +124,13 @@ const Exchange = ({ navigation }) => {
             </Actionsheet>
 
          </ScrollView>
+
+         <AwesomeAlert
+            show={showAlert}
+            customView={<Modal mode={'warning'} title={'ต้องเลือกวันทำงานของคุณก่อน'} />}
+            contentContainerStyle={{ width: '80%' }}
+            onDismiss={() => { setShowAlert(false) }}
+         />
       </NativeBaseProvider>
    )
 }

@@ -19,6 +19,8 @@ const ProfileMng = ({ route }) => {
    const [dept, setDept] = useState(null)
 
    useEffect(() => {
+      navigation.addListener('focus', () => setIsLoading(true))
+      
       console.log('id: ' + route.params.id);
       axios.get('http://10.0.2.2:81/read/empdetail/' + route.params.id).then((res) => {
          setitem(res.data)

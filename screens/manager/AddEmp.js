@@ -3,15 +3,15 @@ import { Platform } from 'react-native'
 import { NativeBaseProvider, Box, Text, VStack, FormControl, Input, Heading, Select, CheckIcon, Checkbox, ScrollView, Button, IconButton } from 'native-base'
 import axios from 'axios'
 import DateTimePicker from '@react-native-community/datetimepicker'
+import MultiSelect from 'react-native-multiple-select'
 import AwesomeAlert from 'react-native-awesome-alerts'
-import { useNavigation } from '@react-navigation/native'
+
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faSave } from '@fortawesome/free-regular-svg-icons'
 import Header from '../../components/Header'
 import Modal from '../../components/Modal'
 
-const AddEmp = () => {
-   const navigation = useNavigation()
+const AddEmp = ({ navigation }) => {
    const [showAlert, setShowAlert] = useState(false)
 
    const [nname, setNname] = useState('')
@@ -86,7 +86,7 @@ const AddEmp = () => {
       if (!title) {
          newErrors.title = 'กรุณาเลือกตำแหน่ง'
       }
-      if (!JSON.stringify(dept).replace(/[\[\]]/g, '')) {
+      if (dept.length === 0) {
          newErrors.dept = 'กรุณาเลือกอย่างน้อย 1 งาน'
       }
       if (date.getFullYear().toString() === '5555') {
@@ -141,6 +141,11 @@ const AddEmp = () => {
       setShowBirthDate(fDate)
    };
 
+   const onSelectedDept = (selectedDept) => {
+      setDept(selectedDept)
+      console.log('Dept: ' + dept)
+   };
+
    const propHeader = () => {
       return (
          <IconButton colorScheme='primary' variant={'solid'} borderRadius={'full'} boxSize={16} onPress={handleSubmit}>
@@ -187,13 +192,31 @@ const AddEmp = () => {
 
                   <FormControl isRequired isInvalid={!!errors.dept}>
                      <FormControl.Label>ข้อมูลงาน</FormControl.Label>
-                     <Checkbox.Group accessibilityLabel="choose values" defaultValue={dept} onChange={values => { setDept(values || []) }}>
-                        <Checkbox value="cashier">แคชเชียร์</Checkbox>
-                        <Checkbox value="kitchen">ครัว</Checkbox>
-                        <Checkbox value="wash">ล้างจาน</Checkbox>
-                        <Checkbox value="stove">เตา</Checkbox>
-                        <Checkbox value="waiter">หน้าร้าน</Checkbox>
-                     </Checkbox.Group>
+                     <MultiSelect
+                        items={[
+                           { key: 'cashier', name: 'แคชเชียร์' },
+                           { key: 'kitchen', name: 'ครัว' },
+                           { key: 'wash', name: 'ล้างจาน' },
+                           { key: 'stove', name: 'เตา' },
+                           { key: 'waiter', name: 'หน้าร้าน' }
+                        ]}
+                        uniqueKey="key" displayKey="name"
+                        onSelectedItemsChange={onSelectedDept}
+                        selectedItems={dept}
+                        selectText="เลือกแผนกงาน" textColor="#a9a9a9"
+                        styleInputGroup={{ display: 'none' }}
+                        tagRemoveIconColor="#7c2d12"
+                        tagBorderColor="#7c2d12"
+                        tagTextColor="#7c2d12"
+                        selectedItemTextColor="#7c2d12"
+                        selectedItemIconColor="#7c2d12"
+                        itemTextColor="#000"
+                        submitButtonColor="#16a34a"
+                        submitButtonText="ยืนยัน"
+                        styleListContainer={{ backgroundColor: 'white' }}
+                        styleDropdownMenuSubsection={{ paddingLeft: 10, borderRadius: 15 }}
+                        styleMainWrapper={{ borderRadius: 5, borderWidth: 1, borderColor: "#dadada" }}
+                     />
                      {!!errors.dept && <Text m={1} fontSize={'xs'} color={'error.500'}>{errors.dept} </Text>}
                   </FormControl>
 

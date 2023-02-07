@@ -13,13 +13,6 @@ const ReportWage = ({ navigation }) => {
    const [isLoading, setIsLoading] = useState(true)
    const { isOpen, onOpen, onClose } = useDisclose();
 
-   let dates = []
-   const customDate = moment()
-   for (let i = 0; i < 7; i++) {
-      dates.push(moment(customDate2).format('YYYY-MM-DD'))
-      const customDate2 = customDate.add(1, 'days').format('YYYY-MM-DD')
-   }
-
    useEffect(() => {
       let totalWage = 0;
 

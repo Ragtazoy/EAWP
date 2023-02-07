@@ -139,10 +139,29 @@ app.get('/read/payment_history', (req, res) => {
    );
 })
 
+app.get('/read/sum_wage', (req, res) => {
+   const date_from = req.query.date_from
+   const date_to = req.query.date_to
+   db.query("SELECT SUM(p.wage) sum_wage FROM payment_history p WHERE p.sched_id IN (SELECT w.sched_id FROM work_schedule w WHERE w.sched_date BETWEEN ? AND ?)",
+      [date_from, date_to],
+      (err, results) => {
+         err ? console.log('/read/sum_wage ' + err) : res.json(results[0])
+      }
+   );
+})
+
 app.get('/read/work_history', (req, res) => {
    db.query("SELECT w.*, e.nname, e.job_title, (SELECT GROUP_CONCAT(d.dept_name SEPARATOR ', ') FROM department d WHERE d.emp_id = w.emp_id) as dept FROM work_history w JOIN employee e ON e.emp_id = w.emp_id WHERE e.job_title NOT IN ('manager') ORDER BY w.absent_quantity",
       (err, results) => {
          err ? console.log('/read/work_history ' + err) : res.json(results)
+      }
+   );
+})
+
+app.get('/read/sum_work_history', (req, res) => {
+   db.query("SELECT SUM(w.absent_quantity) sum_absent, SUM(w.late_quantity) sum_late, SUM(w.leave_quantity) sum_leave FROM work_history w",
+      (err, results) => {
+         err ? console.log('/read/sum_work_history ' + err) : res.json(results[0])
       }
    );
 })
@@ -277,13 +296,19 @@ app.post('/update/scheduling', (req, res) => {
       })
 });
 
-app.put('/update/emp/:id', (req, res) => {
-   const id = req.params.id
-   db.query(
-      '',
-      [id],
+app.put('/update/emp', (req, res) => {
+   const id = req.body.id
+   const fname = req.body.fname
+   const lname = req.body.lname
+   const nname = req.body.nname
+   const password = req.body.password
+   const line_account = req.body.line_account
+   const phone = req.body.phone
+   const job_title = req.body.job_title
+   db.query("UPDATE employee SET fname = ?, lname = ?, nname = ?, password = ?, line_account = ?, phone = ?, job_title = ? WHERE emp_id = ?",
+      [fname, lname, nname, password, line_account, phone, job_title, id],
       (err, results) => {
-         err ? console.log(err) : res.send(results)
+         err ? console.log('/update/emp ' + err) : res.send(results)
       }
    );
 })
@@ -320,6 +345,15 @@ app.delete('/delete/emp/:id', (req, res) => {
    db.query('DELETE FROM employee WHERE employee.emp_id = ?', [id],
       (err, results) => {
          err ? console.log('/delete/emp/:id ' + err) : res.send(results)
+      }
+   );
+})
+
+app.delete('/delete/department/:id', (req, res) => {
+   const id = req.params.id
+   db.query('DELETE FROM department WHERE emp_id = ?', [id],
+      (err, results) => {
+         err ? console.log('/delete/department/:id ' + err) : res.send(results)
       }
    );
 })

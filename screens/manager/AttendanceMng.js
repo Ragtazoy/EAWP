@@ -14,7 +14,8 @@ const AttendanceMng = ({ navigation }) => {
    const [isLoading, setIsLoading] = useState(true)
 
    useEffect(() => {
-      // const getCount = () => { second }
+      navigation.addListener('focus', () => setIsLoading(true))
+
       axios.get('http://10.0.2.2:81/read/count_emp_in_scheduling', {
          params: { sched_date: moment().format('YYYY-MM-DD') }
       }).then((res) => {
@@ -30,8 +31,6 @@ const AttendanceMng = ({ navigation }) => {
             setIsLoading(false)
          })
       })
-
-
    }, [isLoading])
 
    const handleLogout = async () => {
