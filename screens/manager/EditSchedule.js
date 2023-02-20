@@ -41,7 +41,8 @@ const EditSchedule = ({ route, navigation }) => {
             params: { sched_date: moment(date.dateString).format('YYYY-MM-DD') }
          }).then((res) => {
             setWorkSchedule(res.data)
-            console.log(workSchedule);
+            console.log(res.data);
+            console.log('workSchedule:',workSchedule);
          })
 
          axios.get('http://10.0.2.2:81/read/emp_in_scheduling', {
@@ -54,7 +55,6 @@ const EditSchedule = ({ route, navigation }) => {
                }
                groupedData[deptName].push(entry.emp_id);
             });
-            console.log(groupedData);
             setSelectedCashier(groupedData['cashier'])
             setSelectedKitchen(groupedData['kitchen'])
             setSelectedWash(groupedData['wash'])
@@ -88,32 +88,31 @@ const EditSchedule = ({ route, navigation }) => {
    const editScheduling = async () => {
       await axios.delete('http://10.0.2.2:81/delete/emp_in_scheduling', {
          params: { sched_date: moment(date.dateString).format('YYYY-MM-DD') }
-      }).catch(error => {
-         console.log(error)
-      })
-      selectedCashier.map((val) => {
-         axios.post('http://10.0.2.2:81/create/scheduling', { sched_id: work_schedule['sched_id'], emp_id: val, dept: 'cashier' }).then(() => {
-            console.log('post /create/scheduling cashier already')
+      }).then(() => {
+         selectedCashier.map((val) => {
+            axios.post('http://10.0.2.2:81/update/scheduling', { sched_id: workSchedule['sched_id'], emp_id: val, dept: 'cashier' }).then(() => {
+               console.log('post /create/scheduling cashier already')
+            })
          })
-      })
-      selectedKitchen.map((val) => {
-         axios.post('http://10.0.2.2:81/create/scheduling', { sched_id: work_schedule['sched_id'], emp_id: val, dept: 'kitchen' }).then(() => {
-            console.log('post /create/scheduling kitchen already')
+         selectedKitchen.map((val) => {
+            axios.post('http://10.0.2.2:81/update/scheduling', { sched_id: workSchedule['sched_id'], emp_id: val, dept: 'kitchen' }).then(() => {
+               console.log('post /create/scheduling kitchen already')
+            })
          })
-      })
-      selectedWash.map((val) => {
-         axios.post('http://10.0.2.2:81/create/scheduling', { sched_id: work_schedule['sched_id'], emp_id: val, dept: 'wash' }).then(() => {
-            console.log('post /create/scheduling wash already')
+         selectedWash.map((val) => {
+            axios.post('http://10.0.2.2:81/update/scheduling', { sched_id: workSchedule['sched_id'], emp_id: val, dept: 'wash' }).then(() => {
+               console.log('post /create/scheduling wash already')
+            })
          })
-      })
-      selectedStove.map((val) => {
-         axios.post('http://10.0.2.2:81/create/scheduling', { sched_id: work_schedule['sched_id'], emp_id: val, dept: 'stove' }).then(() => {
-            console.log('post /create/scheduling stove already')
+         selectedStove.map((val) => {
+            axios.post('http://10.0.2.2:81/update/scheduling', { sched_id: workSchedule['sched_id'], emp_id: val, dept: 'stove' }).then(() => {
+               console.log('post /create/scheduling stove already')
+            })
          })
-      })
-      selectedWaiter.map((val) => {
-         axios.post('http://10.0.2.2:81/create/scheduling', { sched_id: work_schedule['sched_id'], emp_id: val, dept: 'waiter' }).then(() => {
-            console.log('post /create/scheduling waiter already')
+         selectedWaiter.map((val) => {
+            axios.post('http://10.0.2.2:81/update/scheduling', { sched_id: workSchedule['sched_id'], emp_id: val, dept: 'waiter' }).then(() => {
+               console.log('post /create/scheduling waiter already')
+            })
          })
       })
 

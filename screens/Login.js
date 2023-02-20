@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { NativeBaseProvider, Center, Box, Heading, VStack, FormControl, Input, Button, Pressable, Text } from 'native-base'
+import { requestUserPermission, notificationListener } from '../screens/Notification'
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faEye, faEyeSlash, faSignIn } from '@fortawesome/free-solid-svg-icons/'
-// import ToastAlert from '../components/ToastAlert'
 
 const Login = ({ navigation }) => {
    const [isLoading, setIsLoading] = useState(true)
@@ -15,11 +16,14 @@ const Login = ({ navigation }) => {
 
 
    useEffect(() => {
-      const checkLoginStatus = async () => {
-         await navigation.addListener('focus', () => { setIsLoading(true); setIsInvalid(false) })
+      console.log('run');
+      requestUserPermission()
+      // notificationListener()
+   }, [])
 
+   useEffect(() => {
+      const checkLoginStatus = async () => {
          const isLoggedIn = await AsyncStorage.getItem('userId');
-         console.log(isLoggedIn);
          if (isLoggedIn > 0) {
             console.log('loged in');
          } else {
@@ -30,19 +34,32 @@ const Login = ({ navigation }) => {
          setIsLoading(false)
       }
 
-      checkLoginStatus()
+      navigation.addListener('focus', () => { setIsInvalid(false); checkLoginStatus() })
    }, [isLoading])
+
 
    const handleLogin = async () => {
       await axios.post('http://10.0.2.2:81/login', {
          username: username,
          password: password
-      }).then(res => {
+      }).then(async (res) => {
          if (res.data.success) {
+            // Save user device token
+            const deviceToken = await AsyncStorage.getItem('fcmToken')
+            await axios.put('http://10.0.2.2:81/update/device_token', {
+               emp_id: res.data.id,
+               device_token: deviceToken
+            })
+
             // Save user ID to AsyncStorage
-            AsyncStorage.setItem('userId', JSON.stringify(res.data.id));
+            await AsyncStorage.setItem('userId', JSON.stringify(res.data.id));
             console.log(res.data.role);
-            navigation.navigate(res.data.role == 'manager' ? 'AttendanceMng' : 'ScheduleEmp')
+
+            if (res.data.role == 'manager') {
+               navigation.navigate('AttendanceMng')
+            } else {
+               navigation.navigate('ScheduleEmp')
+            }
          } else {
             setIsInvalid(true)
          }
@@ -51,10 +68,22 @@ const Login = ({ navigation }) => {
       });
    }
 
+   const handleFCM = async () => {
+      await axios.post('http://10.0.2.2:81/send-notification', {
+         deviceToken: 'dYMkxp6ISBCtknAZy84qom:APA91bHIPdXflIciAIzX58Mgiqts8fIS2nQkgtDLJNyBMznwJ9rXXunZVrzO9JWhXHGCC3LWnnjucbdLpAEFmmVoxadHf_q6FYsafTAWccFrQElFEtqvM7pDPdTiz3M486u17EK32QEa',
+         notification: {
+            title: 'Test',
+            body: 'Notification Body',
+         },
+         data: {
+            id: moment().format('x').toString()
+         }
+      })
+   }
+
 
    return (
       <NativeBaseProvider>
-         {/* <Text>{isLoggedIn}</Text> */}
          <Center flex={1} w="100%" alignItems='center' justifyItems='center'>
             <Box safeArea={true} w="80%">
                <Heading lineHeight={'xs'} size="lg" fontWeight="600" color="coolGray.800">
@@ -82,6 +111,9 @@ const Login = ({ navigation }) => {
 
                   <Button onPress={handleLogin} leftIcon={<FontAwesomeIcon icon={faSignIn} color='white' />} mt="2" colorScheme="amber">
                      Sign in
+                  </Button>
+                  <Button onPress={() => { handleFCM() }} leftIcon={<FontAwesomeIcon icon={faSignIn} color='white' />} mt="2" colorScheme="amber">
+                     Test FCM
                   </Button>
                </VStack>
             </Box>

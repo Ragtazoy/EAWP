@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { NativeBaseProvider, Box, Text, VStack, FormControl, Input, Heading, Select, CheckIcon, Checkbox, ScrollView, Button, IconButton } from 'native-base'
+import { NativeBaseProvider, Box, Text, VStack, FormControl, Input, Heading, Select, CheckIcon, HStack, ScrollView, Button, IconButton, Spinner } from 'native-base'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios'
 import moment from 'moment'
@@ -79,8 +79,8 @@ const EditEmp = ({ route, navigation }) => {
 
       await axios.delete('http://10.0.2.2:81/delete/department/' + route.params.id)
 
-      dept.map((val) => {
-         axios.post('http://10.0.2.2:81/create/dept', { dept_name: val })
+      await dept.map((val) => {
+         axios.post('http://10.0.2.2:81/update/dept', { emp_id: route.params.id, dept_name: val })
       })
    };
 
@@ -148,6 +148,14 @@ const EditEmp = ({ route, navigation }) => {
          <Header icon={'faUserEdit'} color={'amber.500'} title={'แก้ไขข้อมูลพนักงาน'} element={propSave()} />
          <ScrollView>
             <VStack space={5} m={5}>
+               {!isLoading ? null : (
+                  <HStack my={2} space={2} justifyContent="center" alignItems={'center'}>
+                     <Spinner accessibilityLabel="Loading" color={'#7c2d12'} />
+                     <Heading color="#7c2d12" fontSize="md">
+                        กำลังโหลดข้อมูล
+                     </Heading>
+                  </HStack>
+               )}
 
                {/* ข้อมูลบัญชี */}
                <Box bgColor={'white'} p={5} borderRadius={25} shadow={3}>
@@ -257,8 +265,8 @@ const EditEmp = ({ route, navigation }) => {
 
                <AwesomeAlert
                   show={showAlert}
-                  customView={<Modal mode={'success'} title={'เพิ่มข้อมูลสำเร็จ'} />}
-                  onDismiss={() => { setShowAlert(false); navigation.navigate('ProfileMng') }}
+                  customView={<Modal mode={'success'} title={'แก้ไขข้อมูลสำเร็จ'} />}
+                  onDismiss={() => { setShowAlert(false); navigation.goBack() }}
                   contentContainerStyle={{ width: '80%' }}
                />
 

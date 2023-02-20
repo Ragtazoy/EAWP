@@ -11,6 +11,8 @@ const ProfileEmp = ({ navigation }) => {
    const [isLoading, setIsLoading] = useState(true)
 
    useEffect(() => {
+      navigation.addListener('focus', () => setIsLoading(true))
+      
       const getEmpDetail = async () => {
          const emp_id = await AsyncStorage.getItem('userId');
          console.log('id: ' + emp_id);

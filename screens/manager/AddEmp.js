@@ -103,6 +103,8 @@ const AddEmp = ({ navigation }) => {
       }
       if (!phone) {
          newErrors.phone = 'กรุณากรอกเบอร์โทรศัพท์'
+      } else if (phone.toString().length < 10) {
+         newErrors.phone = 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง'
       }
       if (!line_account) {
          newErrors.line_account = 'กรุณากรอกบัญชีไลน์'

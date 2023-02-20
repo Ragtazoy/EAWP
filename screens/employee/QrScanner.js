@@ -55,7 +55,8 @@ export default function QrScanner2({ route, navigation }) {
                position.coords,
                objQrCode
             )
-            distance < 100 ? checkIn() : setshowInvalid(true)
+            checkIn()
+            // distance < 100 ? checkIn() : setshowInvalid(true)
          },
          error => Alert.alert(error.message),
          { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
@@ -103,8 +104,6 @@ export default function QrScanner2({ route, navigation }) {
          <NativeBaseProvider>
             <Fab renderInPortal={false} colorScheme={'amber'} shadow={2} boxSize={16} placement="top-left"
                icon={<Icon color="white" name="x" size={30} />} onPress={handleBack} />
-            <Fab renderInPortal={false} colorScheme={'amber'} shadow={2} boxSize={16} placement="top-right"
-               icon={<Icon color="white" name="x" size={30} />} onPress={checkIn} />
             <Camera
                style={{ flex: 1 }}
                device={device}

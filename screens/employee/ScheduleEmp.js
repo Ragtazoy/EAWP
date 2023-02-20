@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from 'react'
-import { NativeBaseProvider, Box, Text, Button, Heading, HStack, IconButton, Spinner } from 'native-base'
+import { NativeBaseProvider, Box, Text, Button, Heading, HStack, IconButton, Spinner, Popover, Avatar, Badge, Fab, Pressable, FlatList, Divider } from 'native-base'
+import messaging from '@react-native-firebase/messaging';
+import { notificationListener } from '../../screens/Notification'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import moment from 'moment';
 import { Agenda } from 'react-native-calendars';
+import AwesomeAlert from 'react-native-awesome-alerts';
 import Icon from 'react-native-vector-icons/FontAwesome'
+import Modal from '../../components/Modal';
 
 const ScheduleEmp = ({ navigation }) => {
+   const [item, setItem] = useState([])
    const [workSchedule, setWorkSchedule] = useState([])
    const [isLoading, setIsLoading] = useState(true)
+   const [showConfirm, setShowConfirm] = useState(false)
+   const [leaveDate, setLeaveDate] = useState('')
+
+   notificationListener()
 
    let dates = []
    const customDate = moment()
@@ -23,6 +32,10 @@ const ScheduleEmp = ({ navigation }) => {
          const userId = await AsyncStorage.getItem('userId');
          console.log('id: ' + userId);
 
+         axios.get('http://10.0.2.2:81/read/empdetail/' + userId).then((res) => {
+            setItem(res.data)
+         })
+
          for (let i = 0; i < dates.length; i++) {
             await axios.get('http://10.0.2.2:81/read/a_emp_in_scheduling', {
                params: { emp_id: userId, sched_date: dates[i] }
@@ -31,14 +44,13 @@ const ScheduleEmp = ({ navigation }) => {
             })
          }
 
-         setWorkSchedule(empInSched)
+         await setWorkSchedule(empInSched)
          console.log(empInSched);
          setIsLoading(false)
       }
 
       empInScheduling()
    }, [isLoading])
-
 
    const deptColor = (dept) => {
       switch (dept) {
@@ -50,9 +62,42 @@ const ScheduleEmp = ({ navigation }) => {
       }
    }
 
+   const handleFCM = async () => {
+      await axios.post('http://10.0.2.2:81/send-notification', {
+         deviceToken: 'dYMkxp6ISBCtknAZy84qom:APA91bHIPdXflIciAIzX58Mgiqts8fIS2nQkgtDLJNyBMznwJ9rXXunZVrzO9JWhXHGCC3LWnnjucbdLpAEFmmVoxadHf_q6FYsafTAWccFrQElFEtqvM7pDPdTiz3M486u17EK32QEa',
+         notification: {
+            title: 'ลางานล่วงหน้า',
+            body: `พนักงาน ${item.nname} ได้ลางาน`,
+         },
+         data: {
+            id: moment().format('x').toString()
+         }
+      })
+   }
+
    const handleLogout = async () => {
       await AsyncStorage.clear()
       navigation.navigate('Login')
+   }
+
+   const renderNotification = (item) => (
+      <Box flex={1}>
+         <Text>awdwad</Text>
+         <Divider my={1} />
+      </Box>
+   )
+
+   const leaveWork = async (date) => {
+      console.log(`พนักงาน ${item.nname} ได้ลางานวันที่ ${moment(date).format('DD MMMM YYYY')}`);
+      console.log(workSchedule);
+      // setIsLoading(true)
+      // const userId = await AsyncStorage.getItem('userId');
+      // await axios.delete('http://10.0.2.2:81/delete/a_emp_in_scheduling', {
+      //    params: { id: userId, sched_date: date }
+      // }).then(() => {
+      //    console.log('deleted a_emp_in_scheduling');
+      //    setShowConfirm(false)
+      // })
    }
 
    const renderItem = (item) => (
@@ -63,7 +108,12 @@ const ScheduleEmp = ({ navigation }) => {
                เช็คชื่อ
             </Button>
          ) : (
-            <Button onPress={() => { leaveWork() }} position={'absolute'} top={0} right={0} p={2} colorScheme={'error'} shadow={1} borderTopRightRadius={'xl'} borderBottomLeftRadius={'xl'} borderRadius={0}
+            <Button onPress={async () => {
+               const selectedDate = await moment(item.sched_date).format('YYYY-MM-DD')
+               await setLeaveDate(selectedDate)
+               setShowConfirm(true)
+            }}
+               position={'absolute'} top={0} right={0} p={2} colorScheme={'error'} shadow={1} borderTopRightRadius={'xl'} borderBottomLeftRadius={'xl'} borderRadius={0}
                leftIcon={<Icon name='calendar-times-o' color={'white'} size={18} />}>
                ลางาน
             </Button>
@@ -78,20 +128,43 @@ const ScheduleEmp = ({ navigation }) => {
    return (
       <NativeBaseProvider>
          <HStack justifyContent={'space-around'} py={5}>
-            <IconButton onPress={handleLogout} colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={1} boxSize={16}>
+
+            <IconButton onPress={handleLogout} colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={2} boxSize={16}>
                <Icon name={'sign-out'} color={'black'} size={23} />
             </IconButton>
-            <Text>ย่างเนย</Text>
-            <IconButton onPress={() => navigation.goBack()} colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={1} boxSize={16}>
-               <Icon name={'bell-o'} color={'black'} size={20} />
-            </IconButton>
+
+            <Text onPress={handleFCM}>ย่างเนย</Text>
+
+            <Popover placement='left top' trigger={triggerProps => {
+               return <Box>
+                  <IconButton {...triggerProps} colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={2} boxSize={16}>
+                     <Icon name={'bell-o'} color={'black'} size={20} />
+                  </IconButton>
+                  <Box position={'absolute'} top={0} right={0} w={4} h={4} bgColor={'error.500'} borderRadius={'full'}></Box>
+               </Box>
+            }}>
+               <Popover.Content accessibilityLabel="notification" w="56">
+                  <Popover.Arrow />
+                  <Popover.CloseButton />
+                  <Popover.Header>แจ้งเตือน</Popover.Header>
+                  <Popover.Body>
+                     <FlatList
+                        data={[1, 2, 3]}
+                        renderItem={renderNotification}
+                        keyExtractor={item => item}
+                     />
+                  </Popover.Body>
+               </Popover.Content>
+            </Popover>
+
          </HStack>
+
          <Box flex={1} bgColor={'white'} borderTopRadius={50} shadow={1}>
             <Heading pt={5} alignSelf={'center'}>ตารางงาน</Heading>
 
             {!isLoading ? (
                <Agenda
-                  displayLoadingIndicator={true}
+                  displayLoadingIndicator={isLoading}
                   selected={dates[0]}
                   minDate={dates[0]}
                   maxDate={dates[6]}
@@ -121,8 +194,20 @@ const ScheduleEmp = ({ navigation }) => {
                   </Heading>
                </HStack>
             )}
-
          </Box>
+
+         <AwesomeAlert
+            show={showConfirm}
+            customView={<Modal mode={'confirm'} title={'ยืนยันลางานล่วงหน้า'} desc={'คุณต้องการลางานล่วงหน้าหรือไม่'} />}
+            onDismiss={() => { setShowConfirm(false) }}
+            contentContainerStyle={{ width: '80%' }}
+            showConfirmButton={true}
+            confirmButtonColor={'#16a34a'}
+            onConfirmPressed={() => { leaveWork(leaveDate) }}
+            showCancelButton={true}
+            cancelButtonColor={'#a3a3a3'}
+            onCancelPressed={() => { setShowConfirm(false) }}
+         />
 
       </NativeBaseProvider>
    )

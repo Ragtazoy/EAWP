@@ -12,10 +12,6 @@ const Schedule = ({ navigation }) => {
    const [countEmp, setCountEmp] = useState([])
    const [isLoading, setIsLoading] = useState(true)
 
-   const empty = { key: 'empty', color: 'gray', selectedDotColor: 'blue' };
-   const filling = { key: 'filling', color: 'amber', selectedDotColor: 'blue' };
-   const full = { key: 'full', color: 'green', selectedDotColor: 'blue' };
-
    let dates = []
    const customDate = moment()
    for (let i = 0; i < 7; i++) {

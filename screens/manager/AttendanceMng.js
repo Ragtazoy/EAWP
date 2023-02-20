@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { NativeBaseProvider, VStack, HStack, Heading, Text, IconButton, Box, Spinner } from 'native-base'
+import { NativeBaseProvider, VStack, HStack, Heading, Text, IconButton, Box, Spinner, Popover, FlatList, Divider, Toast } from 'native-base'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios'
 import { Calendar } from 'react-native-calendars'
@@ -38,16 +38,45 @@ const AttendanceMng = ({ navigation }) => {
       navigation.navigate('Login')
    }
 
+   const renderNotification = (item) => (
+      <Box flex={1}>
+         <Text>awdwad</Text>
+         <Divider my={1} />
+      </Box>
+   )
+
    return (
       <NativeBaseProvider>
          <HStack justifyContent={'space-around'} py={5}>
+
             <IconButton colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={1} boxSize={16} onPress={handleLogout}>
                <Icon name={'sign-out'} color={'black'} size={23} />
             </IconButton>
+
             <Text>ย่างเนย</Text>
-            <IconButton colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={1} boxSize={16} onPress={() => navigation.goBack()}>
-               <Icon name={'bell-o'} color={'black'} size={20} />
-            </IconButton>
+
+            <Popover placement='left top' trigger={triggerProps => {
+               return <Box>
+                  <IconButton {...triggerProps} colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={2} boxSize={16}>
+                     <Icon name={'bell-o'} color={'black'} size={20} />
+                  </IconButton>
+                  <Box position={'absolute'} top={0} right={0} w={4} h={4} bgColor={'error.500'} borderRadius={'full'}></Box>
+               </Box>
+            }}>
+               <Popover.Content accessibilityLabel="notification" w="56">
+                  <Popover.Arrow />
+                  <Popover.CloseButton />
+                  <Popover.Header>แจ้งเตือน</Popover.Header>
+                  <Popover.Body>
+                     <FlatList
+                        data={[1, 2, 3]}
+                        renderItem={renderNotification}
+                        keyExtractor={item => item}
+                     />
+                  </Popover.Body>
+               </Popover.Content>
+            </Popover>
+
          </HStack>
 
          {!isLoading ? (

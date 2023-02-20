@@ -3,18 +3,46 @@ const app = express()
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const mysql = require('mysql2')
-
+const admin = require('firebase-admin');
+const serviceAccount = require('./eawp-66-firebase-adminsdk-7mg2q-8669390c8e.json');
 app.use(cors())
 app.use(bodyParser.json())
+
+//==================================================================================================================================================//
+// Notification 
+//==================================================================================================================================================//
+
+admin.initializeApp({
+   credential: admin.credential.cert(serviceAccount),
+});
+
+app.post('/send-notification', (req, res) => {
+   const { deviceToken, notification, data } = req.body;
+   const message = {
+      token: deviceToken,
+      notification: notification,
+      data: data
+   };
+
+   admin.messaging().send(message)
+      .then((response) => {
+         res.send(response);
+      })
+      .catch((error) => {
+         res.status(500).send(error);
+      });
+});
 
 const db = mysql.createConnection({
    host: '127.0.0.1',
    user: 'root',
    database: 'eawp_base'
 });
-//======================================================================================================//
 
-// Read //
+//==================================================================================================================================================//
+// Read 
+//==================================================================================================================================================//
+
 app.get('/read/emplist', (req, res) => {
    db.query("SELECT e.emp_id, e.nname, e.password, e.fname, e.lname, e.job_title, e.job_start, e.phone, e.birthdate, e.line_account, w.job_hours, w.absent_quantity, w.late_quantity, w.leave_quantity, (SELECT GROUP_CONCAT(d.dept_name SEPARATOR ', ') FROM department d WHERE d.emp_id = e.emp_id) as dept FROM employee e JOIN work_history w ON e.emp_id = w.emp_id",
       (err, results) => {
@@ -166,9 +194,10 @@ app.get('/read/sum_work_history', (req, res) => {
    );
 })
 
-//======================================================================================================//
-
+//==================================================================================================================================================//
 // Create //
+//==================================================================================================================================================//
+
 app.post('/login', (req, res) => {
    const username = req.body.username
    const password = req.body.password
@@ -282,9 +311,10 @@ app.post('/create/payment_history', (req, res) => {
 
 
 
-////==============================================================================================////
-
+//==================================================================================================================================================//
 // Update //
+//==================================================================================================================================================//
+
 app.post('/update/scheduling', (req, res) => {
    const sched_id = req.body.sched_id
    const emp_id = req.body.emp_id
@@ -337,9 +367,31 @@ app.put('/update/work_attendance', (req, res) => {
       }
    );
 })
-////==============================================================================================////
 
+app.put('/update/device_token', (req, res) => {
+   const emp_id = req.body.emp_id
+   const device_token = req.body.device_token
+   db.query("UPDATE employee SET device_token = ? WHERE emp_id = ?",
+      [device_token, emp_id],
+      (err, results) => {
+         err ? console.log('/update/device_token ' + err) : res.send(results)
+      }
+   );
+})
+
+app.post('/update/dept', (req, res) => {
+   const emp_id = req.body.emp_id
+   const dept_name = req.body.dept_name
+   db.query('INSERT INTO department (emp_id, dept_name) VALUES (?, ?)', [emp_id, dept_name],
+      (err, results) => {
+         err ? console.log('/create/dept ' + err) : res.send(results)
+      })
+});
+
+//==================================================================================================================================================//
 // Delete //
+//==================================================================================================================================================//
+
 app.delete('/delete/emp/:id', (req, res) => {
    const id = req.params.id
    db.query('DELETE FROM employee WHERE employee.emp_id = ?', [id],
@@ -374,6 +426,17 @@ app.delete('/delete/emp_in_scheduling', (req, res) => {
       [sched_date],
       (err, results) => {
          err ? console.log('/delete/emp_in_scheduling ' + err) : res.send(results)
+      }
+   );
+})
+
+app.delete('/delete/a_emp_in_scheduling', (req, res) => {
+   const id = req.query.id
+   const sched_date = req.query.sched_date
+   db.query("DELETE FROM scheduling WHERE emp_id = ? AND sched_id = (SELECT sched_id FROM work_schedule WHERE sched_date = ?)",
+      [id, sched_date],
+      (err, results) => {
+         err ? console.log('/delete/a_emp_in_scheduling ' + err) : res.send(results)
       }
    );
 })
