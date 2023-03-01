@@ -1,5 +1,4 @@
-import React from "react";
-import { NativeBaseProvider, Toast, HStack, Text } from 'native-base';
+import React, { useEffect } from "react";
 import { requestUserPermission, notificationListener } from './screens/Notification'
 import { LogBox } from "react-native";
 import { NavigationContainer } from '@react-navigation/native';
@@ -25,21 +24,27 @@ import QrScanner from "./screens/employee/QrScanner";
 const Stack = createNativeStackNavigator();
 LogBox.ignoreLogs(["EventEmitter.removeListener"]);
 
+// notificationListener()
+// notificationListener() ?
+//    <NativeBaseProvider>
+//       {Toast.show({
+//          placement: "top",
+//          render: () => {
+//             return <HStack bgColor="#fbbf2440" px="3" py="2" rounded="md">
+//                <Icon name='notification' color={'#fbbf24'} size={18} />
+//                <Text ml={2} color={'#fbbf24'}>มีการแจ้งเตือนใหม่</Text>
+//             </HStack>;
+//          }
+//       })}
+//    </NativeBaseProvider> : null
+
 export default function App() {
+   useEffect(() => {
+      notificationListener();
+   }, []);
+
    return (
       <NavigationContainer>
-         {notificationListener() ?
-            <NativeBaseProvider>
-               {Toast.show({
-                  placement: "top",
-                  render: () => {
-                     return <HStack bgColor="#fbbf2440" px="3" py="2" rounded="md">
-                        <Icon name='notification' color={'#fbbf24'} size={18} />
-                        <Text ml={2} color={'#fbbf24'}>มีการแจ้งเตือนใหม่</Text>
-                     </HStack>;
-                  }
-               })}
-            </NativeBaseProvider> : null}
          <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Splash" component={Splash} />
             <Stack.Screen name="Login" component={Login} />

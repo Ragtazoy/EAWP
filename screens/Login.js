@@ -112,9 +112,9 @@ const Login = ({ navigation }) => {
                   <Button onPress={handleLogin} leftIcon={<FontAwesomeIcon icon={faSignIn} color='white' />} mt="2" colorScheme="amber">
                      Sign in
                   </Button>
-                  <Button onPress={() => { handleFCM() }} leftIcon={<FontAwesomeIcon icon={faSignIn} color='white' />} mt="2" colorScheme="amber">
+                  {/* <Button onPress={() => { handleFCM() }} leftIcon={<FontAwesomeIcon icon={faSignIn} color='white' />} mt="2" colorScheme="amber">
                      Test FCM
-                  </Button>
+                  </Button> */}
                </VStack>
             </Box>
          </Center>

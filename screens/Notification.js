@@ -3,6 +3,7 @@ import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/AntDesign'
+import { Alert } from 'react-native';
 
 export const requestUserPermission = async () => {
    const authStatus = await messaging().requestPermission();
@@ -53,18 +54,18 @@ export const notificationListener = () => {
 
    messaging().onMessage(async remoteMessage => {
       console.log('Notification on foreground state...', remoteMessage);
-      // <NativeBaseProvider>
-      //    {Toast.show({
-      //       placement: "top",
-      //       render: () => {
-      //          return <HStack bgColor="#fbbf2440" px="3" py="2" rounded="md">
-      //             <Icon name='notification' color={'#fbbf24'} size={18} />
-      //             <Text ml={2} color={'#fbbf24'}>มีการแจ้งเตือนใหม่</Text>
-      //          </HStack>;
-      //       }
-      //    })}
-      // </NativeBaseProvider>
-      return true
+      <NativeBaseProvider>
+         {Toast.show({
+            placement: "top",
+            render: () => {
+               return <HStack bgColor="#fbbf2490" px="2" py="2" rounded="full" borderColor={'#fbbf24'} borderWidth={1}>
+                  <Icon name='notification' color={'black'} size={18} />
+                  <Text ml={2} color={'#black'}>มีการแจ้งเตือนใหม่</Text>
+               </HStack>;
+            }
+         })}
+      </NativeBaseProvider>
+      // return true
    })
 
 }

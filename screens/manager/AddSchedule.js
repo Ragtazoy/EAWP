@@ -8,36 +8,9 @@ import Icon2 from 'react-native-vector-icons/FontAwesome'
 import Header from '../../components/Header'
 import Modal from '../../components/Modal'
 
-import { LogBox, SafeAreaView } from 'react-native'
-LogBox.ignoreLogs(['VirtualizedLists should never be nested'])
-
-const choice = [{
-   id: '92iijs7yta',
-   name: 'Ondo'
-}, {
-   id: 'a0s0a8ssbsd',
-   name: 'Ogun'
-}, {
-   id: '16hbajsabsd',
-   name: 'Calabar'
-}, {
-   id: 'nahs75a5sg',
-   name: 'Lagos'
-}, {
-   id: '667atsas',
-   name: 'Maiduguri'
-}, {
-   id: 'hsyasajs',
-   name: 'Anambra'
-}
-];
-
-
 const AddSchedule = ({ route, navigation }) => {
    const { date } = route.params
    const [emp, setEmp] = useState([])
-   // const [newEmp, setNewEmp] = useState([])
-   // const [empByDept, setEmpByDept] = useState([])
    const [cashier, setCashier] = useState([])
    const [kitchen, setKitchen] = useState([])
    const [wash, setWash] = useState([])
@@ -371,51 +344,6 @@ const AddSchedule = ({ route, navigation }) => {
             contentContainerStyle={{ width: '80%' }}
             onDismiss={() => { setShowInvalid2(false) }}
          />
-
-         {/* <Modal isOpen={showModal} onClose={() => setShowModal(false)} size={'lg'}>
-            <Modal.Content maxWidth="400px">
-               <Modal.CloseButton />
-               <Modal.Header>เลือกพนักงานแผนกนี้</Modal.Header>
-               <Modal.Body>
-
-               <HStack bgColor={'#7c2d12'} h={10} py={1} alignItems={'center'}>
-                  <Box flex={0.25}>
-                     <Text alignSelf={'center'} color={'white'}>ชื่อ</Text>
-                  </Box>
-                  <Divider orientation="vertical" mx="1" />
-                  <Box flex={0.25}>
-                     <Text alignSelf={'center'} color={'white'}>ตำแหน่ง</Text>
-                  </Box>
-                  <Divider orientation="vertical" mx="1" />
-                  <Box flex={0.25}>
-                     <Text alignSelf={'center'} color={'white'}>แผนก</Text>
-                  </Box>
-                  <Divider orientation="vertical" mx="1" />
-                  <Box flex={0.25}>
-                     <Text alignSelf={'center'} color={'white'}>คะแนน</Text>
-                  </Box>
-               </HStack>
-
-               <FlatList nestedScrollEnabled={true}
-                  data={empByDept} renderItem={renderItem} keyExtractor={item => empByDept.emp_id} />
-
-               </Modal.Body>
-               <Modal.Footer>
-                  <Button.Group space={2}>
-                     <Button px={5} variant="outline" colorScheme="trueGray" onPress={() => {
-                        setShowModal(false);
-                     }}>
-                        ยกเลิก
-                     </Button>
-                     <Button px={5} colorScheme="success" onPress={() => {
-                        setShowModal(false);
-                     }}>
-                        ยืนยัน
-                     </Button>
-                  </Button.Group>
-               </Modal.Footer>
-            </Modal.Content>
-         </Modal> */}
 
       </NativeBaseProvider>
    )

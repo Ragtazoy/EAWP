@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { NativeBaseProvider, ScrollView, VStack, HStack, Box, Spinner, Text, Heading, FlatList, Button, Actionsheet, useDisclose } from 'native-base'
+import { TouchableOpacity } from 'react-native'
+import { NativeBaseProvider, ScrollView, VStack, HStack, Box, Spinner, Text, Heading, FlatList, Button, Actionsheet, useDisclose, Pressable, Divider } from 'native-base'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios'
 import { Calendar } from 'react-native-calendars'
 import moment from 'moment/moment'
 import AwesomeAlert from 'react-native-awesome-alerts'
+import Icon from 'react-native-vector-icons/AntDesign'
 
 import Header from '../../components/Header'
 import Modal from '../../components/Modal'
@@ -12,10 +14,14 @@ import Modal from '../../components/Modal'
 
 const Exchange = ({ navigation }) => {
    const [workSchedule, setWorkSchedule] = useState([])
+   const [workExchange, setWorkExchange] = useState([])
    const [selectedWork, setSelectedWork] = useState('')
    const [selectedDate, setSelectedDate] = useState('')
+
    const [isLoading, setIsLoading] = useState(true)
+   const [isLoading2, setIsLoading2] = useState(false)
    const [showAlert, setShowAlert] = useState(false)
+   const [showConfirm, setShowConfirm] = useState(false)
    const { isOpen, onOpen, onClose } = useDisclose()
 
    let dates = []
@@ -34,23 +40,49 @@ const Exchange = ({ navigation }) => {
             params: { emp_id: userId, date_start: dates[1], date_end: dates[6] }
          }).then((res) => {
             setWorkSchedule(res.data)
-            console.log(workSchedule);
          })
          setIsLoading(false)
       })()
    }, [isLoading])
 
-   const selectWorkDay = (day) => {
-      console.log(day);
-      setSelectedWork('')
+   const selectExchangeDay = async (date) => {
+      console.log(date);
+      setSelectedDate(date)
+      const userId = await AsyncStorage.getItem('userId');
+
+      await axios.get('http://10.0.2.2:81/read/emp_in_scheduling', {
+         params: { sched_date: date }
+      }).then((res) => {
+         console.log(userId);
+         setWorkExchange(res.data.filter((item) => { item.dept_name === "kitchen" }))
+         // setWorkExchange(res.data.filter((item) => { item.dept_name === "kitchen" && item.emp_id !== userId }))
+         setIsLoading2(true)
+      });
+
+      console.log('workExchange:', workExchange)
+      setIsLoading2(false)
+      onOpen()
    }
 
-   const renderItem = ({ item, index }) => (
-      <Button onPress={() => { selectWorkDay('555') }} w={260} my={3} mr={3} p={3} bgColor={'white'} borderRadius={'xl'} shadow={1} borderLeftWidth={4} borderColor={'blue.500'} justifyContent={'flex-start'}>
-         <Text my={1} fontSize={'md'} fontWeight={'bold'} color={'blue.500'}>{moment(item.sched_date).format('dddd DD MMMM')}</Text>
-         <Text fontSize={'lg'} fontWeight={'medium'}>ตำแหน่ง: {item.dept_name}</Text>
-         <Text fontSize={'md'} fontWeight={'medium'}>พนักงาน: {item.nname}</Text>
-      </Button>
+   const renderItem = ({ item }) => (
+      <Pressable onPress={() => { setSelectedWork(moment(item.sched_date).format('YYYY-MM-DD')) }}>
+         {({ isPressed }) => {
+            return <Box w={260} my={3} mr={3} p={3} borderRadius={'xl'} borderLeftWidth={4} borderColor={'blue.500'}
+               bgColor={'white'} shadow={selectedWork === moment(item.sched_date).format('YYYY-MM-DD') ? 0 : 2} justifyContent={'center'}
+               style={{
+                  transform: [{ scale: isPressed ? 0.96 : 1 }]
+               }}>
+               <Text my={1} fontSize={'md'} fontWeight={'bold'} color={'blue.500'}>{moment(item.sched_date).format('dddd - D MMMM')}</Text>
+               <Text fontSize={'lg'} fontWeight={'medium'}>ตำแหน่ง: {item.dept_name}</Text>
+               <Text fontSize={'md'} fontWeight={'medium'}>พนักงาน: {item.nname}</Text>
+               {selectedWork === moment(item.sched_date).format('YYYY-MM-DD') ? (
+                  <Box pr={2} position={'absolute'} alignSelf={'flex-end'}>
+                     <Icon name={'checkcircleo'} color={'#22c55e'} size={80} />
+                  </Box>
+               ) : null}
+            </Box>;
+         }}
+      </Pressable>
    )
 
    return (
@@ -96,12 +128,11 @@ const Exchange = ({ navigation }) => {
                      }}
                      minDate={dates[1]}
                      maxDate={dates[6]}
-                     onDayPress={date => {
-                        setSelectedDate(date.dateString)
+                     onDayPress={(date) => {
                         if (selectedWork.length === 0) {
                            setShowAlert(true)
                         } else {
-                           onOpen()
+                           selectExchangeDay(date.dateString)
                         }
                      }}
                   />
@@ -115,13 +146,33 @@ const Exchange = ({ navigation }) => {
                )}
             </VStack>
 
-            <Actionsheet isOpen={isOpen} onClose={onClose}>
+            <Actionsheet Actionsheet isOpen={isOpen} onClose={onClose} >
                <Actionsheet.Content>
-                  <Box h={'full'} bgColor={'red.300'}>
-                     <Text>{selectedDate}</Text>
+                  <Box w={'full'} maxH={'full'} >
+                     <Heading my={2} fontSize={'xl'} alignSelf={'center'}>{moment(selectedDate).format('dddd DD MMMM YYYY')}</Heading>
+                     <Text mb={4} fontSize={'md'} alignSelf={'center'}>เลือกพนักงานที่ต้องการแลกเปลี่ยนวันทำงานด้วย</Text>
+                     <FlatList data={workExchange} keyExtractor={item => item.emp_id} refreshing={isLoading2}
+                        renderItem={({ item }) => (
+                           <Box>
+                              <HStack mx={2} justifyContent={'space-between'} alignItems={'center'}>
+                                 <Text fontSize={'md'}>{item.nname}</Text>
+                                 <Button onPress={async () => {
+                                    console.log(item.scheduling_id);
+                                    // setShowConfirm(true)
+                                 }} my={1} py={1.5} colorScheme={'amber'} shadow={1} borderRadius={'full'}
+                                    leftIcon={<Icon name='swap' color={'white'} size={18} />}>
+                                    แลกเปลี่ยน
+                                 </Button>
+                              </HStack>
+                              <Divider my={1} />
+                           </Box>
+                        )}
+                     />
                   </Box>
+
+
                </Actionsheet.Content>
-            </Actionsheet>
+            </Actionsheet >
 
          </ScrollView>
 
@@ -131,7 +182,7 @@ const Exchange = ({ navigation }) => {
             contentContainerStyle={{ width: '80%' }}
             onDismiss={() => { setShowAlert(false) }}
          />
-      </NativeBaseProvider>
+      </NativeBaseProvider >
    )
 }
 

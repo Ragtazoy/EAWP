@@ -50,16 +50,16 @@ const AttendanceEmp = ({ navigation }) => {
          setIsLoading(false)
       })()
 
-      // const interval = setInterval(() => {
-      //    setCurrentTime(moment().format('HH:mm:ss'));
-      // }, 1000);
-      // return () => clearInterval(interval);
+      const interval = setInterval(() => {
+         setCurrentTime(moment().format('HH:mm:ss'));
+      }, 1000);
+      return () => clearInterval(interval);
 
    }, [isLoading]);
 
    const checkIn = async () => {
       const timeIn = await +moment()
-      const timeFix = await +moment().hours(19).minutes(0).seconds(0)
+      const timeFix = await +moment().hours(12).minutes(0).seconds(0)
       const timeDiff = timeFix - timeIn
       console.log(timeDiff);
       if (timeDiff > 3600000) {

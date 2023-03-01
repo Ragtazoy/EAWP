@@ -8,9 +8,6 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import Header from '../../components/Header'
 import Modal from '../../components/Modal'
 
-import { LogBox, SafeAreaView } from 'react-native'
-LogBox.ignoreLogs(['VirtualizedLists should never be nested'])
-
 const EditSchedule = ({ route, navigation }) => {
    const { date } = route.params
    const [workSchedule, setWorkSchedule] = useState([])

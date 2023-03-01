@@ -17,8 +17,6 @@ const ScheduleEmp = ({ navigation }) => {
    const [showConfirm, setShowConfirm] = useState(false)
    const [leaveDate, setLeaveDate] = useState('')
 
-   notificationListener()
-
    let dates = []
    const customDate = moment()
    for (let i = 0; i < 7; i++) {
@@ -90,14 +88,15 @@ const ScheduleEmp = ({ navigation }) => {
    const leaveWork = async (date) => {
       console.log(`พนักงาน ${item.nname} ได้ลางานวันที่ ${moment(date).format('DD MMMM YYYY')}`);
       console.log(workSchedule);
-      // setIsLoading(true)
-      // const userId = await AsyncStorage.getItem('userId');
-      // await axios.delete('http://10.0.2.2:81/delete/a_emp_in_scheduling', {
-      //    params: { id: userId, sched_date: date }
-      // }).then(() => {
-      //    console.log('deleted a_emp_in_scheduling');
-      //    setShowConfirm(false)
-      // })
+
+      const userId = await AsyncStorage.getItem('userId');
+      await axios.delete('http://10.0.2.2:81/delete/a_emp_in_scheduling', {
+         params: { id: userId, sched_date: date }
+      }).then(() => {
+         console.log('deleted a_emp_in_scheduling');
+         setIsLoading(true)
+         setShowConfirm(false)
+      })
    }
 
    const renderItem = (item) => (

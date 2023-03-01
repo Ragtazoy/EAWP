@@ -23,7 +23,6 @@ app.post('/send-notification', (req, res) => {
       notification: notification,
       data: data
    };
-
    admin.messaging().send(message)
       .then((response) => {
          res.send(response);
