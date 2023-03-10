@@ -15,7 +15,7 @@ import Modal from '../../components/Modal'
 export default function QrScanner2({ route, navigation }) {
    const { id, sched_id } = route.params
    const [showInvalid, setshowInvalid] = useState(false)
-   const [showSuccess, setshowSuccess] = useState(false)
+   const [showSuccess, setShowSuccess] = useState(false)
    const [isFunctionCalled, setIsFunctionCalled] = useState(false);
 
    const [isActive, setIsActive] = useState(true);
@@ -89,7 +89,7 @@ export default function QrScanner2({ route, navigation }) {
          sched_id: sched_id
       }).then(() => {
          console.log('post /create/work_attendance already')
-         setshowSuccess(true)
+         setShowSuccess(true)
       })
    };
 
@@ -122,7 +122,7 @@ export default function QrScanner2({ route, navigation }) {
                show={showSuccess}
                customView={<Modal mode={'success'} title={'บันทึกเข้างานสำเร็จ'} />}
                contentContainerStyle={{ width: '80%' }}
-               onDismiss={() => { setshowSuccess(false); navigation.navigate('AttendanceEmp') }}
+               onDismiss={() => { setShowSuccess(false); navigation.navigate('AttendanceEmp') }}
             />
          </NativeBaseProvider>
       )

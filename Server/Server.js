@@ -148,7 +148,7 @@ app.get('/read/a_emp_in_multi_scheduling', (req, res) => {
    const emp_id = req.query.emp_id
    const date_start = req.query.date_start
    const date_end = req.query.date_end
-   db.query("SELECT *, w.sched_date, (SELECT e.nname FROM employee e WHERE e.emp_id = s.emp_id) AS nname FROM scheduling s JOIN work_schedule w ON s.sched_id = w.sched_id WHERE s.emp_id = ? AND s.sched_id IN (SELECT w.sched_id FROM work_schedule w WHERE w.sched_date BETWEEN ? AND ?)",
+   db.query("SELECT s.*, w.sched_date, e.work_exchange_id, (SELECT e.nname FROM employee e WHERE e.emp_id = s.emp_id) AS nname FROM scheduling s JOIN work_schedule w ON s.sched_id = w.sched_id LEFT JOIN work_exchange e ON s.scheduling_id = e.scheduling_id WHERE s.emp_id = ? AND s.sched_id IN (SELECT w.sched_id FROM work_schedule w WHERE w.sched_date BETWEEN ? AND ?) ORDER BY w.sched_date",
       [emp_id, date_start, date_end],
       (err, results) => {
          err ? console.log('/read/a_emp_in_multi_scheduling ' + err) : res.json(results)
@@ -192,6 +192,36 @@ app.get('/read/sum_work_history', (req, res) => {
       }
    );
 })
+
+app.get('/read/exchange/device_token', (req, res) => {
+   const scheduling_id = req.query.scheduling_id
+   db.query("SELECT device_token FROM employee WHERE emp_id = (SELECT s.emp_id FROM scheduling s WHERE scheduling_id = ?)",
+      [scheduling_id],
+      (err, results) => {
+         err ? console.log('/read/exchange/device_token ' + err) : res.json(results[0])
+      }
+   );
+})
+
+app.get('/read/manager/device_token', (req, res) => {
+   db.query("SELECT device_token FROM employee WHERE job_title = 'part-time' AND device_token IS NOT null",
+      (err, results) => {
+         err ? console.log('/read/manager/device_token ' + err) : res.json(results)
+      }
+   );
+})
+
+app.get('/read/notification/exchange', (req, res) => {
+   const emp_id = req.query.emp_id
+   const today = req.query.today
+   db.query("SELECT we.*, (SELECT nname FROM employee WHERE emp_id = s.emp_id) AS nname, ws.sched_date AS exchange_date FROM work_exchange we JOIN scheduling s ON s.scheduling_id = we.exchange_scheduling_id JOIN work_schedule ws ON ws.sched_id = s.sched_id WHERE s.emp_id = ? AND we.wait_date > ?",
+      [emp_id, today],
+      (err, results) => {
+         err ? console.log('/read/notification/exchange ' + err) : res.json(results)
+      }
+   );
+})
+
 
 //==================================================================================================================================================//
 // Create //
@@ -308,6 +338,26 @@ app.post('/create/payment_history', (req, res) => {
       })
 });
 
+app.post('/create/work_exchange', (req, res) => {
+   const wait_date = req.body.wait_date
+   const scheduling_id = req.body.scheduling_id
+   const exchange_scheduling_id = req.body.exchange_scheduling_id
+   db.query("INSERT INTO work_exchange (work_exchange_id, emp_approve, mng_approve, wait_date, scheduling_id, exchange_scheduling_id) VALUES (NULL, '0', '0', ?, ?, ?)",
+      [wait_date, scheduling_id, exchange_scheduling_id],
+      (err, results) => {
+         err ? console.log('/create/work_exchange ' + err) : res.send(results)
+      })
+});
+
+app.post('/create/notification', (req, res) => {
+   const { type, nname, date } = req.body
+   db.query("INSERT INTO notification (notification_id, type, nname, date) VALUES (NULL, ?, ?, ?)",
+      [type, nname, date],
+      (err, results) => {
+         err ? console.log('/create/notification ' + err) : res.send(results)
+      })
+});
+
 
 
 //==================================================================================================================================================//
@@ -387,6 +437,38 @@ app.post('/update/dept', (req, res) => {
       })
 });
 
+app.put('/update/exchange/scheduling', (req, res) => {
+   const { scheduling_id, exchange_scheduling_id } = req.body
+   db.query("SELECT * FROM `scheduling` WHERE scheduling_id IN (?, ?)",
+      [scheduling_id, exchange_scheduling_id],
+      (err, results) => {
+         if (err) {
+            console.log('/update/exchange/scheduling - SELECT scheduling ' + err)
+         } else {
+            const scheduling_id_1 = results[0].scheduling_id
+            const emp_id_1 = results[0].emp_id
+            const sched_id_1 = results[0].sched_id
+            const scheduling_id_2 = results[1].scheduling_id
+            const emp_id_2 = results[1].emp_id
+            const sched_id_2 = results[1].sched_id
+            console.log('results:', results);
+            console.log(scheduling_id_1, emp_id_1, sched_id_1, '\n', scheduling_id_2, emp_id_2, sched_id_2);
+
+            db.query("UPDATE scheduling SET emp_id = ?, sched_id = ? WHERE scheduling_id = ?",
+               [emp_id_2, sched_id_2, scheduling_id_1],
+               (err) => {
+                  err ? console.log('/update/exchange/scheduling - UPDATE scheduling1 ' + err) : null
+               })
+            db.query("UPDATE scheduling SET emp_id = ?, sched_id = ? WHERE scheduling_id = ?",
+               [emp_id_1, sched_id_1, scheduling_id_2],
+               (err) => {
+                  err ? console.log('/update/exchange/scheduling - UPDATE scheduling2 ' + err) : null
+               })
+            res.send('/update/exchange/scheduling success')
+         }
+      })
+});
+
 //==================================================================================================================================================//
 // Delete //
 //==================================================================================================================================================//
@@ -436,6 +518,16 @@ app.delete('/delete/a_emp_in_scheduling', (req, res) => {
       [id, sched_date],
       (err, results) => {
          err ? console.log('/delete/a_emp_in_scheduling ' + err) : res.send(results)
+      }
+   );
+})
+
+app.delete('/delete/a_work_exchange', (req, res) => {
+   const work_exchange_id = req.query.work_exchange_id
+   db.query("DELETE FROM work_exchange WHERE work_exchange_id = ?",
+      [work_exchange_id],
+      (err, results) => {
+         err ? console.log('/delete/a_work_exchange ' + err) : res.send(results)
       }
    );
 })

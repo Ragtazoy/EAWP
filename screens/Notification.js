@@ -58,7 +58,7 @@ export const notificationListener = () => {
          {Toast.show({
             placement: "top",
             render: () => {
-               return <HStack bgColor="#fbbf2490" px="2" py="2" rounded="full" borderColor={'#fbbf24'} borderWidth={1}>
+               return <HStack bgColor="#fbbf24" px="2" py="2" rounded="full" borderColor={'#e1ab20'} borderWidth={1}>
                   <Icon name='notification' color={'black'} size={18} />
                   <Text ml={2} color={'#black'}>มีการแจ้งเตือนใหม่</Text>
                </HStack>;

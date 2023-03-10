@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { NativeBaseProvider, Box, Text, Button, Heading, HStack, IconButton, Spinner, Popover, Avatar, Badge, Fab, Pressable, FlatList, Divider } from 'native-base'
+import { NativeBaseProvider, Box, Text, Button, Heading, HStack, IconButton, Spinner, Popover, FlatList, Divider, Pressable, Actionsheet, useDisclose } from 'native-base'
 import messaging from '@react-native-firebase/messaging';
 import { notificationListener } from '../../screens/Notification'
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -13,9 +13,13 @@ import Modal from '../../components/Modal';
 const ScheduleEmp = ({ navigation }) => {
    const [item, setItem] = useState([])
    const [workSchedule, setWorkSchedule] = useState([])
-   const [isLoading, setIsLoading] = useState(true)
-   const [showConfirm, setShowConfirm] = useState(false)
+   const [notifsExchange, setNotifsExchange] = useState([])
    const [leaveDate, setLeaveDate] = useState('')
+   const [isLoading, setIsLoading] = useState(true)
+
+   const [showConfirm, setShowConfirm] = useState(false)
+   const [showSuccess, setShowSuccess] = useState({ show: false, text: '' })
+   const { isOpen, onOpen, onClose } = useDisclose();
 
    let dates = []
    const customDate = moment()
@@ -26,9 +30,17 @@ const ScheduleEmp = ({ navigation }) => {
 
    useEffect(() => {
       async function empInScheduling() {
+         await navigation.addListener('focus', () => setIsLoading(true))
+
          let empInSched = []
          const userId = await AsyncStorage.getItem('userId');
-         console.log('id: ' + userId);
+
+         await axios.get('http://10.0.2.2:81/read/notification/exchange', {
+            params: { emp_id: userId, today: moment().format('YYYY-MM-DD') }
+         }).then((res) => {
+            setNotifsExchange(res.data)
+            console.log('notifs:', notifsExchange.length);
+         })
 
          axios.get('http://10.0.2.2:81/read/empdetail/' + userId).then((res) => {
             setItem(res.data)
@@ -43,12 +55,12 @@ const ScheduleEmp = ({ navigation }) => {
          }
 
          await setWorkSchedule(empInSched)
-         console.log(empInSched);
          setIsLoading(false)
       }
 
       empInScheduling()
    }, [isLoading])
+
 
    const deptColor = (dept) => {
       switch (dept) {
@@ -75,29 +87,120 @@ const ScheduleEmp = ({ navigation }) => {
 
    const handleLogout = async () => {
       await AsyncStorage.clear()
-      navigation.navigate('Login')
+      await navigation.navigate('Login')
    }
 
-   const renderNotification = (item) => (
-      <Box flex={1}>
-         <Text>awdwad</Text>
-         <Divider my={1} />
-      </Box>
-   )
+   const handleExchange = async ({ exchange, work_exchange_id, scheduling_id, exchange_scheduling_id }) => {
+      console.log('exchange:', exchange, 'work_exchange_id:', work_exchange_id, '', scheduling_id, 'swap', exchange_scheduling_id);
+
+      if (exchange) {
+         console.log('Exchange scheduling');
+         axios.put('http://10.0.2.2:81/update/exchange/scheduling', { scheduling_id: scheduling_id, exchange_scheduling_id: exchange_scheduling_id })
+            .catch((err) => {
+               console.log(err);
+            })
+         console.log('Delete work_exchange');
+         axios.delete('http://10.0.2.2:81/delete/a_work_exchange', { params: { work_exchange_id: work_exchange_id } })
+
+         onClose()
+         setShowSuccess({ show: true, text: 'แลกเปลี่ยนวันทำงานสำเร็จ' })
+      } else {
+         console.log('Delete work_exchange');
+         axios.delete('http://10.0.2.2:81/delete/a_work_exchange', { params: { work_exchange_id: work_exchange_id } })
+         onClose()
+         setShowSuccess({ show: true, text: 'ยกเลิกการแลกเปลี่ยนวันทำงานสำเร็จ' })
+      }
+   }
 
    const leaveWork = async (date) => {
-      console.log(`พนักงาน ${item.nname} ได้ลางานวันที่ ${moment(date).format('DD MMMM YYYY')}`);
-      console.log(workSchedule);
-
       const userId = await AsyncStorage.getItem('userId');
+
       await axios.delete('http://10.0.2.2:81/delete/a_emp_in_scheduling', {
          params: { id: userId, sched_date: date }
       }).then(() => {
-         console.log('deleted a_emp_in_scheduling');
-         setIsLoading(true)
-         setShowConfirm(false)
-      })
+         console.log('delete a_emp_in_scheduling already')
+
+         axios.post('http://10.0.2.2:81/create/notification', {
+            type: 'leave',
+            nname: item.nname,
+            date: moment(date).format('YYYY-MM-DD'),
+         }).then(() => {
+            console.log('post /create/notification already')
+         })
+
+         axios.get('http://10.0.2.2:81/read/manager/device_token').then((res) => {
+            console.log('read/manager/device_token:', res.data)
+
+            const uniqueDevices = [...new Set(res.data.map(d => d.device_token))].map(token => ({ device_token: token }));
+
+            uniqueDevices.forEach(token => {
+               console.log(token.device_token);
+               axios.post('http://10.0.2.2:81/send-notification', {
+                  deviceToken: token.device_token,
+                  notification: {
+                     title: 'ลางานล่วงหน้า',
+                     body: `พนักงาน ${item.nname} ได้ลางานวันที่ ${moment(date).format('D MMMM YYYY')}`,
+                  },
+                  data: { id: moment().format('x').toString() }
+               })
+            });
+         })
+      }).catch((error) => {
+         res.status(500).send(error);
+         alert(error)
+      });
+
+      setShowConfirm(false)
+      setIsLoading(true)
    }
+
+   const renderNotification = ({ item }) => (
+      <Box>
+         <Pressable onPress={() => { onOpen() }}>
+            {({ isPressed }) => (
+               <HStack backgroundColor={isPressed ? '#f2f4f5' : 'white'} px={4} py={2} minH={'10'} space={2} alignItems={'center'}>
+                  <Box w={7} pl={isPressed ? 1 : 0}>
+                     <Icon name='exchange' color={'#fbbf24'} size={18} />
+                  </Box>
+                  <Text>คำขอแลกเปลี่ยนวันทำงาน</Text>
+
+                  <Actionsheet isOpen={isOpen} onClose={onClose}>
+                     <Actionsheet.Content>
+                        <Box my={6} alignItems={'center'}>
+                           <Heading mb={2} fontSize={'xl'}>ยืนยันแลกเปลี่ยนวันทำงาน</Heading>
+                           <Text fontSize={'md'} textAlign={'center'}>{`พนักงาน ${item.nname} ต้องการแลกเปลี่ยนวันทำงานของคุณ\nในวันที่ ${moment(item.exchange_date).format('D MMMM YYYY')} \nกับวันที่ ${moment(item.wait_date).format('D MMMM YYYY')}`}</Text>
+                        </Box>
+                        <Divider />
+                        <Actionsheet.Item onPress={() => {
+                           handleExchange({
+                              exchange: true,
+                              work_exchange_id: item.work_exchange_id,
+                              scheduling_id: item.scheduling_id,
+                              exchange_scheduling_id: item.exchange_scheduling_id
+                           })
+                        }}
+                           leftIcon={<Icon name='check-circle-o' color={'#16a34a'} size={26} />} alignItems={'center'}>
+                           <Text fontSize={'lg'} color={'#16a34a'}>ยืนยัน</Text>
+                        </Actionsheet.Item>
+                        <Divider />
+                        <Actionsheet.Item onPress={() => { handleExchange({ exchange: false, work_exchange_id: item.work_exchange_id }) }}
+                           leftIcon={<Icon name='times-circle-o' color={'#dc2626'} size={26} />} alignItems={'center'}>
+                           <Text fontSize={'lg'} color={'#dc2626'}>ปฏิเสธ</Text>
+                        </Actionsheet.Item>
+                        <Divider />
+                        <Actionsheet.Item onPress={() => { onClose() }}
+                           leftIcon={<Icon name='arrow-circle-o-left' color={'#1d1d1d'} size={26} />} alignItems={'center'}>
+                           <Text fontSize={'lg'}>ยกเลิก</Text>
+                        </Actionsheet.Item>
+                     </Actionsheet.Content>
+                  </Actionsheet>
+               </HStack>
+            )}
+         </Pressable>
+
+         <Divider />
+      </Box>
+   )
 
    const renderItem = (item) => (
       <Box position={'relative'} m={2} p={2} bgColor={'white'} borderRadius={'xl'} shadow={1} justifyContent={'center'} borderLeftWidth={4} borderColor={deptColor(item.dept_name)}>
@@ -134,23 +237,23 @@ const ScheduleEmp = ({ navigation }) => {
 
             <Text onPress={handleFCM}>ย่างเนย</Text>
 
-            <Popover placement='left top' trigger={triggerProps => {
-               return <Box>
-                  <IconButton {...triggerProps} colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={2} boxSize={16}>
-                     <Icon name={'bell-o'} color={'black'} size={20} />
-                  </IconButton>
-                  <Box position={'absolute'} top={0} right={0} w={4} h={4} bgColor={'error.500'} borderRadius={'full'}></Box>
-               </Box>
-            }}>
-               <Popover.Content accessibilityLabel="notification" w="56">
+            <Popover placement='left top' trigger={triggerProps => (
+               <IconButton {...triggerProps} colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={2} boxSize={16}>
+                  <Icon name={'bell-o'} color={'black'} size={20} />
+                  {notifsExchange.length > 0 ?
+                     <Box position={'absolute'} top={-4} right={-4} w={3.5} h={3.5} bgColor={'error.500'} borderWidth={2} borderColor={'#d4d4d8'} borderRadius={'full'}></Box>
+                     : null}
+               </IconButton>
+            )}>
+               <Popover.Content accessibilityLabel="notification" w="64">
                   <Popover.Arrow />
                   <Popover.CloseButton />
                   <Popover.Header>แจ้งเตือน</Popover.Header>
-                  <Popover.Body>
+                  <Popover.Body p={0}>
                      <FlatList
-                        data={[1, 2, 3]}
+                        data={notifsExchange}
                         renderItem={renderNotification}
-                        keyExtractor={item => item}
+                        keyExtractor={item => item.work_exchange_id}
                      />
                   </Popover.Body>
                </Popover.Content>
@@ -206,6 +309,12 @@ const ScheduleEmp = ({ navigation }) => {
             showCancelButton={true}
             cancelButtonColor={'#a3a3a3'}
             onCancelPressed={() => { setShowConfirm(false) }}
+         />
+         <AwesomeAlert
+            show={showSuccess.show}
+            customView={<Modal mode={'success'} title={showSuccess.text} />}
+            contentContainerStyle={{ width: '80%' }}
+            onDismiss={() => { setShowSuccess({ show: false }); setIsLoading(true) }}
          />
 
       </NativeBaseProvider>

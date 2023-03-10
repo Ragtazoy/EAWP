@@ -1,8 +1,7 @@
 import React from 'react'
 import { Heading, Text, VStack } from 'native-base'
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faCheckCircle, faHourglassHalf } from '@fortawesome/free-regular-svg-icons'
 import Icon from 'react-native-vector-icons/AntDesign'
+import Icon2 from 'react-native-vector-icons/Ionicons'
 
 const Modal = ({ mode, title, desc }) => {
    return (
@@ -10,8 +9,11 @@ const Modal = ({ mode, title, desc }) => {
          {mode === 'success' ? <Icon name={'checkcircleo'} color={'#22c55e'} size={90} /> :
             mode === 'invalid' ? <Icon name={'closecircleo'} color={'#dc2626'} size={90} /> :
                mode === 'warning' ? <Icon name={'exclamationcircleo'} color={'#fcd34d'} size={90} /> :
-                  mode === 'confirm' ? null : null}
+                  mode === 'waiting' ? <Icon2 name={'ios-timer-outline'} color={'#fcd34d'} size={100} /> :
+                     mode === 'confirm' ? null : null}
+
          <Heading textAlign={'center'}>{title}</Heading>
+
          {!!desc ? <Text textAlign={'center'} fontSize={'md'}>{desc}</Text> : null}
       </VStack>
    )

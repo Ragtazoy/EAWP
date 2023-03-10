@@ -60,10 +60,9 @@ const EditSchedule = ({ route, navigation }) => {
          })
 
          await axios.get('http://10.0.2.2:81/read/empdept').then((res) => {
-
+            
             ['cashier', 'kitchen', 'wash', 'stove', 'waiter'].forEach((dept) => {
                const empInDept = res.data.filter(item => item.dept_name === dept)
-               console.log('dept: ' + dept + ' - item: ' + JSON.stringify(empInDept));
                switch (dept) {
                   case 'cashier': setCashier(empInDept)
                   case 'kitchen': setKitchen(empInDept)
@@ -208,7 +207,7 @@ const EditSchedule = ({ route, navigation }) => {
          {!isLoading ? (
             <ScrollView pt={5}>
                <Box mx={5} mb={5} justifyContent={'flex-start'} >
-                  <Heading mb={2}>cashier</Heading>
+                  <Heading mb={2}>Cashier</Heading>
                   <MultiSelect
                      items={cashier}
                      uniqueKey="emp_id"
@@ -233,7 +232,7 @@ const EditSchedule = ({ route, navigation }) => {
                   />
                </Box >
                <Box mx={5} mb={5} justifyContent={'flex-start'} >
-                  <Heading mb={2}>kitchen</Heading>
+                  <Heading mb={2}>Kitchen</Heading>
                   <MultiSelect
                      items={kitchen}
                      uniqueKey="emp_id"
@@ -258,7 +257,7 @@ const EditSchedule = ({ route, navigation }) => {
                   />
                </Box >
                <Box mx={5} mb={5} justifyContent={'flex-start'} >
-                  <Heading mb={2}>wash</Heading>
+                  <Heading mb={2}>Wash</Heading>
                   <MultiSelect
                      items={wash}
                      uniqueKey="emp_id"
@@ -283,7 +282,7 @@ const EditSchedule = ({ route, navigation }) => {
                   />
                </Box >
                <Box mx={5} mb={5} justifyContent={'flex-start'} >
-                  <Heading mb={2}>stove</Heading>
+                  <Heading mb={2}>Stove</Heading>
                   <MultiSelect
                      items={stove}
                      uniqueKey="emp_id"
@@ -308,7 +307,7 @@ const EditSchedule = ({ route, navigation }) => {
                   />
                </Box >
                <Box mx={5} mb={5} justifyContent={'flex-start'} >
-                  <Heading mb={2}>waiter</Heading>
+                  <Heading mb={2}>Waiter</Heading>
                   <MultiSelect
                      items={waiter}
                      uniqueKey="emp_id"

@@ -17,12 +17,14 @@ const Login = ({ navigation }) => {
 
    useEffect(() => {
       console.log('run');
-      requestUserPermission()
+      
       // notificationListener()
    }, [])
 
    useEffect(() => {
       const checkLoginStatus = async () => {
+         await navigation.addListener('focus', () => setIsLoading(true))
+
          const isLoggedIn = await AsyncStorage.getItem('userId');
          if (isLoggedIn > 0) {
             console.log('loged in');
@@ -34,7 +36,9 @@ const Login = ({ navigation }) => {
          setIsLoading(false)
       }
 
-      navigation.addListener('focus', () => { setIsInvalid(false); checkLoginStatus() })
+      setIsInvalid(false)
+      requestUserPermission()
+      checkLoginStatus()
    }, [isLoading])
 
 
@@ -46,6 +50,7 @@ const Login = ({ navigation }) => {
          if (res.data.success) {
             // Save user device token
             const deviceToken = await AsyncStorage.getItem('fcmToken')
+            console.log('Save user device token:', res.data.id, deviceToken);
             await axios.put('http://10.0.2.2:81/update/device_token', {
                emp_id: res.data.id,
                device_token: deviceToken
