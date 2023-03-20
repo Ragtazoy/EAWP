@@ -24,6 +24,8 @@ const Report = ({ navigation }) => {
          }
 
          for (let i = 0; i < dates.length; i++) {
+            console.log(moment(dates[i], "MMM").startOf('month').format('YYYY-MM-DD'));
+            console.log(moment(dates[i], "MMM").endOf('month').format('YYYY-MM-DD'),'\n=====');
             await axios.get('http://10.0.2.2:81/read/sum_wage', {
                params: {
                   date_from: moment(dates[i], "MMM").startOf('month').format('YYYY-MM-DD'),

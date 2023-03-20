@@ -2,7 +2,7 @@ import React from 'react'
 import { Box, Heading, HStack, IconButton, Center, Text } from 'native-base'
 import { useNavigation } from '@react-navigation/native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faChevronLeft, faUserPlus, faUser, faCalendarDay, faCalendarCheck, faUserEdit, faCoins, faCalendarXmark } from '@fortawesome/free-solid-svg-icons'
+import { faChevronLeft, faUserPlus, faUser, faCalendarDay, faCalendarCheck, faUserEdit, faCoins, faCalendarXmark, faStar } from '@fortawesome/free-solid-svg-icons'
 
 const Header = ({ mode, icon, color, title, subtitle, subtitle2, element }) => {
    const navigation = useNavigation()
@@ -34,7 +34,8 @@ const Header = ({ mode, icon, color, title, subtitle, subtitle2, element }) => {
                               icon === 'faCalendarCheck' ? faCalendarCheck :
                                  icon === 'faUserEdit' ? faUserEdit :
                                     icon === 'faCoins' ? faCoins :
-                                       icon === 'faCalendarXmark' ? faCalendarXmark : faUser}
+                                       icon === 'faCalendarXmark' ? faCalendarXmark :
+                                          icon === 'faStar' ? faStar : faUser}
                         color={'white'} size={40}
                      />
                   </Center>

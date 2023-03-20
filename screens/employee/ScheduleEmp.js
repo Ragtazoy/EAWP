@@ -39,7 +39,7 @@ const ScheduleEmp = ({ navigation }) => {
             params: { emp_id: userId, today: moment().format('YYYY-MM-DD') }
          }).then((res) => {
             setNotifsExchange(res.data)
-            console.log('notifs:', notifsExchange.length);
+            console.log('notifs:', notifsExchange);
          })
 
          axios.get('http://10.0.2.2:81/read/empdetail/' + userId).then((res) => {
@@ -90,40 +90,14 @@ const ScheduleEmp = ({ navigation }) => {
       await navigation.navigate('Login')
    }
 
-   const handleExchange = async ({ exchange, work_exchange_id, scheduling_id, exchange_scheduling_id }) => {
-      console.log('exchange:', exchange, 'work_exchange_id:', work_exchange_id, '', scheduling_id, 'swap', exchange_scheduling_id);
-
-      if (exchange) {
-         console.log('Exchange scheduling');
-         axios.put('http://10.0.2.2:81/update/exchange/scheduling', { scheduling_id: scheduling_id, exchange_scheduling_id: exchange_scheduling_id })
-            .catch((err) => {
-               console.log(err);
-            })
-         console.log('Delete work_exchange');
-         axios.delete('http://10.0.2.2:81/delete/a_work_exchange', { params: { work_exchange_id: work_exchange_id } })
-
-         onClose()
-         setShowSuccess({ show: true, text: 'แลกเปลี่ยนวันทำงานสำเร็จ' })
-      } else {
-         console.log('Delete work_exchange');
-         axios.delete('http://10.0.2.2:81/delete/a_work_exchange', { params: { work_exchange_id: work_exchange_id } })
-         onClose()
-         setShowSuccess({ show: true, text: 'ยกเลิกการแลกเปลี่ยนวันทำงานสำเร็จ' })
-      }
-   }
-
-   const leaveWork = async (date) => {
-      const userId = await AsyncStorage.getItem('userId');
-
-      await axios.delete('http://10.0.2.2:81/delete/a_emp_in_scheduling', {
-         params: { id: userId, sched_date: date }
-      }).then(() => {
-         console.log('delete a_emp_in_scheduling already')
-
+   const sendNotifsToManager = ({ type, date }) => {
+      try {
          axios.post('http://10.0.2.2:81/create/notification', {
-            type: 'leave',
-            nname: item.nname,
-            date: moment(date).format('YYYY-MM-DD'),
+            type: type,
+            nname: type === 'leave' ? item.nname : null,
+            date: type === 'leave' ? moment(date).format('YYYY-MM-DD') : null,
+            scheduling_id: scheduling_id,
+            exchange_scheduling_id: exchange_scheduling_id
          }).then(() => {
             console.log('post /create/notification already')
          })
@@ -134,21 +108,55 @@ const ScheduleEmp = ({ navigation }) => {
             const uniqueDevices = [...new Set(res.data.map(d => d.device_token))].map(token => ({ device_token: token }));
 
             uniqueDevices.forEach(token => {
-               console.log(token.device_token);
                axios.post('http://10.0.2.2:81/send-notification', {
                   deviceToken: token.device_token,
                   notification: {
-                     title: 'ลางานล่วงหน้า',
-                     body: `พนักงาน ${item.nname} ได้ลางานวันที่ ${moment(date).format('D MMMM YYYY')}`,
+                     title: type === 'leave' ? 'ลางานล่วงหน้า' : 'แลกเปลี่ยนวันทำงาน',
+                     body: type === 'leave' ? `พนักงาน ${item.nname} ได้ลางานวันที่ ${moment(date).format('D MMMM YYYY')}`
+                        : 'มีการแลกเปลี่ยนวันทำงานเกิดขึ้น',
                   },
                   data: { id: moment().format('x').toString() }
                })
             });
          })
-      }).catch((error) => {
-         res.status(500).send(error);
-         alert(error)
-      });
+      } catch (error) { console.log(error); }
+   }
+
+   const handleExchange = ({ exchange, work_exchange_id, scheduling_id, exchange_scheduling_id }) => {
+      console.log('exchange:', exchange, 'work_exchange_id:', work_exchange_id, '', scheduling_id, 'swap', exchange_scheduling_id);
+
+      if (exchange) {
+         console.log('Exchange scheduling');
+         axios.put('http://10.0.2.2:81/update/exchange/scheduling', { scheduling_id: scheduling_id, exchange_scheduling_id: exchange_scheduling_id })
+            .catch((err) => {
+               console.log(err);
+            })
+
+         console.log('Delete work_exchange');
+         axios.delete('http://10.0.2.2:81/delete/a_work_exchange', { params: { work_exchange_id: work_exchange_id } })
+
+         onClose()
+         setShowSuccess({ show: true, text: 'แลกเปลี่ยนวันทำงานสำเร็จ' })
+      } else {
+         console.log('Delete work_exchange');
+         axios.delete('http://10.0.2.2:81/delete/a_work_exchange', { params: { work_exchange_id: work_exchange_id } })
+
+         onClose()
+         setShowSuccess({ show: true, text: 'ยกเลิกการแลกเปลี่ยนวันทำงานสำเร็จ' })
+      }
+   }
+
+   const leaveWork = async (date) => {
+      const userId = await AsyncStorage.getItem('userId');
+
+      await axios.delete('http://10.0.2.2:81/delete/a_emp_in_scheduling', { params: { id: userId, sched_date: date } })
+         .then(() => {
+            console.log('delete a_emp_in_scheduling already')
+            sendNotifsToManager({ type: 'leave', date: date })
+         }).catch((error) => {
+            res.status(500).send(error);
+            alert(error)
+         });
 
       setShowConfirm(false)
       setIsLoading(true)
@@ -211,6 +219,7 @@ const ScheduleEmp = ({ navigation }) => {
             </Button>
          ) : (
             <Button onPress={async () => {
+               console.log(item);
                const selectedDate = await moment(item.sched_date).format('YYYY-MM-DD')
                await setLeaveDate(selectedDate)
                setShowConfirm(true)

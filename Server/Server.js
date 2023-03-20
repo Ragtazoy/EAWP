@@ -3,15 +3,14 @@ const app = express()
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const mysql = require('mysql2')
-const admin = require('firebase-admin');
-const serviceAccount = require('./eawp-66-firebase-adminsdk-7mg2q-8669390c8e.json');
 app.use(cors())
 app.use(bodyParser.json())
 
 //==================================================================================================================================================//
 // Notification 
 //==================================================================================================================================================//
-
+const admin = require('firebase-admin');
+const serviceAccount = require('./eawp-66-firebase-adminsdk-7mg2q-8669390c8e.json');
 admin.initializeApp({
    credential: admin.credential.cert(serviceAccount),
 });
@@ -178,7 +177,7 @@ app.get('/read/sum_wage', (req, res) => {
 })
 
 app.get('/read/work_history', (req, res) => {
-   db.query("SELECT w.*, e.nname, e.job_title, (SELECT GROUP_CONCAT(d.dept_name SEPARATOR ', ') FROM department d WHERE d.emp_id = w.emp_id) as dept FROM work_history w JOIN employee e ON e.emp_id = w.emp_id WHERE e.job_title NOT IN ('manager') ORDER BY w.absent_quantity",
+   db.query("SELECT w.*, e.nname, e.job_title, (SELECT GROUP_CONCAT(d.dept_name SEPARATOR ', ') FROM department d WHERE d.emp_id = w.emp_id) as dept FROM work_history w JOIN employee e ON e.emp_id = w.emp_id WHERE e.job_title NOT IN ('manager') ORDER BY w.absent_quantity DESC",
       (err, results) => {
          err ? console.log('/read/work_history ' + err) : res.json(results)
       }
@@ -222,6 +221,33 @@ app.get('/read/notification/exchange', (req, res) => {
    );
 })
 
+app.get('/read/notification/admin', (req, res) => {
+   db.query("SELECT * FROM notification ORDER BY notification_date DESC",
+      (err, results) => {
+         err ? console.log('/read/notification/admin ' + err) : res.json(results)
+      }
+   );
+})
+
+app.get('/read/evaluate', (req, res) => {
+   const evaluate_date = req.query.evaluate_date
+   db.query("SELECT e.*, emp.nname, emp.job_title, (SELECT GROUP_CONCAT(d.dept_name SEPARATOR ', ') FROM department d WHERE e.emp_id = d.emp_id) AS dept FROM employee emp JOIN evaluate e ON e.emp_id = emp.emp_id WHERE e.evaluate_date = ? AND emp.job_title != 'manager'",
+      [evaluate_date],
+      (err, results) => {
+         err ? console.log('/read/evaluate ' + err) : res.json(results)
+      }
+   );
+})
+
+app.get('/read/a_evaluate', (req, res) => {
+   const { emp_id, date_from, date_to } = req.query
+   db.query("SELECT * FROM evaluate WHERE emp_id = ? AND evaluate_date BETWEEN ? AND ?",
+      [emp_id, date_from, date_to],
+      (err, results) => {
+         err ? console.log('/read/a_evaluate ' + err) : res.json(results[0])
+      }
+   );
+})
 
 //==================================================================================================================================================//
 // Create //
@@ -291,7 +317,9 @@ app.post('/create/work_history', (req, res) => {
 });
 
 app.post('/create/evaluate', (req, res) => {
-   db.query('INSERT INTO evaluate (emp_id) VALUES ((SELECT MAX(emp_id) FROM employee))',
+   const { emp_id, score } = req.body
+   db.query('INSERT INTO evaluate (emp_id, score, evaluate_date) VALUES ((SELECT MAX(emp_id) FROM employee), 5, CURRENT_DATE())',
+      [emp_id, score],
       (err, results) => {
          err ? console.log('/create/evaluate ' + err) : res.send(results)
       })
@@ -342,7 +370,7 @@ app.post('/create/work_exchange', (req, res) => {
    const wait_date = req.body.wait_date
    const scheduling_id = req.body.scheduling_id
    const exchange_scheduling_id = req.body.exchange_scheduling_id
-   db.query("INSERT INTO work_exchange (work_exchange_id, emp_approve, mng_approve, wait_date, scheduling_id, exchange_scheduling_id) VALUES (NULL, '0', '0', ?, ?, ?)",
+   db.query("INSERT INTO work_exchange (work_exchange_id, wait_date, scheduling_id, exchange_scheduling_id) VALUES (NULL, ?, ?, ?)",
       [wait_date, scheduling_id, exchange_scheduling_id],
       (err, results) => {
          err ? console.log('/create/work_exchange ' + err) : res.send(results)
@@ -351,7 +379,7 @@ app.post('/create/work_exchange', (req, res) => {
 
 app.post('/create/notification', (req, res) => {
    const { type, nname, date } = req.body
-   db.query("INSERT INTO notification (notification_id, type, nname, date) VALUES (NULL, ?, ?, ?)",
+   db.query("INSERT INTO notification (notification_id, type, notification_date, nname, date) VALUES (NULL, ?, CURRENT_DATE(), ?, ?)",
       [type, nname, date],
       (err, results) => {
          err ? console.log('/create/notification ' + err) : res.send(results)
@@ -446,21 +474,18 @@ app.put('/update/exchange/scheduling', (req, res) => {
             console.log('/update/exchange/scheduling - SELECT scheduling ' + err)
          } else {
             const scheduling_id_1 = results[0].scheduling_id
-            const emp_id_1 = results[0].emp_id
             const sched_id_1 = results[0].sched_id
             const scheduling_id_2 = results[1].scheduling_id
-            const emp_id_2 = results[1].emp_id
             const sched_id_2 = results[1].sched_id
-            console.log('results:', results);
-            console.log(scheduling_id_1, emp_id_1, sched_id_1, '\n', scheduling_id_2, emp_id_2, sched_id_2);
+            console.log('exchange:', results);
 
-            db.query("UPDATE scheduling SET emp_id = ?, sched_id = ? WHERE scheduling_id = ?",
-               [emp_id_2, sched_id_2, scheduling_id_1],
+            db.query("UPDATE scheduling SET sched_id = ? WHERE scheduling_id = ?",
+               [sched_id_2, scheduling_id_1],
                (err) => {
                   err ? console.log('/update/exchange/scheduling - UPDATE scheduling1 ' + err) : null
                })
-            db.query("UPDATE scheduling SET emp_id = ?, sched_id = ? WHERE scheduling_id = ?",
-               [emp_id_1, sched_id_1, scheduling_id_2],
+            db.query("UPDATE scheduling SET sched_id = ? WHERE scheduling_id = ?",
+               [sched_id_1, scheduling_id_2],
                (err) => {
                   err ? console.log('/update/exchange/scheduling - UPDATE scheduling2 ' + err) : null
                })
@@ -531,6 +556,22 @@ app.delete('/delete/a_work_exchange', (req, res) => {
       }
    );
 })
+
+app.delete('/delete/a_notification', (req, res) => {
+   const notification_id = req.query.notification_id
+   db.query("DELETE FROM notification WHERE notification_id = ?",
+      [notification_id],
+      (err, results) => {
+         err ? console.log('/delete/a_notification ' + err) : res.send(results)
+      }
+   );
+})
+
+//==================================================================================================================================================//
+// Scheduler 
+//==================================================================================================================================================//
+const scheduler = require('./Scheduler');
+scheduler.initCron()
 
 
 app.listen(81, function () {

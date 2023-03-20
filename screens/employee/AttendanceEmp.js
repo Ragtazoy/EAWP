@@ -59,7 +59,7 @@ const AttendanceEmp = ({ navigation }) => {
 
    const checkIn = async () => {
       const timeIn = await +moment()
-      const timeFix = await +moment().hours(12).minutes(0).seconds(0)
+      const timeFix = await +moment().hours(16).minutes(0).seconds(0)
       const timeDiff = timeFix - timeIn
       console.log(timeDiff);
       if (timeDiff > 3600000) {
@@ -103,9 +103,6 @@ const AttendanceEmp = ({ navigation }) => {
       })
    }
 
-   const checkLeave = () => {
-
-   }
 
    return (
       <NativeBaseProvider>

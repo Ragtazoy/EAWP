@@ -1,53 +1,41 @@
 import React, { useState, useEffect } from 'react'
-import { NativeBaseProvider, Box, Flex, Text, VStack, HStack, Spinner, Heading, Divider, FlatList } from 'native-base'
+import { NativeBaseProvider, Box, Flex, Text, VStack, HStack, Spinner, Heading, Divider, FlatList, Pressable, IconButton } from 'native-base'
 import axios from 'axios';
 import moment from 'moment';
-import { PieChart } from 'react-native-chart-kit';
+import StarRating from 'react-native-star-rating';
 
 import Header from '../../components/Header'
 
 const Evaluate = ({ navigation }) => {
    const [items, setItems] = useState([])
-   const [data2, setData2] = useState({})
+   const [score, setScore] = useState(0)
    const [isLoading, setIsLoading] = useState(true)
 
    useEffect(() => {
       (async () => {
-         await navigation.addListener('focus', () => setIsLoading(true))
+         navigation.addListener('focus', () => setIsLoading(true))
+         setItems([])
 
-         await axios.get('http://10.0.2.2:81/read/emplist').then((res) => {
-            setItems(res.data)
+         axios.get('http://10.0.2.2:81/read/evaluate', {
+            params: { evaluate_date: moment().subtract(1, 'M').set('date', 1).format('YYYY-MM-DD') }
+         }).then((res) => {
+            if (res.data.length !== 0) {
+               setItems(res.data)
+
+               const sum = res.data.reduce((accumulator, val) => {
+                  return accumulator + val.score;
+               }, 0);
+
+               const meanScore = sum / res.data.length;
+               setScore(meanScore)
+            }
+            setIsLoading(false)
          })
-
-         await axios.get('http://10.0.2.2:81/read/sum_work_history').then((res) => {
-            setData2([
-               {
-                  name: "ประเมินแล้ว",
-                  datasets: parseInt(res.data.sum_absent),
-                  color: "#ea580c",
-                  legendFontColor: "#7F7F7F",
-                  legendFontSize: 15
-               },
-               {
-                  name: "ยังไม่ประเมิน",
-                  datasets: parseInt(res.data.sum_late),
-                  color: "#fb923c",
-                  legendFontColor: "#7F7F7F",
-                  legendFontSize: 15
-               }
-            ])
-         })
-
-         setIsLoading(false)
       })()
    }, [isLoading])
 
-   const chartConfig = {
-      color: (opacity = 1) => `rgba(10, 211, 238, ${opacity})`
-   };
-
    const renderItem = ({ item }) => (
-      <Box>
+      <Pressable onPress={() => { navigation.navigate('EvaluateDetail', { id: item.emp_id }) }} bgColor={'white'}>
          <Divider />
          <Flex my={2} direction="row" alignItems={'center'}>
             <Box flex={0.25}>
@@ -59,37 +47,55 @@ const Evaluate = ({ navigation }) => {
             <Box flex={0.25}>
                <Text alignSelf={'center'}>{item.dept}</Text>
             </Box>
-            {/* <Box flex={0.25}>
-               <Text alignSelf={'center'}>{item[selected]}</Text>
-            </Box> */}
+            <Box flex={0.25}>
+               <Text alignSelf={'center'}>{item.score}</Text>
+            </Box>
          </Flex>
-      </Box>
+      </Pressable>
    )
 
    return (
       <NativeBaseProvider>
          <Header mode={'text'} title={'ประเมินพนักงาน'} subtitle={'ประเมินพนักงานรายเดือน'} />
-         {!isLoading ? (
-            <PieChart
-               data={data2} width={320} height={180} chartConfig={chartConfig}
-               accessor={"datasets"}
-               backgroundColor={"transparent"}
-               paddingLeft={"15"}
-               style={{ alignSelf: 'center' }}
-               absolute
-            />
-         ) : (
-            <HStack my={16} space={2} justifyContent="center" alignItems={'center'}>
-               <Spinner accessibilityLabel="Loading" color={'#7c2d12'} />
-               <Heading color="#7c2d12" fontSize="md">
-                  กำลังโหลดข้อมูล
-               </Heading>
+
+         <VStack flex={1}>
+            {!isLoading ? (
+               <Box bgColor={'#7c2d12'} m={5} px={4} py={6} borderRadius={25} >
+                  <Heading mb={3} fontSize={'lg'} color={'white'}>คะแนนเฉลี่ยเดือน {moment().subtract(1, 'M').format('MMMM YYYY')}</Heading>
+
+                  {score === 0 ? <Heading textAlign={'center'} color={'warning.300'}>ไม่มีข้อมูล</Heading> : (
+                     <HStack mx={2} justifyContent={'space-between'} alignItems={'center'}>
+                        <Heading mr={5} color={'amber.300'} fontSize={'3xl'}>{score}</Heading>
+                        <Box flex={1}>
+                           <StarRating
+                              disabled={true}
+                              emptyStar={'star-o'} fullStar={'star'} halfStar={'star-half-o'}
+                              iconSet={'FontAwesome'}
+                              maxStars={5}
+                              rating={score}
+                              fullStarColor={'#fcd34d'}
+                              emptyStarColor={'#fcd34d'}
+                           />
+                        </Box>
+                     </HStack>
+                  )}
+               </Box>
+            ) : (
+               <HStack my={16} space={2} justifyContent="center" alignItems={'center'}>
+                  <Spinner accessibilityLabel="Loading" color={'#7c2d12'} />
+                  <Heading color="#7c2d12" fontSize="md">
+                     กำลังโหลดข้อมูล
+                  </Heading>
+               </HStack>
+            )}
+
+            <HStack h={60} borderTopRadius={50} shadow={1} justifyContent={'space-around'} alignItems={'center'} bgColor={'white'}>
+               <Heading>รายชื่อพนักงาน</Heading>
+               {/* <IconButton colorScheme='amber' variant={'solid'} borderRadius={25} Size={45} onPress={() => null}>
+                  <Icon name="sort-descending" size={22} color="white" />
+                  <Icon name="sort-ascending" size={22} color="white" />
+               </IconButton> */}
             </HStack>
-         )}
-
-
-         <VStack flex={1} bgColor={'white'} borderTopRadius={50} shadow={1} justifyContent={'space-around'}>
-            <Heading pt={5} pb={2} alignSelf={'center'} fontSize={'lg'}>awd</Heading>
 
             <HStack bgColor={'#7c2d12'} h={10} py={1} alignItems={'center'}>
                <Box flex={0.25}>
@@ -112,6 +118,7 @@ const Evaluate = ({ navigation }) => {
             <FlatList
                data={items} renderItem={renderItem} keyExtractor={item => item.emp_id}
                refreshing={isLoading} onRefresh={() => setIsLoading(true)} />
+
          </VStack>
 
       </NativeBaseProvider>
