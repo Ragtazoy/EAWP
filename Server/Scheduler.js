@@ -38,21 +38,25 @@ const absent = async () => {
       const filterScheduling = scheduling.filter(sched => !work_attendance.some(att => att.emp_id === sched.emp_id));
       console.log('filterScheduling:', filterScheduling);
 
-      new Promise((resolve, reject) => {
-         filterScheduling.forEach(sched => {
-            console.log(sched.emp_id, sched.sched_id);
-            // Update work_history //
-            db.query(`UPDATE work_history SET absent_quantity = absent_quantity+1 WHERE emp_id = ${sched.emp_id}`, (err, results1) => {
-               err ? reject(err) : resolve(results1)
-            });
+      if (filterScheduling.length !== 0) {
 
-            // Create work_attendance //
-            db.query(`INSERT INTO work_attendance (work_attend_id, time_in, time_out, status, emp_id, sched_id) VALUES (NULL, NULL, NULL, 'absent', ${sched.emp_id}, ${sched.sched_id})`, (err, results2) => {
-               err ? reject(err) : resolve(results2)
-            });
+         new Promise((resolve, reject) => {
+            filterScheduling.forEach(sched => {
+               console.log(sched.emp_id, sched.sched_id);
+               // Update work_history //
+               db.query(`UPDATE work_history SET absent_quantity = absent_quantity+1 WHERE emp_id = ${sched.emp_id}`, (err, results1) => {
+                  err ? reject(err) : resolve(results1)
+               });
 
-         });
-      })
+               // Create work_attendance //
+               db.query(`INSERT INTO work_attendance (work_attend_id, time_in, time_out, status, emp_id, sched_id) VALUES (NULL, NULL, NULL, 'absent', ${sched.emp_id}, ${sched.sched_id})`, (err, results2) => {
+                  err ? reject(err) : resolve(results2)
+               });
+
+            });
+         })
+
+      }
 
    }).catch(err => reject(err));
 }
@@ -71,7 +75,7 @@ const checkOut = async () => {
 
                   const jobMillisec = await +moment(timeOut) - +moment(emp.time_in)
                   const jobHours = await moment.duration(jobMillisec).hours()
-                  let wage = await jobHours * 300
+                  let wage = await jobHours * 50
                   console.log('time in-out:', moment(emp.time_in).format('YYYY-MM-DD HH:mm:ss'), timeOut);
                   console.log('jobHours:', jobHours, 'wage:', wage);
                   console.log('emp_id:', emp.emp_id, 'sched_id:', emp.sched_id);
@@ -141,7 +145,7 @@ module.exports = {
       // Test
       cron.schedule('* * * * *', function () {
          // console.log('running a task Test');
-         // evaluate()
+         // absent()
       });
 
       // Run every day at 18:01
@@ -156,7 +160,7 @@ module.exports = {
          // checkOut()
       });
 
-      // Run every month at 00:00
+      // Run every day-of-month 1 at 00:00
       cron.schedule('0 0 1 * *', function () {
          console.log('running a task every day-of-month 1');
          // evaluate()

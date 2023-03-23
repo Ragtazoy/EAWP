@@ -88,7 +88,10 @@ const AttendanceMng = ({ navigation }) => {
                <Icon name={'sign-out'} color={'black'} size={23} />
             </IconButton>
 
-            <Text>ย่างเนย</Text>
+            <VStack justifyContent={'center'} alignItems={'center'}>
+               <Heading fontSize={'3xl'} color={'#7c2d12'}>ย่างเนย</Heading>
+               <Text lineHeight={'xs'}>คลอง 6</Text>
+            </VStack>
 
             <Popover placement='left top' trigger={triggerProps => (
                <IconButton {...triggerProps} colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={2} boxSize={16}>

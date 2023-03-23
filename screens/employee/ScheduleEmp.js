@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { NativeBaseProvider, Box, Text, Button, Heading, HStack, IconButton, Spinner, Popover, FlatList, Divider, Pressable, Actionsheet, useDisclose } from 'native-base'
+import { NativeBaseProvider, Box, Text, Button, Heading, HStack, IconButton, Spinner, Popover, FlatList, Divider, Pressable, Actionsheet, useDisclose, VStack } from 'native-base'
 import messaging from '@react-native-firebase/messaging';
 import { notificationListener } from '../../screens/Notification'
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -244,7 +244,10 @@ const ScheduleEmp = ({ navigation }) => {
                <Icon name={'sign-out'} color={'black'} size={23} />
             </IconButton>
 
-            <Text onPress={handleFCM}>ย่างเนย</Text>
+            <VStack justifyContent={'center'} alignItems={'center'}>
+               <Heading fontSize={'3xl'} color={'#7c2d12'}>ย่างเนย</Heading>
+               <Text lineHeight={'xs'}>คลอง 6</Text>
+            </VStack>
 
             <Popover placement='left top' trigger={triggerProps => (
                <IconButton {...triggerProps} colorScheme={'dark'} variant={'solid'} borderRadius={'full'} shadow={2} boxSize={16}>

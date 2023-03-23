@@ -14,13 +14,6 @@ const Login = ({ navigation }) => {
    const [show, setShow] = useState(false)
    const [isInvalid, setIsInvalid] = useState(false)
 
-
-   useEffect(() => {
-      console.log('run');
-      
-      // notificationListener()
-   }, [])
-
    useEffect(() => {
       const checkLoginStatus = async () => {
          await navigation.addListener('focus', () => setIsLoading(true))
@@ -91,14 +84,17 @@ const Login = ({ navigation }) => {
       <NativeBaseProvider>
          <Center flex={1} w="100%" alignItems='center' justifyItems='center'>
             <Box safeArea={true} w="80%">
+
                <Heading lineHeight={'xs'} size="lg" fontWeight="600" color="coolGray.800">
                   Welcome
                </Heading>
+
                <Heading mt="1" color="coolGray.600" fontWeight="medium" size="xs">
                   Sign in to continue!
                </Heading>
 
                <VStack space={3} mt="5">
+
                   <FormControl isInvalid={isInvalid}>
                      <FormControl.Label>Username</FormControl.Label>
                      <Input type="text" value={username} onChangeText={e => setUsername(e)} placeholder="Username" />
@@ -117,10 +113,9 @@ const Login = ({ navigation }) => {
                   <Button onPress={handleLogin} leftIcon={<FontAwesomeIcon icon={faSignIn} color='white' />} mt="2" colorScheme="amber">
                      Sign in
                   </Button>
-                  {/* <Button onPress={() => { handleFCM() }} leftIcon={<FontAwesomeIcon icon={faSignIn} color='white' />} mt="2" colorScheme="amber">
-                     Test FCM
-                  </Button> */}
+
                </VStack>
+
             </Box>
          </Center>
       </NativeBaseProvider>

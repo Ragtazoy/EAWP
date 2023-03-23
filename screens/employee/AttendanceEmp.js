@@ -75,7 +75,7 @@ const AttendanceEmp = ({ navigation }) => {
       const timeOut = await moment().format('YYYY-MM-DD HH:mm:ss')
       const jobMillisec = await +moment(timeOut) - +moment(workAttendance[0].time_in)
       const jobHours = await moment.duration(jobMillisec).hours()
-      await setWage(wage => wage = jobHours * 300)
+      await setWage(wage => wage = jobHours * 50)
       console.log(moment(workAttendance[0].time_in), moment(timeOut));
       console.log(jobMillisec);
       console.log(jobHours);
