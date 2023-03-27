@@ -18,14 +18,20 @@ const Login = ({ navigation }) => {
       const checkLoginStatus = async () => {
          await navigation.addListener('focus', () => setIsLoading(true))
 
-         const isLoggedIn = await AsyncStorage.getItem('userId');
-         if (isLoggedIn > 0) {
+         const userId = await AsyncStorage.getItem('userId');
+         if (userId > 0) {
             console.log('loged in');
+            await axios.get('http://10.0.2.2:81/read/login/' + userId).then(async (res) => {
+               await setUsername(res.data.nname)
+               await setPassword(res.data.password)
+               username !== '' ? handleLogin() : console.log('null');
+            })
          } else {
             console.log('not loged in');
+            await setUsername('')
+            await setPassword('')
          }
-         await setUsername('')
-         await setPassword('')
+
          setIsLoading(false)
       }
 
@@ -36,6 +42,7 @@ const Login = ({ navigation }) => {
 
 
    const handleLogin = async () => {
+      console.log('handleLogin:', username, password);
       await axios.post('http://10.0.2.2:81/login', {
          username: username,
          password: password

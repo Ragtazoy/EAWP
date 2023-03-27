@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { NativeBaseProvider, Box, Divider, Heading, Text, Flex, HStack, IconButton, FlatList, VStack, Pressable, Spinner } from 'native-base'
 import { useNavigation } from '@react-navigation/native'
 import axios from 'axios';
-import { Table, TableWrapper, Row, Rows } from 'react-native-table-component'
-import DataTable, { COL_TYPES } from 'react-native-datatable-component'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faUserPlus } from '@fortawesome/free-solid-svg-icons'
 import Cards from '../../components/Cards'
@@ -66,6 +64,7 @@ const Emp = () => {
    return (
       <NativeBaseProvider>
          <VStack>
+            
             {!isLoading ? (
                <HStack space={4} p={5}>
                   <Cards color={'green.400'} text={'พนักงานประจำ'} heading={countEmp['full-time'] + ' คน'} />
@@ -117,44 +116,6 @@ const Emp = () => {
                   </Heading>
                </HStack>
             )}
-
-            {/* <Box> */}
-            {/* <Table>
-                  <Row data={['Name', 'Age']} style={{ backgroundColor: 'red' }} />
-                  <Rows data={data} onPress={(d) => handlePress(d)} />
-               </Table> */}
-            {/* <Table>
-                  <Row data={data[0]} style={{ backgroundColor: 'red' }} onPress={() => onRowPress(data[0])} />
-                  <Rows data={data} onPress={() => onRowPress(data)} />
-               </Table> */}
-
-            {/* <DataTable
-                  onRowSelect={(row) => {console.log('ROW => ',row)}}
-                  data={[
-                     { name: 'Muhammad Rafeh', age: 21, gender: 'male' },
-                     { name: 'Muhammad Akif', age: 22, gender: 'male' },
-                     { name: 'Muhammad Umar', age: 21, gender: 'male' },
-                     { name: 'Amna Shakeel', age: 22, gender: 'female' },
-                     { name: 'Amna Shakeel', age: 22, gender: 'female' },
-                     { name: 'Amna Shakeel', age: 22, gender: 'female' },
-                     { name: 'Muhammad Ammar', age: 20, gender: 'male' },
-                     { name: 'Muhammad Akif', age: 22, gender: 'male' },
-                     { name: 'Muhammad Umar', age: 21, gender: 'male' },
-                     { name: 'Amna Shakeel', age: 22, gender: 'female' },
-                     { name: 'Muhammad Ammar', age: 20, gender: 'male' },
-                     { name: 'Muhammad Moiz', age: 13, gender: 'male' }
-                  ]}
-                  colNames={['name', 'age', 'gender']}
-                  colSettings={[
-                     { name: 'name', type: COL_TYPES.STRING, width: '40%' },
-                     { name: 'age', type: COL_TYPES.INT, width: '30%' },
-                     { name: 'gender', type: COL_TYPES.STRING, width: '30%' }
-                  ]}
-                  noOfPages={2}
-                  backgroundColor={'white'}
-                  headerLabelStyle={{ color: 'grey', fontSize: 16 }}
-               /> */}
-            {/* </Box> */}
 
          </VStack>
       </NativeBaseProvider>
