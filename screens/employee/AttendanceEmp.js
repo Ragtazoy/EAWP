@@ -28,17 +28,17 @@ const AttendanceEmp = ({ navigation }) => {
          const userId = await AsyncStorage.getItem('userId');
          console.log('id: ' + userId);
 
-         axios.get('http://10.0.2.2:81/read/empdetail/' + userId).then((res) => {
+         axios.get(process.env.SERVER + '/read/empdetail/' + userId).then((res) => {
             setItem(res.data)
          })
 
-         await axios.get('http://10.0.2.2:81/read/a_emp_in_scheduling', {
+         await axios.get(process.env.SERVER + '/read/a_emp_in_scheduling', {
             params: { emp_id: userId, sched_date: moment().format('YYYY-MM-DD') }
          }).then((res) => {
             setWorkSchedule(res.data)
          })
 
-         await axios.get('http://10.0.2.2:81/read/work_attendance', {
+         await axios.get(process.env.SERVER + '/read/work_attendance', {
             params: { sched_id: workSchedule['sched_id'] }
          }).then((res) => {
             const arrByID = res.data.filter((item) => { return (item['emp_id'] == userId) })
@@ -80,12 +80,12 @@ const AttendanceEmp = ({ navigation }) => {
       console.log(jobMillisec);
       console.log(jobHours);
 
-      await axios.put('http://10.0.2.2:81/update/work_attendance', {
+      await axios.put(process.env.SERVER + '/update/work_attendance', {
          work_attend_id: workAttendance[0].work_attend_id,
          time_out: timeOut
       })
 
-      await axios.put('http://10.0.2.2:81/update/work_history', {
+      await axios.put(process.env.SERVER + '/update/work_history', {
          emp_id: workAttendance[0].emp_id,
          job_hours: jobHours,
          absent_quantity: 0,
@@ -93,7 +93,7 @@ const AttendanceEmp = ({ navigation }) => {
          leave_quantity: 0
       })
 
-      axios.post('http://10.0.2.2:81/create/payment_history', {
+      axios.post(process.env.SERVER + '/create/payment_history', {
          wage: wage,
          sched_id: workAttendance[0].sched_id,
          emp_id: workAttendance[0].emp_id

@@ -19,7 +19,7 @@ const AttendanceDetail = ({ route }) => {
       const getData = async () => {
          console.log('useEffect');
 
-         await axios.get('http://10.0.2.2:81/read/emp_in_scheduling', {
+         await axios.get(process.env.SERVER + '/read/emp_in_scheduling', {
             params: { sched_date: moment(date.dateString).format('YYYY-MM-DD') }
          }).then(async (res) => {
             const empDept = res.data
@@ -28,7 +28,7 @@ const AttendanceDetail = ({ route }) => {
             if (empDept.length === 0) {
                setIsLoading(false);
             } else {
-               await axios.get('http://10.0.2.2:81/read/work_attendance', {
+               await axios.get(process.env.SERVER + '/read/work_attendance', {
                   params: { sched_id: empDept[0].sched_id }
                }).then(async (res) => {
                   const empStatus = res.data
@@ -79,6 +79,7 @@ const AttendanceDetail = ({ route }) => {
       </Box>
    )
 
+   
    return (
       <NativeBaseProvider>
          <Header icon={'faCalendarCheck'} color={'blue.400'} title={'การเข้างาน'} element={propHeader()} />

@@ -1,9 +1,7 @@
 import { NativeBaseProvider, Toast, HStack, Text } from 'native-base';
 import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 import Icon from 'react-native-vector-icons/AntDesign'
-import { Alert } from 'react-native';
 
 export const requestUserPermission = async () => {
    const authStatus = await messaging().requestPermission();

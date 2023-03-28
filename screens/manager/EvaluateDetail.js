@@ -14,7 +14,7 @@ const EvaluateDetail = ({ route }) => {
 
    useEffect(() => {
       (async () => {
-         axios.get('http://10.0.2.2:81/read/empdetail/' + route.params.id).then((res) => {
+         axios.get(process.env.SERVER + '/read/empdetail/' + route.params.id).then((res) => {
             setItem(res.data)
          })
 
@@ -29,7 +29,7 @@ const EvaluateDetail = ({ route }) => {
 
          for (let i = 0; i < dates.length; i++) {
             console.log('month:', moment(dates[i], "MMM").startOf('month').format('YYYY-MM-DD'));
-            await axios.get('http://10.0.2.2:81/read/a_evaluate', {
+            await axios.get(process.env.SERVER + '/read/a_evaluate', {
                params: {
                   emp_id: route.params.id,
                   date_from: moment(dates[i], "MMM").startOf('month').format('YYYY-MM-DD'),
@@ -59,6 +59,7 @@ const EvaluateDetail = ({ route }) => {
       strokeWidth: 2
    };
 
+   
    return (
       <NativeBaseProvider>
          <Header icon={'faStar'} color={'amber.300'} title={item.nname} subtitle={item.fname + ' ' + item.lname} element={<Box boxSize={16}></Box>} />

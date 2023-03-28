@@ -4,6 +4,8 @@ import App from './App';
 import { name as appName } from './app.json';
 import messaging from '@react-native-firebase/messaging';
 
+process.env.SERVER = "http://10.0.2.2:81"
+
 console.disableYellowBox = true;
 
 messaging().setBackgroundMessageHandler(async remoteMessage => {

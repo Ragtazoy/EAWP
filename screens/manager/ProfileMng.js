@@ -15,14 +15,11 @@ const ProfileMng = ({ route }) => {
    const [showConfirm, setShowConfirm] = useState(false)
    const [showAlert, setShowAlert] = useState(false)
 
-   const date = moment(item.job_start).toDate()
-   const [dept, setDept] = useState(null)
-
    useEffect(() => {
       navigation.addListener('focus', () => setIsLoading(true))
 
       console.log('id: ' + route.params.id);
-      axios.get('http://10.0.2.2:81/read/empdetail/' + route.params.id).then((res) => {
+      axios.get(process.env.SERVER + '/read/empdetail/' + route.params.id).then((res) => {
          setitem(res.data)
          setIsLoading(false)
          console.log(item);
@@ -31,7 +28,7 @@ const ProfileMng = ({ route }) => {
 
    const deleteEmployee = () => {
       console.log('del id:' + route.params.id)
-      axios.delete('http://10.0.2.2:81/delete/emp/' + route.params.id).catch(error => {
+      axios.delete(process.env.SERVER + '/delete/emp/' + route.params.id).catch(error => {
          console.log(error)
       })
    };
@@ -54,6 +51,7 @@ const ProfileMng = ({ route }) => {
       )
    };
 
+   
    return (
       <NativeBaseProvider>
          <Header icon={'faUser'} color={'blue.500'} title={item.nname} subtitle={item.fname + ' ' + item.lname} element={propHeader()} />

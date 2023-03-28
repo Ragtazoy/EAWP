@@ -3,7 +3,6 @@ import { NativeBaseProvider, Box, Text, VStack, FormControl, Input, Heading, Sel
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios'
 import moment from 'moment'
-import DateTimePicker from '@react-native-community/datetimepicker'
 import MultiSelect from 'react-native-multiple-select'
 import AwesomeAlert from 'react-native-awesome-alerts'
 
@@ -40,7 +39,7 @@ const EditEmp = ({ route, navigation }) => {
    });
 
    useEffect(() => {
-      axios.get('http://10.0.2.2:81/read/empdetail/' + route.params.id).then((res) => {
+      axios.get(process.env.SERVER + '/read/empdetail/' + route.params.id).then((res) => {
          setNname(res.data.nname)
          setPassword(res.data.password)
          setTitle(res.data.job_title)
@@ -55,7 +54,7 @@ const EditEmp = ({ route, navigation }) => {
       }).then(async () => {
          const userId = await AsyncStorage.getItem('userId');
 
-         await axios.get('http://10.0.2.2:81/read/empdetail/' + userId).then((res) => {
+         await axios.get(process.env.SERVER + '/read/empdetail/' + userId).then((res) => {
             console.log(res.data.job_title);
             res.data.job_title !== 'manager' ? setIsEmp(true) : setIsEmp(false)
 
@@ -66,7 +65,7 @@ const EditEmp = ({ route, navigation }) => {
 
    const updateEmployee = async () => {
       console.log('updated', route.params.id, dept);
-      axios.put('http://10.0.2.2:81/update/emp', {
+      axios.put(process.env.SERVER + '/update/emp', {
          id: route.params.id,
          fname: fname,
          lname: lname,
@@ -77,10 +76,10 @@ const EditEmp = ({ route, navigation }) => {
          job_title: title
       })
 
-      await axios.delete('http://10.0.2.2:81/delete/department/' + route.params.id)
+      await axios.delete(process.env.SERVER + '/delete/department/' + route.params.id)
 
       await dept.map((val) => {
-         axios.post('http://10.0.2.2:81/update/dept', { emp_id: route.params.id, dept_name: val })
+         axios.post(process.env.SERVER + '/update/dept', { emp_id: route.params.id, dept_name: val })
       })
    };
 
@@ -143,11 +142,13 @@ const EditEmp = ({ route, navigation }) => {
       )
    };
 
+
    return (
       <NativeBaseProvider>
          <Header icon={'faUserEdit'} color={'amber.500'} title={'แก้ไขข้อมูลพนักงาน'} element={propSave()} />
          <ScrollView>
             <VStack space={5} m={5}>
+               
                {!isLoading ? null : (
                   <HStack my={2} space={2} justifyContent="center" alignItems={'center'}>
                      <Spinner accessibilityLabel="Loading" color={'#7c2d12'} />

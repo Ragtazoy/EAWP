@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { NativeBaseProvider, Box, Text, Button, Heading, HStack, IconButton, Spinner, Popover, FlatList, Divider, Pressable, Actionsheet, useDisclose, VStack } from 'native-base'
-import messaging from '@react-native-firebase/messaging';
-import { notificationListener } from '../../screens/Notification'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import moment from 'moment';
@@ -35,19 +33,19 @@ const ScheduleEmp = ({ navigation }) => {
          let empInSched = []
          const userId = await AsyncStorage.getItem('userId');
 
-         await axios.get('http://10.0.2.2:81/read/notification/exchange', {
+         await axios.get(process.env.SERVER + '/read/notification/exchange', {
             params: { emp_id: userId, today: moment().format('YYYY-MM-DD') }
          }).then((res) => {
             setNotifsExchange(res.data)
             console.log('notifs:', notifsExchange);
          })
 
-         axios.get('http://10.0.2.2:81/read/empdetail/' + userId).then((res) => {
+         axios.get(process.env.SERVER + '/read/empdetail/' + userId).then((res) => {
             setItem(res.data)
          })
 
          for (let i = 0; i < dates.length; i++) {
-            await axios.get('http://10.0.2.2:81/read/a_emp_in_scheduling', {
+            await axios.get(process.env.SERVER + '/read/a_emp_in_scheduling', {
                params: { emp_id: userId, sched_date: dates[i] }
             }).then((res) => {
                empInSched.push(res.data)
@@ -72,27 +70,19 @@ const ScheduleEmp = ({ navigation }) => {
       }
    }
 
-   const handleFCM = async () => {
-      await axios.post('http://10.0.2.2:81/send-notification', {
-         deviceToken: 'dYMkxp6ISBCtknAZy84qom:APA91bHIPdXflIciAIzX58Mgiqts8fIS2nQkgtDLJNyBMznwJ9rXXunZVrzO9JWhXHGCC3LWnnjucbdLpAEFmmVoxadHf_q6FYsafTAWccFrQElFEtqvM7pDPdTiz3M486u17EK32QEa',
-         notification: {
-            title: 'ลางานล่วงหน้า',
-            body: `พนักงาน ${item.nname} ได้ลางาน`,
-         },
-         data: {
-            id: moment().format('x').toString()
-         }
-      })
-   }
-
    const handleLogout = async () => {
+      const userId = await AsyncStorage.getItem('userId');
+      await axios.put(process.env.SERVER + '/update/device_token', {
+         emp_id: userId,
+         device_token: null
+      })
       await AsyncStorage.clear()
       await navigation.navigate('Login')
    }
 
    const sendNotifsToManager = ({ type, date }) => {
       try {
-         axios.post('http://10.0.2.2:81/create/notification', {
+         axios.post(process.env.SERVER + '/create/notification', {
             type: type,
             nname: type === 'leave' ? item.nname : null,
             date: type === 'leave' ? moment(date).format('YYYY-MM-DD') : null,
@@ -102,13 +92,13 @@ const ScheduleEmp = ({ navigation }) => {
             console.log('post /create/notification already')
          })
 
-         axios.get('http://10.0.2.2:81/read/manager/device_token').then((res) => {
+         axios.get(process.env.SERVER + '/read/manager/device_token').then((res) => {
             console.log('read/manager/device_token:', res.data)
 
             const uniqueDevices = [...new Set(res.data.map(d => d.device_token))].map(token => ({ device_token: token }));
 
             uniqueDevices.forEach(token => {
-               axios.post('http://10.0.2.2:81/send-notification', {
+               axios.post(process.env.SERVER + '/send-notification', {
                   deviceToken: token.device_token,
                   notification: {
                      title: type === 'leave' ? 'ลางานล่วงหน้า' : 'แลกเปลี่ยนวันทำงาน',
@@ -127,19 +117,19 @@ const ScheduleEmp = ({ navigation }) => {
 
       if (exchange) {
          console.log('Exchange scheduling');
-         axios.put('http://10.0.2.2:81/update/exchange/scheduling', { scheduling_id: scheduling_id, exchange_scheduling_id: exchange_scheduling_id })
+         axios.put(process.env.SERVER + '/update/exchange/scheduling', { scheduling_id: scheduling_id, exchange_scheduling_id: exchange_scheduling_id })
             .catch((err) => {
                console.log(err);
             })
 
          console.log('Delete work_exchange');
-         axios.delete('http://10.0.2.2:81/delete/a_work_exchange', { params: { work_exchange_id: work_exchange_id } })
+         axios.delete(process.env.SERVER + '/delete/a_work_exchange', { params: { work_exchange_id: work_exchange_id } })
 
          onClose()
          setShowSuccess({ show: true, text: 'แลกเปลี่ยนวันทำงานสำเร็จ' })
       } else {
          console.log('Delete work_exchange');
-         axios.delete('http://10.0.2.2:81/delete/a_work_exchange', { params: { work_exchange_id: work_exchange_id } })
+         axios.delete(process.env.SERVER + '/delete/a_work_exchange', { params: { work_exchange_id: work_exchange_id } })
 
          onClose()
          setShowSuccess({ show: true, text: 'ยกเลิกการแลกเปลี่ยนวันทำงานสำเร็จ' })
@@ -149,7 +139,7 @@ const ScheduleEmp = ({ navigation }) => {
    const leaveWork = async (date) => {
       const userId = await AsyncStorage.getItem('userId');
 
-      await axios.delete('http://10.0.2.2:81/delete/a_emp_in_scheduling', { params: { id: userId, sched_date: date } })
+      await axios.delete(process.env.SERVER + '/delete/a_emp_in_scheduling', { params: { id: userId, sched_date: date } })
          .then(() => {
             console.log('delete a_emp_in_scheduling already')
             sendNotifsToManager({ type: 'leave', date: date })

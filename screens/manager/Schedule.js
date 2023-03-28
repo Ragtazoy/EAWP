@@ -5,7 +5,6 @@ import { Calendar } from 'react-native-calendars'
 import moment from 'moment/moment'
 import Header from '../../components/Header'
 import LongCards from '../../components/LongCards'
-import DayCards from '../../components/DayCards'
 
 
 const Schedule = ({ navigation }) => {
@@ -27,7 +26,7 @@ const Schedule = ({ navigation }) => {
          console.log('setDates ' + dates);
          let count = []
          for (let i = 0; i < dates.length; i++) {
-            await axios.get('http://10.0.2.2:81/read/count_emp_in_scheduling', { params: { sched_date: dates[i] } }).then((res) => {
+            await axios.get(process.env.SERVER + '/read/count_emp_in_scheduling', { params: { sched_date: dates[i] } }).then((res) => {
                console.log(typeof dates[i], dates[i], res.data)
                count.push(res.data)
             })
@@ -44,7 +43,6 @@ const Schedule = ({ navigation }) => {
 
       countEmpInScheduling()
    }, [isLoading])
-
 
 
    return (

@@ -19,17 +19,17 @@ const AttendanceMng = ({ navigation }) => {
    useEffect(() => {
       navigation.addListener('focus', () => setIsLoading(true))
 
-      axios.get('http://10.0.2.2:81/read/notification/admin').then((res) => {
+      axios.get(process.env.SERVER + '/read/notification/admin').then((res) => {
          setNotifsExchange(res.data)
          console.log(res.data);
       })
 
-      axios.get('http://10.0.2.2:81/read/count_emp_in_scheduling', {
+      axios.get(process.env.SERVER + '/read/count_emp_in_scheduling', {
          params: { sched_date: moment().format('YYYY-MM-DD') }
       }).then((res) => {
          setCountEmp(res.data)
 
-         axios.get('http://10.0.2.2:81/read/work_attendance', {
+         axios.get(process.env.SERVER + '/read/work_attendance', {
             params: { sched_id: res.data.sched_id }
          }).then((res) => {
             setCountAttended(res.data.length)
@@ -63,7 +63,7 @@ const AttendanceMng = ({ navigation }) => {
                         <Divider />
                         <Actionsheet.Item onPress={() => {
                            console.log('Delete notification');
-                           axios.delete('http://10.0.2.2:81/delete/a_notification', { params: { notification_id: item.notification_id } })
+                           axios.delete(process.env.SERVER + '/delete/a_notification', { params: { notification_id: item.notification_id } })
                            onClose()
                            setIsLoading(true)
                         }}
@@ -80,6 +80,7 @@ const AttendanceMng = ({ navigation }) => {
       </Box>
    )
 
+   
    return (
       <NativeBaseProvider>
          <HStack justifyContent={'space-around'} py={5}>

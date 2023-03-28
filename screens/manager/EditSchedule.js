@@ -34,15 +34,15 @@ const EditSchedule = ({ route, navigation }) => {
 
    useEffect(() => {
       const getEmpInSchedule = async () => {
-         axios.get('http://10.0.2.2:81/read/work_schedule', {
+         axios.get(process.env.SERVER + '/read/work_schedule', {
             params: { sched_date: moment(date.dateString).format('YYYY-MM-DD') }
          }).then((res) => {
             setWorkSchedule(res.data)
             console.log(res.data);
-            console.log('workSchedule:',workSchedule);
+            console.log('workSchedule:', workSchedule);
          })
 
-         axios.get('http://10.0.2.2:81/read/emp_in_scheduling', {
+         axios.get(process.env.SERVER + '/read/emp_in_scheduling', {
             params: { sched_date: moment(date.dateString).format('YYYY-MM-DD') }
          }).then((res) => {
             res.data.forEach(entry => {
@@ -59,8 +59,8 @@ const EditSchedule = ({ route, navigation }) => {
             setSelectedWaiter(groupedData['waiter'])
          })
 
-         await axios.get('http://10.0.2.2:81/read/empdept').then((res) => {
-            
+         await axios.get(process.env.SERVER + '/read/empdept').then((res) => {
+
             ['cashier', 'kitchen', 'wash', 'stove', 'waiter'].forEach((dept) => {
                const empInDept = res.data.filter(item => item.dept_name === dept)
                switch (dept) {
@@ -82,31 +82,31 @@ const EditSchedule = ({ route, navigation }) => {
 
 
    const editScheduling = async () => {
-      await axios.delete('http://10.0.2.2:81/delete/emp_in_scheduling', {
+      await axios.delete(process.env.SERVER + '/delete/emp_in_scheduling', {
          params: { sched_date: moment(date.dateString).format('YYYY-MM-DD') }
       }).then(() => {
          selectedCashier.map((val) => {
-            axios.post('http://10.0.2.2:81/update/scheduling', { sched_id: workSchedule['sched_id'], emp_id: val, dept: 'cashier' }).then(() => {
+            axios.post(process.env.SERVER + '/update/scheduling', { sched_id: workSchedule['sched_id'], emp_id: val, dept: 'cashier' }).then(() => {
                console.log('post /create/scheduling cashier already')
             })
          })
          selectedKitchen.map((val) => {
-            axios.post('http://10.0.2.2:81/update/scheduling', { sched_id: workSchedule['sched_id'], emp_id: val, dept: 'kitchen' }).then(() => {
+            axios.post(process.env.SERVER + '/update/scheduling', { sched_id: workSchedule['sched_id'], emp_id: val, dept: 'kitchen' }).then(() => {
                console.log('post /create/scheduling kitchen already')
             })
          })
          selectedWash.map((val) => {
-            axios.post('http://10.0.2.2:81/update/scheduling', { sched_id: workSchedule['sched_id'], emp_id: val, dept: 'wash' }).then(() => {
+            axios.post(process.env.SERVER + '/update/scheduling', { sched_id: workSchedule['sched_id'], emp_id: val, dept: 'wash' }).then(() => {
                console.log('post /create/scheduling wash already')
             })
          })
          selectedStove.map((val) => {
-            axios.post('http://10.0.2.2:81/update/scheduling', { sched_id: workSchedule['sched_id'], emp_id: val, dept: 'stove' }).then(() => {
+            axios.post(process.env.SERVER + '/update/scheduling', { sched_id: workSchedule['sched_id'], emp_id: val, dept: 'stove' }).then(() => {
                console.log('post /create/scheduling stove already')
             })
          })
          selectedWaiter.map((val) => {
-            axios.post('http://10.0.2.2:81/update/scheduling', { sched_id: workSchedule['sched_id'], emp_id: val, dept: 'waiter' }).then(() => {
+            axios.post(process.env.SERVER + '/update/scheduling', { sched_id: workSchedule['sched_id'], emp_id: val, dept: 'waiter' }).then(() => {
                console.log('post /create/scheduling waiter already')
             })
          })
@@ -142,6 +142,7 @@ const EditSchedule = ({ route, navigation }) => {
    const hasDuplicates = (array) => {
       return array.some((element, index) => array.indexOf(element) !== index)
    };
+
    const hasEmpty = () => {
       if (selectedCashier.length == 0) {
          return true
@@ -179,7 +180,7 @@ const EditSchedule = ({ route, navigation }) => {
 
    const handleDelete = () => {
       console.log(workSchedule['sched_id'], 'del ' + date.dateString)
-      axios.delete('http://10.0.2.2:81/delete/work_schedule', {
+      axios.delete(process.env.SERVER + '/delete/work_schedule', {
          params: { sched_id: workSchedule['sched_id'] }
       }).catch(error => {
          console.log(error)
@@ -200,6 +201,7 @@ const EditSchedule = ({ route, navigation }) => {
       )
    };
 
+   
    return (
       <NativeBaseProvider>
          <Header icon={'faCalendarDay'} color={'amber.500'} title={'เลือกพนักงาน'} subtitle={moment(date.dateString).format('D MMMM YYYY')} element={propHeader()} />

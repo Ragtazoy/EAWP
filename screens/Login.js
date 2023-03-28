@@ -3,7 +3,6 @@ import { NativeBaseProvider, Center, Box, Heading, VStack, FormControl, Input, B
 import { requestUserPermission, notificationListener } from '../screens/Notification'
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faEye, faEyeSlash, faSignIn } from '@fortawesome/free-solid-svg-icons/'
 
@@ -21,10 +20,10 @@ const Login = ({ navigation }) => {
          const userId = await AsyncStorage.getItem('userId');
          if (userId > 0) {
             console.log('loged in');
-            await axios.get('http://10.0.2.2:81/read/login/' + userId).then(async (res) => {
+            await axios.get(process.env.SERVER + '/read/login/' + userId).then(async (res) => {
                await setUsername(res.data.nname)
                await setPassword(res.data.password)
-               username !== '' ? handleLogin() : console.log('null');
+               await username !== '' ? handleLogin() : console.log('null'); await setUsername(''); await setPassword('')
             })
          } else {
             console.log('not loged in');
@@ -43,7 +42,7 @@ const Login = ({ navigation }) => {
 
    const handleLogin = async () => {
       console.log('handleLogin:', username, password);
-      await axios.post('http://10.0.2.2:81/login', {
+      await axios.post(process.env.SERVER + '/login', {
          username: username,
          password: password
       }).then(async (res) => {
@@ -51,7 +50,7 @@ const Login = ({ navigation }) => {
             // Save user device token
             const deviceToken = await AsyncStorage.getItem('fcmToken')
             console.log('Save user device token:', res.data.id, deviceToken);
-            await axios.put('http://10.0.2.2:81/update/device_token', {
+            await axios.put(process.env.SERVER + '/update/device_token', {
                emp_id: res.data.id,
                device_token: deviceToken
             })
@@ -71,19 +70,6 @@ const Login = ({ navigation }) => {
       }).catch(error => {
          console.error(error);
       });
-   }
-
-   const handleFCM = async () => {
-      await axios.post('http://10.0.2.2:81/send-notification', {
-         deviceToken: 'dYMkxp6ISBCtknAZy84qom:APA91bHIPdXflIciAIzX58Mgiqts8fIS2nQkgtDLJNyBMznwJ9rXXunZVrzO9JWhXHGCC3LWnnjucbdLpAEFmmVoxadHf_q6FYsafTAWccFrQElFEtqvM7pDPdTiz3M486u17EK32QEa',
-         notification: {
-            title: 'Test',
-            body: 'Notification Body',
-         },
-         data: {
-            id: moment().format('x').toString()
-         }
-      })
    }
 
 

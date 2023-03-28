@@ -16,7 +16,7 @@ const ProfileEmp = ({ navigation }) => {
       const getEmpDetail = async () => {
          const emp_id = await AsyncStorage.getItem('userId');
          console.log('id: ' + emp_id);
-         await axios.get('http://10.0.2.2:81/read/empdetail/' + emp_id).then((res) => {
+         await axios.get(process.env.SERVER + '/read/empdetail/' + emp_id).then((res) => {
             setitem(res.data)
             console.log(item);
          })

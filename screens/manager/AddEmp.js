@@ -43,7 +43,7 @@ const AddEmp = ({ navigation }) => {
 
    const addEmployee = async () => {
       try {
-         await axios.post('http://10.0.2.2:81/create/emp', {
+         await axios.post(process.env.SERVER + '/create/emp', {
             line_account: line_account,
             password: password,
             fname: fname,
@@ -58,15 +58,15 @@ const AddEmp = ({ navigation }) => {
          })
 
          dept.map((val) => {
-            axios.post('http://10.0.2.2:81/create/dept', { dept_name: val }).then(() => {
+            axios.post(process.env.SERVER + '/create/dept', { dept_name: val }).then(() => {
                console.log('post /create/dept already')
             })
          })
 
-         axios.post('http://10.0.2.2:81/create/work_history').then(() => {
+         axios.post(process.env.SERVER + '/create/work_history').then(() => {
             console.log('post /create/work_history already')
          })
-         axios.post('http://10.0.2.2:81/create/evaluate').then(() => {
+         axios.post(process.env.SERVER + '/create/evaluate').then(() => {
             console.log('post /create/evaluate already')
          })
       } catch (error) {

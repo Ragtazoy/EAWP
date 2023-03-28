@@ -35,7 +35,7 @@ const AddSchedule = ({ route, navigation }) => {
    }, [isLoading])
 
    const getEmpDept = async () => {
-      await axios.get('http://10.0.2.2:81/read/empdept').then((res) => {
+      await axios.get(process.env.SERVER + '/read/empdept').then((res) => {
 
          ['cashier', 'kitchen', 'wash', 'stove', 'waiter'].forEach((dept) => {
             const empInDept = res.data.filter(item => item.dept_name === dept)
@@ -48,36 +48,36 @@ const AddSchedule = ({ route, navigation }) => {
             }
          })
       })
-      
+
       setIsLoading(false)
    };
 
    const AddWorkSchedule = async () => {
-      await axios.post('http://10.0.2.2:81/create/work_schedule', { date: date.dateString }).then(() => {
+      await axios.post(process.env.SERVER + '/create/work_schedule', { date: date.dateString }).then(() => {
          console.log('post /create/work_schedule already')
       })
       selectedCashier.map((val) => {
-         axios.post('http://10.0.2.2:81/create/scheduling', { emp_id: val, dept: 'cashier' }).then(() => {
+         axios.post(process.env.SERVER + '/create/scheduling', { emp_id: val, dept: 'cashier' }).then(() => {
             console.log('post /create/scheduling cashier already')
          })
       })
       selectedKitchen.map((val) => {
-         axios.post('http://10.0.2.2:81/create/scheduling', { emp_id: val, dept: 'kitchen' }).then(() => {
+         axios.post(process.env.SERVER + '/create/scheduling', { emp_id: val, dept: 'kitchen' }).then(() => {
             console.log('post /create/scheduling kitchen already')
          })
       })
       selectedWash.map((val) => {
-         axios.post('http://10.0.2.2:81/create/scheduling', { emp_id: val, dept: 'wash' }).then(() => {
+         axios.post(process.env.SERVER + '/create/scheduling', { emp_id: val, dept: 'wash' }).then(() => {
             console.log('post /create/scheduling wash already')
          })
       })
       selectedStove.map((val) => {
-         axios.post('http://10.0.2.2:81/create/scheduling', { emp_id: val, dept: 'stove' }).then(() => {
+         axios.post(process.env.SERVER + '/create/scheduling', { emp_id: val, dept: 'stove' }).then(() => {
             console.log('post /create/scheduling stove already')
          })
       })
       selectedWaiter.map((val) => {
-         axios.post('http://10.0.2.2:81/create/scheduling', { emp_id: val, dept: 'waiter' }).then(() => {
+         axios.post(process.env.SERVER + '/create/scheduling', { emp_id: val, dept: 'waiter' }).then(() => {
             console.log('post /create/scheduling waiter already')
          })
       })
@@ -112,6 +112,7 @@ const AddSchedule = ({ route, navigation }) => {
    const hasDuplicates = (array) => {
       return array.some((element, index) => array.indexOf(element) !== index)
    };
+
    const hasEmpty = () => {
       if (selectedCashier.length == 0) {
          return true
@@ -155,6 +156,7 @@ const AddSchedule = ({ route, navigation }) => {
       )
    };
 
+   
    return (
       <NativeBaseProvider>
          <Header icon={'faCalendarDay'} color={'amber.500'} title={'เลือกพนักงาน'} subtitle={moment(date.dateString).format('D MMMM YYYY')} element={propHeader()} />

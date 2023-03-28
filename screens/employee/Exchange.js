@@ -41,7 +41,7 @@ const Exchange = ({ navigation }) => {
          await navigation.addListener('focus', () => setIsLoading(true))
          const userId = await AsyncStorage.getItem('userId');
 
-         await axios.get('http://10.0.2.2:81/read/a_emp_in_multi_scheduling', {
+         await axios.get(process.env.SERVER + '/read/a_emp_in_multi_scheduling', {
             params: { emp_id: userId, date_start: dates[1], date_end: dates[6] }
          }).then((res) => {
             setWorkSchedule(res.data)
@@ -59,14 +59,14 @@ const Exchange = ({ navigation }) => {
 
             const userId = await AsyncStorage.getItem('userId');
 
-            await axios.get('http://10.0.2.2:81/read/emp_in_scheduling', {
+            await axios.get(process.env.SERVER + '/read/emp_in_scheduling', {
                params: { sched_date: selectedWork.date }
             }).then((res) => {
                otherSelectedWork = res.data.filter((item) => item.dept_name !== selectedWork.dept)
                otherSelectedWork = otherSelectedWork.map(item => item.emp_id);
             });
 
-            await axios.get('http://10.0.2.2:81/read/emp_in_scheduling', {
+            await axios.get(process.env.SERVER + '/read/emp_in_scheduling', {
                params: { sched_date: selectedDate }
             }).then((res) => {
                let filteredWorkExchange
@@ -97,7 +97,7 @@ const Exchange = ({ navigation }) => {
       let hasExchange = []
       const userId = await AsyncStorage.getItem('userId');
 
-      await axios.get('http://10.0.2.2:81/read/emp_in_scheduling', {
+      await axios.get(process.env.SERVER + '/read/emp_in_scheduling', {
          params: { sched_date: selectDate }
       }).then((res) => {
          otherSelectedWork = res.data.filter((item) => item.dept_name !== selectDept)
@@ -106,7 +106,7 @@ const Exchange = ({ navigation }) => {
 
       // check work in each day emp_id != userId and same dept with selectDept and emp that is exchange not in selectDate
       for (let i = 1; i < dates.length; i++) {
-         await axios.get('http://10.0.2.2:81/read/emp_in_scheduling', {
+         await axios.get(process.env.SERVER + '/read/emp_in_scheduling', {
             params: { sched_date: dates[i] }
          }).then((res) => {
             if (!res.data.map(item => item.emp_id).includes(parseInt(userId))) {
@@ -131,7 +131,7 @@ const Exchange = ({ navigation }) => {
 
       console.log('selectedWorkExchange:', selectedWorkExchange);
 
-      axios.post('http://10.0.2.2:81/create/work_exchange', {
+      axios.post(process.env.SERVER + '/create/work_exchange', {
          wait_date: selectedWorkExchange.waitDate,
          scheduling_id: selectedWorkExchange.myScheduling,
          exchange_scheduling_id: selectedWorkExchange.exScheduling
@@ -139,12 +139,12 @@ const Exchange = ({ navigation }) => {
          console.log('post /create/work_exchange already')
       })
 
-      axios.get('http://10.0.2.2:81/read/exchange/device_token', {
+      axios.get(process.env.SERVER + '/read/exchange/device_token', {
          params: { scheduling_id: selectedWorkExchange.exScheduling }
       }).then((res) => {
          console.log('read/exchange/device_token:', res.data.device_token)
 
-         axios.post('http://10.0.2.2:81/send-notification', {
+         axios.post(process.env.SERVER + '/send-notification', {
             deviceToken: res.data.device_token,
             notification: {
                title: 'ขอแลกเปลี่ยนวันทำงาน',

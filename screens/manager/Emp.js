@@ -16,10 +16,10 @@ const Emp = () => {
       const getDate = async () => {
          await navigation.addListener('focus', () => setIsLoading(true))
 
-         await axios.get('http://10.0.2.2:81/read/count_emp_by_job_title').then((res) => {
+         await axios.get(process.env.SERVER + '/read/count_emp_by_job_title').then((res) => {
             setCountEmp(res.data)
          })
-         await axios.get('http://10.0.2.2:81/read/emplist').then((res) => {
+         await axios.get(process.env.SERVER + '/read/emplist').then((res) => {
             setItems(res.data)
          })
 
@@ -28,9 +28,7 @@ const Emp = () => {
       getDate()
    }, [isLoading])
 
-
    const renderItem = ({ item }) => (
-
       <Pressable bgColor={'white'} onPress={() => { navigation.navigate('ProfileMng', { id: item.emp_id }) }}>
          <Divider />
          <Flex my={2} direction="row" alignItems={'center'}>
@@ -43,28 +41,15 @@ const Emp = () => {
             <Box flex={0.5}>
                <Text alignSelf={'center'}>{item.dept}</Text>
             </Box>
-            {/* <Box flex={0.25}>
-               <Text alignSelf={'center'}>{item.emp_id}</Text>
-            </Box> */}
          </Flex>
       </Pressable>
    )
 
-   const handlePress = (d) => {
-      // Do something with the data here, such as send it to another screen
-      alert('dddd: ' + d);
-   };
-
-   const data = [
-      ['1', 'John', 'Doe'],
-      ['2', 'Jane', 'Doe'],
-      ['3', 'John', 'Smith'],
-   ];
 
    return (
       <NativeBaseProvider>
          <VStack>
-            
+
             {!isLoading ? (
                <HStack space={4} p={5}>
                   <Cards color={'green.400'} text={'พนักงานประจำ'} heading={countEmp['full-time'] + ' คน'} />
@@ -98,10 +83,6 @@ const Emp = () => {
                <Box flex={0.5}>
                   <Text alignSelf={'center'} color={'white'}>แผนก</Text>
                </Box>
-               {/* <Divider orientation="vertical" mx="1" />
-               <Box flex={0.25}>
-                  <Text alignSelf={'center'} color={'white'}>คะแนน</Text>
-               </Box> */}
             </HStack>
 
             {!isLoading ? (

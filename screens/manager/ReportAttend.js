@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { NativeBaseProvider, ScrollView, VStack, HStack, Box, Spinner, Text, Heading, Flex, Divider, FlatList, Button } from 'native-base'
+import { NativeBaseProvider, VStack, HStack, Box, Text, Heading, Flex, Divider, FlatList, Button } from 'native-base'
 import axios from 'axios'
 import moment from 'moment/moment'
 import Header from '../../components/Header'
@@ -18,7 +18,7 @@ const ReportAttend = ({ navigation }) => {
 
    useEffect(() => {
       async function getWorkHistory() {
-         await axios.get('http://10.0.2.2:81/read/work_history').then((res) => {
+         await axios.get(process.env.SERVER + '/read/work_history').then((res) => {
             setItems(res.data)
          })
          setIsLoading(false)
@@ -32,7 +32,7 @@ const ReportAttend = ({ navigation }) => {
       items.sort(function (a, b) {
          return b[report] - a[report];
       })
-   }
+   };
 
    const changeTitle = () => {
       switch (selected) {
@@ -43,7 +43,7 @@ const ReportAttend = ({ navigation }) => {
          case 'leave_quantity':
             return 'สถิติการมาสาย'
       }
-   }
+   };
 
    const renderItem = ({ item }) => (
       <Box>
@@ -63,7 +63,8 @@ const ReportAttend = ({ navigation }) => {
             </Box>
          </Flex>
       </Box>
-   )
+   );
+
 
    return (
       <NativeBaseProvider>

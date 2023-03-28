@@ -72,7 +72,7 @@ export default function QrScanner2({ route, navigation }) {
          status = 'attended'
       } else {
          status = 'late'
-         axios.put('http://10.0.2.2:81/update/work_history', {
+         axios.put(process.env.SERVER + '/update/work_history', {
             emp_id: id,
             job_hours: 0,
             absent_quantity: 0,
@@ -82,7 +82,7 @@ export default function QrScanner2({ route, navigation }) {
       }
 
       console.log(time_in.format('YYYY-MM-DD HH:mm:ss'), status, id, sched_id)
-      await axios.post('http://10.0.2.2:81/create/work_attendance', {
+      await axios.post(process.env.SERVER + '/create/work_attendance', {
          time_in: time_in.format('YYYY-MM-DD HH:mm:ss'),
          status: status,
          emp_id: id,
@@ -111,7 +111,7 @@ export default function QrScanner2({ route, navigation }) {
                frameProcessor={frameProcessor}
                frameProcessorFps={5}
             />
-            
+
             <AwesomeAlert
                show={showInvalid}
                customView={<Modal mode={'invalid'} title={'คุณอยู่ห่างจากร้านเกินไป'} />}

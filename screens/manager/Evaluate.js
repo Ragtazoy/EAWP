@@ -16,7 +16,7 @@ const Evaluate = ({ navigation }) => {
          navigation.addListener('focus', () => setIsLoading(true))
          setItems([])
 
-         axios.get('http://10.0.2.2:81/read/evaluate', {
+         axios.get(process.env.SERVER + '/read/evaluate', {
             params: { evaluate_date: moment().subtract(1, 'M').set('date', 1).format('YYYY-MM-DD') }
          }).then((res) => {
             if (res.data.length !== 0) {
@@ -52,8 +52,9 @@ const Evaluate = ({ navigation }) => {
             </Box>
          </Flex>
       </Pressable>
-   )
+   );
 
+   
    return (
       <NativeBaseProvider>
          <Header mode={'text'} title={'ประเมินพนักงาน'} subtitle={'ประเมินพนักงานรายเดือน'} />
@@ -91,10 +92,6 @@ const Evaluate = ({ navigation }) => {
 
             <HStack h={60} borderTopRadius={50} shadow={1} justifyContent={'space-around'} alignItems={'center'} bgColor={'white'}>
                <Heading>รายชื่อพนักงาน</Heading>
-               {/* <IconButton colorScheme='amber' variant={'solid'} borderRadius={25} Size={45} onPress={() => null}>
-                  <Icon name="sort-descending" size={22} color="white" />
-                  <Icon name="sort-ascending" size={22} color="white" />
-               </IconButton> */}
             </HStack>
 
             <HStack bgColor={'#7c2d12'} h={10} py={1} alignItems={'center'}>

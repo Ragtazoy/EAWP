@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { NativeBaseProvider, ScrollView, VStack, HStack, Box, Spinner, Text, Heading, Flex, Divider, FlatList, Button, Actionsheet, useDisclose } from 'native-base'
+import { NativeBaseProvider, VStack, HStack, Box, Spinner, Text, Heading, Flex, Divider, FlatList, Button, Actionsheet, useDisclose } from 'native-base'
 import axios from 'axios'
 import { Calendar } from 'react-native-calendars'
 import moment from 'moment/moment'
@@ -17,7 +17,7 @@ const ReportWage = ({ navigation }) => {
       let totalWage = 0;
 
       async function getEmplist() {
-         await axios.get('http://10.0.2.2:81/read/payment_history', {
+         await axios.get(process.env.SERVER + '/read/payment_history', {
             params: { sched_date: moment(selectedDate).format('YYYY-MM-DD') }
          }).then((res) => {
             setItems(res.data)
@@ -51,7 +51,8 @@ const ReportWage = ({ navigation }) => {
             </Box>
          </Flex>
       </Box>
-   )
+   );
+
 
    return (
       <NativeBaseProvider>

@@ -25,8 +25,8 @@ const Report = ({ navigation }) => {
 
          for (let i = 0; i < dates.length; i++) {
             console.log(moment(dates[i], "MMM").startOf('month').format('YYYY-MM-DD'));
-            console.log(moment(dates[i], "MMM").endOf('month').format('YYYY-MM-DD'),'\n=====');
-            await axios.get('http://10.0.2.2:81/read/sum_wage', {
+            console.log(moment(dates[i], "MMM").endOf('month').format('YYYY-MM-DD'), '\n=====');
+            await axios.get(process.env.SERVER + '/read/sum_wage', {
                params: {
                   date_from: moment(dates[i], "MMM").startOf('month').format('YYYY-MM-DD'),
                   date_to: moment(dates[i], "MMM").endOf('month').format('YYYY-MM-DD'),
@@ -40,7 +40,7 @@ const Report = ({ navigation }) => {
             datasets: [{ data: sumWage }]
          })
 
-         await axios.get('http://10.0.2.2:81/read/sum_work_history').then((res) => {
+         await axios.get(process.env.SERVER + '/read/sum_work_history').then((res) => {
             setData2([
                {
                   name: "ขาดงาน",
@@ -79,6 +79,7 @@ const Report = ({ navigation }) => {
       strokeWidth: 2
    };
 
+   
    return (
       <NativeBaseProvider>
          <Header mode={'text'} title={'รายงาน'} subtitle={'ประวัติการจ่ายค่าจ้างและการขาด/ลา/มาสาย'} />
