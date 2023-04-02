@@ -68,6 +68,7 @@ export default function QrScanner2({ route, navigation }) {
       const time_in = await moment()
       const time_fix = await moment().hours(16).minutes(0).seconds(0)
       let status
+      
       if (time_in <= time_fix) {
          status = 'attended'
       } else {
