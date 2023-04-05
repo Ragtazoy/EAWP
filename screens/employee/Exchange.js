@@ -148,7 +148,7 @@ const Exchange = ({ navigation }) => {
             deviceToken: res.data.device_token,
             notification: {
                title: 'ขอแลกเปลี่ยนวันทำงาน',
-               body: `พนักงาน ${selectedWorkExchange.nname} ได้ลางาน`,
+               body: `พนักงาน ${selectedWorkExchange.nname} ได้ขอแลกเปลี่ยนวันทำงานกับคุณ`,
             },
             data: { id: moment().format('x').toString() }
          })

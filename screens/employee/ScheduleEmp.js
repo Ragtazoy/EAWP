@@ -83,11 +83,9 @@ const ScheduleEmp = ({ navigation }) => {
    const sendNotifsToManager = ({ type, date }) => {
       try {
          axios.post(process.env.SERVER + '/create/notification', {
-            type: type,
-            nname: type === 'leave' ? item.nname : null,
-            date: type === 'leave' ? moment(date).format('YYYY-MM-DD') : null,
-            scheduling_id: scheduling_id,
-            exchange_scheduling_id: exchange_scheduling_id
+            type: 'leave',
+            nname: item.nname,
+            date: moment(date).format('YYYY-MM-DD')
          }).then(() => {
             console.log('post /create/notification already')
          })
@@ -101,9 +99,8 @@ const ScheduleEmp = ({ navigation }) => {
                axios.post(process.env.SERVER + '/send-notification', {
                   deviceToken: token.device_token,
                   notification: {
-                     title: type === 'leave' ? 'ลางานล่วงหน้า' : 'แลกเปลี่ยนวันทำงาน',
-                     body: type === 'leave' ? `พนักงาน ${item.nname} ได้ลางานวันที่ ${moment(date).format('D MMMM YYYY')}`
-                        : 'มีการแลกเปลี่ยนวันทำงานเกิดขึ้น',
+                     title: 'ลางานล่วงหน้า',
+                     body: `พนักงาน ${item.nname} ได้ลางานวันที่ ${moment(date).format('D MMMM YYYY')}`
                   },
                   data: { id: moment().format('x').toString() }
                })
