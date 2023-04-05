@@ -23,7 +23,7 @@ const Login = ({ navigation }) => {
             await axios.get(process.env.SERVER + '/read/login/' + userId).then(async (res) => {
                await setUsername(res.data.nname)
                await setPassword(res.data.password)
-               await username !== '' ? handleLogin() : console.log('null'); await setUsername(''); await setPassword('')
+               await res.data.nname !== '' ? handleLogin(res.data.nname, res.data.password) : console.log('null'); await setUsername(''); await setPassword('')
             })
          } else {
             console.log('not loged in');
@@ -40,11 +40,12 @@ const Login = ({ navigation }) => {
    }, [isLoading])
 
 
-   const handleLogin = async () => {
+   const handleLogin = async (pUsername, pPassword) => {
       console.log('handleLogin:', username, password);
+      console.log('handleLogin:', pUsername, pPassword);
       await axios.post(process.env.SERVER + '/login', {
-         username: username,
-         password: password
+         username: pUsername,
+         password: pPassword
       }).then(async (res) => {
          if (res.data.success) {
             // Save user device token
@@ -103,7 +104,7 @@ const Login = ({ navigation }) => {
                      {isInvalid && (<Text m={1} fontSize={'xs'} color={'error.500'}>ข้อมูลไม่ถูกต้อง</Text>)}
                   </FormControl>
 
-                  <Button onPress={handleLogin} leftIcon={<FontAwesomeIcon icon={faSignIn} color='white' />} mt="2" colorScheme="amber">
+                  <Button onPress={() => { handleLogin(username, password) }} leftIcon={<FontAwesomeIcon icon={faSignIn} color='white' />} mt="2" colorScheme="amber">
                      Sign in
                   </Button>
 

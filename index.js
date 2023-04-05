@@ -4,7 +4,8 @@ import App from './App';
 import { name as appName } from './app.json';
 import messaging from '@react-native-firebase/messaging';
 
-process.env.SERVER = "http://10.0.2.2:81"
+process.env.SERVER = "http://203.158.109.138/eawp/api"
+// process.env.SERVER = "http://10.0.2.2:81"
 
 console.disableYellowBox = true;
 
