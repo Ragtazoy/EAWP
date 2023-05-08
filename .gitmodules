@@ -1,0 +1,4 @@
+[submodule "eawp-api"]
+	path = eawp-api
+	url = https://github.com/Ragtazoy/eawp-api.git
+	branch = main
